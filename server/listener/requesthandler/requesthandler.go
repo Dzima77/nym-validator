@@ -107,9 +107,12 @@ func ResolveSignRequestHandler(ctx context.Context, resCh <-chan *commands.Respo
 
 func ResolveVerifyRequestHandler(ctx context.Context, resCh <-chan *commands.Response) proto.Message {
 	data, protoStatus := waitUntilResolved(ctx, resCh)
-
+	isValid := false
+	if data != nil {
+		isValid = data.(bool)
+	}
 	return &commands.VerifyResponse{
-		IsValid: data.(bool),
+		IsValid: isValid,
 		Status:  protoStatus,
 	}
 }
@@ -137,9 +140,13 @@ func ResolveBlindSignRequestHandler(ctx context.Context, resCh <-chan *commands.
 
 func ResolveBlindVerifyRequestHandler(ctx context.Context, resCh <-chan *commands.Response) proto.Message {
 	data, protoStatus := waitUntilResolved(ctx, resCh)
+	isValid := false
+	if data != nil {
+		isValid = data.(bool)
+	}
 
 	return &commands.BlindVerifyResponse{
-		IsValid: data.(bool),
+		IsValid: isValid,
 		Status:  protoStatus,
 	}
 }
