@@ -1,5 +1,15 @@
 # CoconutGo Changelog
 
+## 0.12.1
+
+* Faucet checking and printing its own ERC20 and Ether balances before each request
+
+## 0.12.0
+
+* Added ERC20 Nym Faucet transfering the tokens (+ some Ether) to specified address
+* Ability to 'register' new account from the GUI
+* Some code refactoring
+
 ## 0.11.1
 
 * Updated dependencies

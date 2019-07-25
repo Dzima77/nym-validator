@@ -24,11 +24,13 @@ import (
 	"fmt"
 	"reflect"
 
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/nymtech/nym/common/comm/commands"
 	"github.com/nymtech/nym/crypto/coconut/concurrency/coconutworker"
 	"github.com/nymtech/nym/crypto/coconut/concurrency/jobpacket"
 	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
+	ethclient "github.com/nymtech/nym/ethereum/client"
 	"github.com/nymtech/nym/logger"
 	"github.com/nymtech/nym/server/serverworker/commandhandler"
 	"github.com/nymtech/nym/server/storage"
@@ -237,6 +239,51 @@ func (sw *ServerWorker) RegisterAsProvider(avk *coconut.VerificationKey,
 			})
 	}
 	return nil
+}
+
+// really nasty workaround that will be removed later on.
+func (sw *ServerWorker) RegisterAsFaucet(privateKey *ecdsa.PrivateKey,
+	nodeAddress string,
+	nymContract ethcommon.Address,
+	pipeContract ethcommon.Address,
+	etherAmount float64,
+	logger *logger.Logger,
+) error {
+	sw.log.Noticef("Registering ServerWorker%v as Faucet", sw.id)
+	sw.WithEcdsaKey(privateKey)
+
+	// ideally all workers should be sharing the same ethclient instance,
+	// but at this point in time, I'm not sure if it's thread-safe
+	ethCfg := ethclient.NewConfig(
+		privateKey,
+		nodeAddress,
+		nymContract,
+		pipeContract,
+		logger,
+	)
+
+	ethClient, err := ethclient.New(ethCfg)
+	if err != nil {
+		return fmt.Errorf("failed to create ethereum client: %v", err)
+	}
+
+	sw.RegisterHandler(&commands.FaucetTransferRequest{},
+		commandhandler.FaucetTransferRequestHandler,
+		func(cmd commands.Command) commandhandler.HandlerData {
+			return &commandhandler.FaucetTransferRequestHandlerData{
+				Cmd:    cmd.(*commands.FaucetTransferRequest),
+				Worker: sw.CoconutWorker,
+				Logger: sw.log,
+				FaucetData: commandhandler.FaucetData{
+					PrivateKey:  privateKey,
+					EthClient:   ethClient,
+					EtherAmount: etherAmount,
+				},
+			}
+		})
+
+	return nil
+
 }
 
 func (sw *ServerWorker) RegisterHandler(o interface{},

@@ -24,6 +24,7 @@ import (
 	"runtime"
 
 	"github.com/BurntSushi/toml"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 )
 
 const (
@@ -37,6 +38,7 @@ const (
 	defaultProviderStartupTimeout       = 30 * 1000 // 30 sec.
 	defaultProviderStartupRetryInterval = 5 * 1000  // 5s.
 	defaultProviderMaxRequests          = 16
+	defaultEtherAmount                  = 0.005
 )
 
 // nolint: gochecknoglobals
@@ -102,6 +104,25 @@ type Provider struct {
 	// DisableLocalCredentialsChecks specifies whether the provider should check the credentials and proofs it receives
 	// or just send everything to the chain and wait for the verifier nodes to check it.
 	DisableLocalCredentialsChecks bool
+}
+
+// FIXME: temporary, just so that faucet extend BaseServer and use its listeners.
+type Faucet struct {
+	// EthereumNodeAddress defines address of an Ethereum node to which transactions are sent.
+	EthereumNodeAddress string
+
+	// NymContract defined address of the ERC20 token Nym contract. It is expected to be provided in hex format.
+	NymContract ethcommon.Address
+
+	// PipeAccount defines address of Ethereum account that pipes Nym ERC20 into Nym Tendermint coins.
+	// It is expected to be provided in hex format.
+	PipeAccount ethcommon.Address
+
+	// BlockchainKeyFile specifies the file containing the Blockchain relevant keys.
+	BlockchainKeyFile string
+
+	// EtherAmount specifies how much ether (to cover the fees) should the faucet transfer alongisde the erc20 tokens.
+	EtherAmount float64
 }
 
 // Debug is the Coconut IA server debug configuration.
@@ -192,6 +213,7 @@ type Config struct {
 	Logging  *Logging
 	Issuer   *Issuer
 	Provider *Provider
+	Faucet   *Faucet
 	Debug    *Debug
 }
 
@@ -218,6 +240,12 @@ func (cfg *Config) validateAndApplyDefaults() error {
 		// but explicitly needs both of them to be present
 		if cfg.Issuer.SecretKeyFile == "" || cfg.Issuer.VerificationKeyFile == "" {
 			return errors.New("config: No key files were provided")
+		}
+	}
+
+	if cfg.Faucet != nil {
+		if cfg.Faucet.EtherAmount <= 0 {
+			cfg.Faucet.EtherAmount = defaultEtherAmount
 		}
 	}
 

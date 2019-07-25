@@ -95,6 +95,13 @@ build_redeemers:
 	fi
 	docker build -t nym/redeemer -f ./DOCKER/redeemer/Dockerfile .
 
+build_faucet:
+	@if ! [ -f build/faucet/config.toml ]; then \
+		mkdir -p build/faucet ;\
+		cp localnetdata/faucet/config.toml build/faucet/config.toml ;\
+		cp localnetdata/faucet/faucet.key build/faucet/faucet.key ;\
+	fi
+	docker build -t nym/faucet -f ./DOCKER/faucet/Dockerfile .
 
 localnet-build:
 	make build_nym_nodes

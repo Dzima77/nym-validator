@@ -19,15 +19,19 @@ package commands
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"encoding/binary"
 	"errors"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/golang/protobuf/proto"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 	"github.com/nymtech/nym/common/comm/packet"
 	"github.com/nymtech/nym/constants"
 	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
 	"github.com/nymtech/nym/crypto/elgamal"
+	tmconst "github.com/nymtech/nym/tendermint/nymabci/constants"
 )
 
 const (
@@ -60,6 +64,9 @@ const (
 	// and notify tendermint chain of the result.
 	// It is internal to the verifiers, however, it is defined here for the consistency sake.
 	CredentialVerificationID CommandID = 132
+
+	// FaucetTransferRequestID is a commandID for a temporary command to a faucet to request ERC20 Nym transfer
+	FaucetTransferRequestID CommandID = 133
 
 	// DefaultResponseErrorStatusCode defines default value for the error status code of a server response.
 	DefaultResponseErrorStatusCode = StatusCode_UNKNOWN
@@ -105,6 +112,8 @@ func CommandToMarshalledPacket(cmd Command) ([]byte, error) {
 		cmdID = LookUpBlockCredentialsID
 	case *CredentialVerificationRequest:
 		cmdID = CredentialVerificationID
+	case *FaucetTransferRequest:
+		cmdID = FaucetTransferRequestID
 	default:
 		return nil, errors.New("unknown Command")
 	}
@@ -144,6 +153,8 @@ func FromBytes(b []byte) (Command, error) {
 		cmd = &LookUpBlockCredentialsRequest{}
 	case CredentialVerificationID:
 		cmd = &CredentialVerificationRequest{}
+	case FaucetTransferRequestID:
+		cmd = &FaucetTransferRequest{}
 	default:
 		return nil, errors.New("unknown CommandID")
 	}
@@ -376,5 +387,25 @@ func NewLookUpCredentialRequest(height int64, egPub *elgamal.PublicKey) (*LookUp
 func NewLookUpBlockCredentialsRequest(height int64) (*LookUpBlockCredentialsRequest, error) {
 	return &LookUpBlockCredentialsRequest{
 		Height: height,
+	}, nil
+}
+
+// TODO: make it accept int64 instead
+func NewFaucetTransferRequest(privateKey *ecdsa.PrivateKey, amount uint64) (*FaucetTransferRequest, error) {
+	address := ethcrypto.PubkeyToAddress(*privateKey.Public().(*ecdsa.PublicKey))
+
+	msg := make([]byte, ethcommon.AddressLength+8)
+	i := copy(msg, address[:])
+	binary.BigEndian.PutUint64(msg[i:], amount)
+
+	sig, err := ethcrypto.Sign(tmconst.HashFunction(msg), privateKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return &FaucetTransferRequest{
+		Address: address[:],
+		Amount:  amount,
+		Sig:     sig,
 	}, nil
 }

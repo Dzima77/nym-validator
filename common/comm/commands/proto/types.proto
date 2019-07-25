@@ -182,3 +182,17 @@ message CredentialVerificationRequest {
     bytes boundAddress = 2;
     int64 value = 3;
 }
+
+// temporary, only for demo sake
+// we don't care about nonces, replay attacks, etc. sig is just there to ensure whoever sends the request actually has the private key for the account
+message FaucetTransferRequest {
+    bytes address = 1;
+    uint64 amount = 2;
+    bytes sig = 3;
+}
+
+message FaucetTransferResponse {
+    bytes erc20TxHash = 1;
+    bytes etherTxHash = 2;
+    Status status = 3;
+}
