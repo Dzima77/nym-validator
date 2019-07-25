@@ -127,14 +127,6 @@ func nymFlow(cc *cclient.Client) {
 	}
 	log := logger.GetLogger("SampleClientDemo")
 
-	hash1, hash2, err := cc.MakeFaucetRequest(context.TODO(), 10)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("success: ", hash1, hash2)
-
-	return
-
 	// We get our current balances
 	currentNymBalance := checkNymBalance(cc, log)
 	currentERC20Balance, _ := checkERC20NymBalance(cc, log)
