@@ -123,6 +123,11 @@ func (c *Client) EtherToWei(ether *big.Float) *big.Int {
 	return res
 }
 
+// for nil blockNumber, latest known is used
+func (c *Client) QueryEtherBalance(ctx context.Context, address common.Address, blockNumber *big.Int) (*big.Int, error) {
+	return c.ethClient.BalanceAt(ctx, address, blockNumber)
+}
+
 func (c *Client) TransferEther(ctx context.Context, toAddress common.Address, amount float64) (common.Hash, error) {
 	fromAddress := crypto.PubkeyToAddress(*c.privateKey.Public().(*ecdsa.PublicKey))
 	ethereumClient := c.ethClient

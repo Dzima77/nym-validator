@@ -23,6 +23,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/binary"
 	"fmt"
+	"math/big"
 	"reflect"
 	"time"
 
@@ -778,6 +779,14 @@ func (handlerData *FaucetTransferRequestHandlerData) Data() interface{} {
 	return handlerData.FaucetData
 }
 
+func getTripleDigitRounding(balance *big.Int) float64 {
+	// denomination has 18 decimal places but we want to have 3 decimal precision
+	t := new(big.Int)
+	denomination := t.Exp(big.NewInt(10), big.NewInt(15), nil)
+	rounded := t.Div(balance, denomination)
+	return float64(rounded.Int64()) / 1000.0
+}
+
 func FaucetTransferRequestHandler(ctx context.Context, reqData HandlerData) *commands.Response {
 	req := reqData.Command().(*commands.FaucetTransferRequest)
 	log := reqData.Log()
@@ -785,6 +794,39 @@ func FaucetTransferRequestHandler(ctx context.Context, reqData HandlerData) *com
 	faucetData := reqData.Data().(FaucetData)
 
 	log.Debug("FaucetTransferRequestHandler")
+
+	ourAddress := ethcrypto.PubkeyToAddress(*faucetData.PrivateKey.Public().(*ecdsa.PublicKey))
+	ethClient := faucetData.EthClient
+	erc20balance, err := ethClient.QueryERC20Balance(ctx, ourAddress, false)
+	if err != nil {
+		errMsg := "Error while quering for our own ERC20 balance"
+		setErrorResponse(log, response, errMsg, commands.StatusCode_PROCESSING_ERROR)
+		return response
+	}
+
+	roundedERC20Balance := getTripleDigitRounding(erc20balance)
+	log.Noticef("We have %v (rounded) ERC20 Nym remaining. Full: %v (18 decimal places)", roundedERC20Balance, erc20balance)
+	if roundedERC20Balance < float64(req.Amount) {
+		errMsg := "Requested more ERC20 tokens than available"
+		setErrorResponse(log, response, errMsg, commands.StatusCode_PROCESSING_ERROR)
+		return response
+	}
+
+	etherBalance, err := ethClient.QueryEtherBalance(ctx, ourAddress, nil)
+	if err != nil {
+		errMsg := "Error while quering for our own Ether balance"
+		setErrorResponse(log, response, errMsg, commands.StatusCode_PROCESSING_ERROR)
+		return response
+	}
+
+	roundedEtherBalance := getTripleDigitRounding(etherBalance)
+	log.Noticef("We have %v (rounded) Ether remaining. Full: %v (18 decimal places aka Wei)", roundedEtherBalance, etherBalance)
+	if roundedEtherBalance < faucetData.EtherAmount {
+		errMsg := "Requested more Ether than available"
+		setErrorResponse(log, response, errMsg, commands.StatusCode_PROCESSING_ERROR)
+		return response
+	}
+
 	msg := make([]byte, ethcommon.AddressLength+8)
 	i := copy(msg, req.Address)
 	binary.BigEndian.PutUint64(msg[i:], req.Amount)
@@ -803,14 +845,14 @@ func FaucetTransferRequestHandler(ctx context.Context, reqData HandlerData) *com
 		return response
 	}
 
-	erc20Hash, err := faucetData.EthClient.TransferERC20Tokens(ctx, int64(req.Amount), recAddr)
+	erc20Hash, err := ethClient.TransferERC20Tokens(ctx, int64(req.Amount), recAddr)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to send %v ERC20 Nyms to %v: %v", req.Amount, recAddr.Hex(), err)
 		setErrorResponse(log, response, errMsg, commands.StatusCode_PROCESSING_ERROR)
 		return response
 	}
 
-	etherHash, err := faucetData.EthClient.TransferEther(ctx, recAddr, faucetData.EtherAmount)
+	etherHash, err := ethClient.TransferEther(ctx, recAddr, faucetData.EtherAmount)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to send %v Ether to %v: %v", faucetData.EtherAmount, recAddr.Hex(), err)
 		setErrorResponse(log, response, errMsg, commands.StatusCode_PROCESSING_ERROR)
@@ -820,9 +862,9 @@ func FaucetTransferRequestHandler(ctx context.Context, reqData HandlerData) *com
 	// // just wait server-side for resolvment of the request. it does not need to be efficient or concurrent etc.
 	// // it just simplifies client-logic which is temporary anyway.
 	// log.Debug("waiting for erc20 transfer to resolve")
-	// waitForTxToResolve(ctx, erc20Hash, faucetData.EthClient)
+	// waitForTxToResolve(ctx, erc20Hash, ethClient)
 	// log.Debug("waiting for ether transfer to resolve")
-	// waitForTxToResolve(ctx, etherHash, faucetData.EthClient)
+	// waitForTxToResolve(ctx, etherHash, ethClient)
 	// log.Debug("both transfers resolved")
 
 	data := make([]byte, 2*ethcommon.HashLength)
@@ -831,8 +873,6 @@ func FaucetTransferRequestHandler(ctx context.Context, reqData HandlerData) *com
 
 	log.Warningf("hash1: %v, hash2: %v", erc20Hash.Hex(), etherHash.Hex())
 	response.Data = data
-
-	// TODO: before response log how much is left
 
 	return response
 }
