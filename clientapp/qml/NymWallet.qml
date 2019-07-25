@@ -44,6 +44,7 @@ Flickable {
             font.pointSize: 16
         }
 
+        // I guess rather than 'visible' trick, a proper loader should have been used?
 		ColumnLayout {
 			id: accountFull
 			Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
@@ -174,6 +175,7 @@ Flickable {
         target: QmlBridge
         onDisplayNotification: {
             notificationText.text = message
+            notificationDialog.title = title
 
             notificationDialog.open()
         }

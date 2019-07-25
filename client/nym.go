@@ -18,6 +18,7 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"crypto/ecdsa"
 	"encoding/binary"
@@ -35,11 +36,42 @@ import (
 	"github.com/nymtech/nym/common/comm/packet"
 	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
 	"github.com/nymtech/nym/crypto/elgamal"
+	ethclient "github.com/nymtech/nym/ethereum/client"
 	"github.com/nymtech/nym/nym/token"
 	"github.com/nymtech/nym/tendermint/nymabci/code"
 	"github.com/nymtech/nym/tendermint/nymabci/query"
 	"github.com/nymtech/nym/tendermint/nymabci/transaction"
 )
+
+func (c *Client) WaitForEthereumTxToResolve(ctx context.Context, txHash ethcommon.Hash) (bool, error) {
+	// TODO: variable ticket interval?
+	ticker := time.NewTicker(1500 * time.Millisecond)
+
+	for {
+		select {
+		case <-ctx.Done():
+			// TODO: this log is not thread safe...
+			c.log.Warning("Context timeout - we do no know if the tx suceeded or not")
+			return false, errors.New("context timeout")
+		case <-ticker.C:
+			status := c.ethClient.GetTransactionStatus(ctx, txHash)
+			switch status {
+			case ethclient.TxStatusUnknown:
+				c.log.Warningf("Tx %v is in unknown state...", txHash.Hex())
+				return false, errors.New("transaction is in unknown state")
+			case ethclient.TxStatusPending:
+				c.log.Debugf("Tx %v is still pending", txHash.Hex())
+			case ethclient.TxStatusRejected:
+				c.log.Errorf("Tx %v was rejected!", txHash.Hex())
+				// TODO: what to do now with that information?
+				return false, nil
+			case ethclient.TxStatusAccepted:
+				c.log.Noticef("Tx %v was accepted", txHash.Hex())
+				return true, nil
+			}
+		}
+	}
+}
 
 func (c *Client) parseCredentialPairResponse(resp *commands.LookUpCredentialResponse,
 	elGamalPrivateKey *elgamal.PrivateKey,
@@ -132,6 +164,114 @@ func (c *Client) GetCurrentNymBalance() (uint64, error) {
 	balance := binary.BigEndian.Uint64(res.Response.Value)
 	c.log.Debugf("Queried balance is : %v", balance)
 	return balance, nil
+}
+
+func (c *Client) RegisterAccount(credential []byte) error {
+	exists, err := c.CheckAccountExistence()
+	if err != nil {
+		return c.logAndReturnError("RegisterAccount: could not check account status")
+	}
+	if exists {
+		return c.logAndReturnError("RegisterAccount: account already exists")
+	}
+	tx, err := transaction.CreateNewAccountRequest(c.privateKey, credential)
+	if err != nil {
+		return c.logAndReturnError("RegisterAccount: could not create register transaction")
+	}
+
+	res, err := c.nymClient.Broadcast(tx)
+	if err != nil {
+		return c.logAndReturnError("RegisterAccount: Failed to send new account request: %v", err)
+	}
+	if res.CheckTx.Code != code.OK || res.DeliverTx.Code != code.OK {
+		// TODO: once we include Logs field, return those
+		return c.logAndReturnError("RegisterAccount: Failed to send new account request: checkTx code: %v (%v) deliverTx code: %v (%v)",
+			res.CheckTx.Code,
+			code.ToString(res.CheckTx.Code),
+			res.DeliverTx.Code,
+			code.ToString(res.DeliverTx.Code),
+		)
+	}
+
+	c.log.Notice("Created new account")
+	return nil
+}
+
+func (c *Client) CheckAccountExistence() (bool, error) {
+	address := ethcrypto.PubkeyToAddress(*c.privateKey.Public().(*ecdsa.PublicKey))
+	res, err := c.nymClient.Query(query.AccountExistence, address[:])
+	if err != nil {
+		return false, c.logAndReturnError("CheckAccountExistence: failed to send getBalance Query: %v", err)
+	}
+	if res.Response.Code != code.OK {
+		return false, c.logAndReturnError("CheckAccountExistence: the query failed with code %v (%v)",
+			res.Response.Code,
+			code.ToString(res.Response.Code),
+		)
+	}
+	if bytes.Equal(res.Response.Value, query.AccountStatusExists) {
+		return true, nil
+	}
+	return false, nil
+}
+
+func (c *Client) parseFaucetTransferResponse(packetResponse *packet.Packet) (ethcommon.Hash, ethcommon.Hash, error) {
+	faucetTransferResponse := &commands.FaucetTransferResponse{}
+	if err := proto.Unmarshal(packetResponse.Payload(), faucetTransferResponse); err != nil {
+		return ethcommon.Hash{}, ethcommon.Hash{}, c.logAndReturnError("parseFaucetTransferResponse: Failed to recover the result: %v", err)
+	} else if faucetTransferResponse.GetStatus().Code != int32(commands.StatusCode_OK) {
+		return ethcommon.Hash{}, ethcommon.Hash{}, c.logAndReturnError(
+			"parseFaucetTransferResponse: Received invalid response with status: %v. Error: %v",
+			faucetTransferResponse.GetStatus().Code,
+			faucetTransferResponse.GetStatus().Message,
+		)
+	}
+
+	erc20Hash := ethcommon.BytesToHash(faucetTransferResponse.Erc20TxHash)
+	etherHash := ethcommon.BytesToHash(faucetTransferResponse.EtherTxHash)
+
+	c.log.Warningf("hash1: %v, hash2: %v", erc20Hash.Hex(), etherHash.Hex())
+
+	return erc20Hash, etherHash, nil
+}
+
+func (c *Client) MakeFaucetRequest(ctx context.Context, amount int64) (ethcommon.Hash, ethcommon.Hash, error) {
+	cmd, err := commands.NewFaucetTransferRequest(c.privateKey, uint64(amount))
+	if err != nil {
+		return ethcommon.Hash{}, ethcommon.Hash{}, c.logAndReturnError("MakeFaucetRequest: Failed to create faucet transfer request: %v", err)
+	}
+
+	packetBytes, err := commands.CommandToMarshalledPacket(cmd)
+	if err != nil {
+		return ethcommon.Hash{}, ethcommon.Hash{}, c.logAndReturnError("MakeFaucetRequest: Could not create data packet for faucet transfer command: %v", err)
+	}
+
+	c.log.Debugf("Dialing %v", c.cfg.Nym.FaucetAddress)
+	conn, err := net.Dial("tcp", c.cfg.Nym.FaucetAddress)
+	if err != nil {
+		return ethcommon.Hash{}, ethcommon.Hash{}, c.logAndReturnError("MakeFaucetRequest: Could not dial %v (%v)", c.cfg.Nym.FaucetAddress, err)
+	}
+
+	// currently will never be thrown since there is no writedeadline
+	if _, werr := conn.Write(packetBytes); werr != nil {
+		return ethcommon.Hash{}, ethcommon.Hash{},
+			c.logAndReturnError("MakeFaucetRequest: Failed to write to connection: %v", werr)
+	}
+
+	sderr := conn.SetReadDeadline(time.Now().Add(time.Duration(c.cfg.Debug.FaucetRequestTimeout) * time.Millisecond))
+	if sderr != nil {
+		return ethcommon.Hash{}, ethcommon.Hash{},
+			c.logAndReturnError("MakeFaucetRequest: Failed to set read deadline for connection: %v",
+				sderr)
+	}
+
+	resp, err := comm.ReadPacketFromConn(conn)
+	if err != nil {
+		return ethcommon.Hash{}, ethcommon.Hash{},
+			c.logAndReturnError("MakeFaucetRequest: Received invalid response from %v: %v", c.cfg.Nym.FaucetAddress, err)
+	}
+
+	return c.parseFaucetTransferResponse(resp)
 }
 
 func (c *Client) SendToPipeAccount(ctx context.Context, amount int64) error {

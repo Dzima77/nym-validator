@@ -25,6 +25,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/nymtech/nym/common/comm"
 	"github.com/nymtech/nym/common/comm/commands"
 	"github.com/nymtech/nym/common/comm/packet"
@@ -32,7 +33,6 @@ import (
 	"github.com/nymtech/nym/server/config"
 	"github.com/nymtech/nym/server/listener/requesthandler"
 	"github.com/nymtech/nym/worker"
-	"github.com/golang/protobuf/proto"
 	"gopkg.in/op/go-logging.v1"
 )
 
@@ -77,6 +77,12 @@ func (l *Listener) RegisterDefaultServiceProviderHandlers() {
 	l.RegisterHandler(&commands.VerifyRequest{}, requesthandler.ResolveVerifyRequestHandler)
 	l.RegisterHandler(&commands.BlindVerifyRequest{}, requesthandler.ResolveBlindVerifyRequestHandler)
 	l.RegisterHandler(&commands.SpendCredentialRequest{}, requesthandler.ResolveSpendCredentialRequestHandler)
+}
+
+func (l *Listener) RegisterDefaultFaucetHandlers() {
+	l.Lock()
+	defer l.Unlock()
+	l.RegisterHandler(&commands.FaucetTransferRequest{}, requesthandler.ResolveFaucetTransferRequest)
 }
 
 func (l *Listener) RegisterHandler(o interface{}, hf requesthandler.ResolveRequestHandlerFunc) {

@@ -95,6 +95,13 @@ build_redeemers:
 	fi
 	docker build -t nym/redeemer -f ./DOCKER/redeemer/Dockerfile .
 
+build_faucet:
+	@if ! [ -f build/faucet/config.toml ]; then \
+		mkdir -p build/faucet ;\
+		cp localnetdata/faucet/config.toml build/faucet/config.toml ;\
+		cp localnetdata/faucet/faucet.key build/faucet/faucet.key ;\
+	fi
+	docker build -t nym/faucet -f ./DOCKER/faucet/Dockerfile .
 
 localnet-build:
 	make build_nym_nodes
@@ -103,6 +110,7 @@ localnet-build:
 	make build_providers
 	make build_verifiers
 	make build_redeemers
+	make build_faucet
 
 # Run a local testnet consisting currently of:
 # 4 tendermint nodes
@@ -125,8 +133,8 @@ localnet-clear:
 
 
 build_gui:
-	qtdeploy build desktop client/gui
+	qtdeploy build desktop clientapp
 
 run_gui:
-	client/gui/deploy/linux/gui
+	clientapp/deploy/linux/clientapp
 	

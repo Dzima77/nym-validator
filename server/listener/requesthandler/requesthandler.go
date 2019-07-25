@@ -21,6 +21,7 @@ import (
 	"context"
 	"reflect"
 
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/golang/protobuf/proto"
 	"github.com/nymtech/nym/common/comm/commands"
 	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
@@ -107,9 +108,12 @@ func ResolveSignRequestHandler(ctx context.Context, resCh <-chan *commands.Respo
 
 func ResolveVerifyRequestHandler(ctx context.Context, resCh <-chan *commands.Response) proto.Message {
 	data, protoStatus := waitUntilResolved(ctx, resCh)
-
+	isValid := false
+	if data != nil {
+		isValid = data.(bool)
+	}
 	return &commands.VerifyResponse{
-		IsValid: data.(bool),
+		IsValid: isValid,
 		Status:  protoStatus,
 	}
 }
@@ -137,9 +141,13 @@ func ResolveBlindSignRequestHandler(ctx context.Context, resCh <-chan *commands.
 
 func ResolveBlindVerifyRequestHandler(ctx context.Context, resCh <-chan *commands.Response) proto.Message {
 	data, protoStatus := waitUntilResolved(ctx, resCh)
+	isValid := false
+	if data != nil {
+		isValid = data.(bool)
+	}
 
 	return &commands.BlindVerifyResponse{
-		IsValid: data.(bool),
+		IsValid: isValid,
 		Status:  protoStatus,
 	}
 }
@@ -179,5 +187,21 @@ func ResolveSpendCredentialRequestHandler(ctx context.Context, resCh <-chan *com
 	return &commands.SpendCredentialResponse{
 		WasSuccessful: status,
 		Status:        protoStatus,
+	}
+}
+
+func ResolveFaucetTransferRequest(ctx context.Context, resCh <-chan *commands.Response) proto.Message {
+	data, protoStatus := waitUntilResolved(ctx, resCh)
+	erc20TxHash := make([]byte, ethcommon.HashLength)
+	etherTxHash := make([]byte, ethcommon.HashLength)
+	if data != nil {
+		hashes := data.([]byte)
+		i := copy(erc20TxHash, hashes)
+		copy(etherTxHash, hashes[i:])
+	}
+	return &commands.FaucetTransferResponse{
+		Erc20TxHash: erc20TxHash,
+		EtherTxHash: etherTxHash,
+		Status:      protoStatus,
 	}
 }

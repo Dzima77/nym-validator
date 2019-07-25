@@ -32,11 +32,12 @@ import (
 const (
 	defaultLogLevel = "NOTICE"
 
-	defaultConnectTimeout    = 15 * 1000 // 15 sec.
-	defaultRequestTimeout    = 30 * 1000 // 30 sec.
-	defaultMaxRequests       = 3
-	noLimitMaxRequests       = 16
-	defaultMaximumAttributes = 5
+	defaultConnectTimeout       = 15 * 1000  // 15 sec.
+	defaultRequestTimeout       = 30 * 1000  // 30 sec.
+	defaultFaucetRequestTimeout = 120 * 1000 // 120 sec.
+	defaultMaxRequests          = 3
+	noLimitMaxRequests          = 16
+	defaultMaximumAttributes    = 5
 
 	defaultLookUpBackoff         = 10 * 1000 // 10 sec.
 	defaultNumberOfLookUpRetries = 5
@@ -98,6 +99,9 @@ type Nym struct {
 	// Note that only a single request will ever be sent, but multiple addresses are provided in case
 	// the particular node was unavailable. (TODO: implement this functionality)
 	EthereumNodeAddresses []string
+
+	// FaucetAddress defines address of ERC20 Nym Faucet.
+	FaucetAddress string
 }
 
 // Debug is the Coconut Client debug configuration.
@@ -120,6 +124,9 @@ type Debug struct {
 	// LookUpBackoff specifies the backoff duration after failing to look up credential
 	// (assuming it was due to not being processed yet).
 	LookUpBackoff int
+
+	// FaucetRequestTimeout specifies the maximum time a client is going to wait for faucet request to resolve.
+	FaucetRequestTimeout int
 }
 
 func (dCfg *Debug) applyDefaults() {
@@ -137,6 +144,9 @@ func (dCfg *Debug) applyDefaults() {
 	}
 	if dCfg.LookUpBackoff <= 0 {
 		dCfg.LookUpBackoff = defaultLookUpBackoff
+	}
+	if dCfg.FaucetRequestTimeout <= 0 {
+		dCfg.FaucetRequestTimeout = defaultFaucetRequestTimeout
 	}
 }
 

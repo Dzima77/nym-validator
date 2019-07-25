@@ -28,7 +28,7 @@
 [Nym]
 
   # AccountKeysFile specifies the file containing keys used for the accounts on the Nym Blockchain.
-  AccountKeysFile = "localnetdata/localclient/clientAccount.key"
+  AccountKeysFile = "/tmp/newKeyTest3.key" #"localnetdata/localclient/clientAccount.key"
 
   # BlockchainNodeAddresses specifies addresses of a blockchain nodes
 	# to which the client should send all relevant requests.
@@ -48,6 +48,9 @@
 	# PipeAccount defines address of Ethereum account that pipes Nym ERC20 into Nym Tendermint coins.
 	# It is expected to be provided in hex format.
 	PipeAccount = "0xb749305b3293477b4d6b498b22db5353c9acb3f1"
+
+  # FaucetAddress defines address of ERC20 Nym Faucet.
+  FaucetAddress = "127.0.0.1:9000"
 
 [Logging]
 
