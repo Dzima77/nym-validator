@@ -110,6 +110,7 @@ localnet-build:
 	make build_providers
 	make build_verifiers
 	make build_redeemers
+	make build_faucet
 
 # Run a local testnet consisting currently of:
 # 4 tendermint nodes
