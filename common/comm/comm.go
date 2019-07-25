@@ -163,7 +163,7 @@ func WaitForServerResponses(ctx context.Context,
 	for {
 		select {
 		case resp := <-responseCh:
-			log.Debug("Received a reply from IA (%v)", resp.ServerMetadata.Address)
+			log.Debug("Received a reply from server (%v)", resp.ServerMetadata.Address)
 			responses[i] = resp
 			i++
 
