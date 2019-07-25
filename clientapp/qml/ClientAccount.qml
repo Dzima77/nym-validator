@@ -442,9 +442,9 @@ ColumnLayout {
         TextField {
             enabled: false
             id: selectedCredentialValueField
-            Layout.maximumWidth: 100
-            Layout.minimumWidth: 30
-            Layout.preferredWidth: 50
+            Layout.maximumWidth: 120
+            Layout.minimumWidth: 50
+            Layout.preferredWidth: 80
             placeholderText: "N/A"
             text: credentialList.currentItem != null ? credentialList.currentItem.value + " Nym" : ""
         }
