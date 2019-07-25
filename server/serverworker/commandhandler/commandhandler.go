@@ -21,16 +21,19 @@ import (
 	"bytes"
 	"context"
 	"crypto/ecdsa"
+	"encoding/binary"
 	"fmt"
 	"reflect"
 	"time"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 	"github.com/nymtech/nym/common/comm/commands"
 	"github.com/nymtech/nym/crypto/coconut/concurrency/coconutworker"
 	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
 	"github.com/nymtech/nym/crypto/elgamal"
+	ethclient "github.com/nymtech/nym/ethereum/client"
 	"github.com/nymtech/nym/server/issuer/utils"
 	"github.com/nymtech/nym/server/storage"
 	nymclient "github.com/nymtech/nym/tendermint/client"
@@ -742,6 +745,94 @@ func CredentialVerificationRequestHandler(ctx context.Context, reqData HandlerDa
 	if res.CheckTx.Code == code.OK && res.DeliverTx.Code == code.OK {
 		response.Data = true // our notification was accepted
 	}
+
+	return response
+}
+
+type FaucetData struct {
+	PrivateKey  *ecdsa.PrivateKey
+	EthClient   *ethclient.Client
+	EtherAmount float64
+}
+
+type FaucetTransferRequestHandlerData struct {
+	Cmd        *commands.FaucetTransferRequest
+	Worker     *coconutworker.CoconutWorker
+	Logger     *logging.Logger
+	FaucetData FaucetData
+}
+
+func (handlerData *FaucetTransferRequestHandlerData) Command() commands.Command {
+	return handlerData.Cmd
+}
+
+func (handlerData *FaucetTransferRequestHandlerData) CoconutWorker() *coconutworker.CoconutWorker {
+	return handlerData.Worker
+}
+
+func (handlerData *FaucetTransferRequestHandlerData) Log() *logging.Logger {
+	return handlerData.Logger
+}
+
+func (handlerData *FaucetTransferRequestHandlerData) Data() interface{} {
+	return handlerData.FaucetData
+}
+
+func FaucetTransferRequestHandler(ctx context.Context, reqData HandlerData) *commands.Response {
+	req := reqData.Command().(*commands.FaucetTransferRequest)
+	log := reqData.Log()
+	response := DefaultResponse()
+	faucetData := reqData.Data().(FaucetData)
+
+	log.Debug("FaucetTransferRequestHandler")
+	msg := make([]byte, ethcommon.AddressLength+8)
+	i := copy(msg, req.Address)
+	binary.BigEndian.PutUint64(msg[i:], req.Amount)
+
+	recPub, err := ethcrypto.SigToPub(tmconst.HashFunction(msg), req.Sig)
+	if err != nil {
+		errMsg := "Error while trying to recover public key associated with the signature"
+		setErrorResponse(log, response, errMsg, commands.StatusCode_INVALID_SIGNATURE)
+		return response
+	}
+
+	recAddr := ethcrypto.PubkeyToAddress(*recPub)
+	if !bytes.Equal(recAddr[:], req.Address) {
+		errMsg := "Failed to verify signature on request"
+		setErrorResponse(log, response, errMsg, commands.StatusCode_INVALID_SIGNATURE)
+		return response
+	}
+
+	erc20Hash, err := faucetData.EthClient.TransferERC20Tokens(ctx, int64(req.Amount), recAddr)
+	if err != nil {
+		errMsg := fmt.Sprintf("Failed to send %v ERC20 Nyms to %v: %v", req.Amount, recAddr.Hex(), err)
+		setErrorResponse(log, response, errMsg, commands.StatusCode_PROCESSING_ERROR)
+		return response
+	}
+
+	etherHash, err := faucetData.EthClient.TransferEther(ctx, recAddr, faucetData.EtherAmount)
+	if err != nil {
+		errMsg := fmt.Sprintf("Failed to send %v Ether to %v: %v", faucetData.EtherAmount, recAddr.Hex(), err)
+		setErrorResponse(log, response, errMsg, commands.StatusCode_PROCESSING_ERROR)
+		return response
+	}
+
+	// // just wait server-side for resolvment of the request. it does not need to be efficient or concurrent etc.
+	// // it just simplifies client-logic which is temporary anyway.
+	// log.Debug("waiting for erc20 transfer to resolve")
+	// waitForTxToResolve(ctx, erc20Hash, faucetData.EthClient)
+	// log.Debug("waiting for ether transfer to resolve")
+	// waitForTxToResolve(ctx, etherHash, faucetData.EthClient)
+	// log.Debug("both transfers resolved")
+
+	data := make([]byte, 2*ethcommon.HashLength)
+	i = copy(data, erc20Hash[:])
+	copy(data[i:], etherHash[:])
+
+	log.Warningf("hash1: %v, hash2: %v", erc20Hash.Hex(), etherHash.Hex())
+	response.Data = data
+
+	// TODO: before response log how much is left
 
 	return response
 }

@@ -326,6 +326,21 @@ services:
       localnet:
         ipv4_address: 192.167.15.3
 
+  faucet:
+    # below two are for debug purposes only
+    stdin_open: true
+    tty: true
+    container_name: faucet
+    image: "nym/faucet"
+    ports:
+      - "9000:9000"
+    command: "-f /faucet/config.toml"
+    volumes:
+      - ./build/faucet:/faucet:Z
+    networks:
+      localnet:
+        ipv4_address: 192.167.16.1
+
 networks:
   localnet:
     driver: bridge

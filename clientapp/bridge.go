@@ -519,7 +519,44 @@ func (qb *QmlBridge) registerAccount(busyIndicator *core.QObject, mainLayoutObje
 }
 
 func (qb *QmlBridge) getFaucetNym(busyIndicator *core.QObject, mainLayoutObject *core.QObject) {
-	fmt.Println("get faucet nym")
+	// for now just hardcode it
+	var nyms int64 = 50
+
+	if qb.clientInstance == nil {
+		qb.DisplayNotificationf(errNotificationTitle, "nil client instance")
+		return
+	}
+
+	go func(nyms int64) {
+		toggleIndicatorAndObjects(busyIndicator, []*core.QObject{mainLayoutObject}, true)
+		defer toggleIndicatorAndObjects(busyIndicator, []*core.QObject{mainLayoutObject}, false)
+
+		ctx := context.TODO()
+		erc20Hash, etherHash, err := qb.clientInstance.MakeFaucetRequest(ctx, nyms)
+		if err != nil {
+			qb.DisplayNotificationf(errNotificationTitle, "could not send request to the faucet: %v", err)
+			return
+		}
+
+		successERC20, err := qb.clientInstance.WaitForEthereumTxToResolve(ctx, erc20Hash)
+		if err != nil {
+			qb.DisplayNotificationf(errNotificationTitle, "could not receive ERC20 Nym: %v", err)
+			return
+		}
+
+		successEther, err := qb.clientInstance.WaitForEthereumTxToResolve(ctx, etherHash)
+		if err != nil {
+			qb.DisplayNotificationf(errNotificationTitle, "could not receive Ether: %v", err)
+			return
+		}
+
+		if successERC20 && successEther {
+			qb.updateBalances()
+			qb.DisplayNotificationf(infoNotificationTitle, "Received %v Nym from the faucet (+ some Ether for transaction fees) from the faucet!", nyms)
+		} else {
+			qb.DisplayNotificationf(warnNotificationTitle, "unknown error when trying to receive funds from the faucet")
+		}
+	}(nyms)
 }
 
 // this function will be automatically called, when you use the `NewQmlBridge` function

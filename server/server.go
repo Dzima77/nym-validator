@@ -100,7 +100,7 @@ func New(cfg *config.Config, log *logger.Logger) (*BaseServer, error) {
 	var store *storage.Database
 
 	if cfg.Debug.DisableAllBlockchainCommunication {
-		serverLog.Warning("Blockchain communication is disabled - server will not communicate with blockchain at all")
+		serverLog.Warning("Blockchain communication is disabled - server will not communicate with Tendermint blockchain at all")
 	} else {
 		nymClient, err = nymclient.New(cfg.Server.BlockchainNodeAddresses, log)
 		if err != nil {
