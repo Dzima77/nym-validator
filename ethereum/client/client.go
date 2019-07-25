@@ -116,6 +116,49 @@ func (c *Client) QueryERC20Balance(ctx context.Context, address common.Address, 
 	return balance, nil
 }
 
+func (c *Client) EtherToWei(ether *big.Float) *big.Int {
+	t := new(big.Float).SetInt64(1000000000000000000)
+	res, _ := t.Mul(t, ether).Int(nil)
+	return res
+}
+
+func (c *Client) TransferEther(ctx context.Context, toAddress common.Address, amount float64) (common.Hash, error) {
+	fromAddress := crypto.PubkeyToAddress(*c.privateKey.Public().(*ecdsa.PublicKey))
+	ethereumClient := c.ethClient
+
+	nonce, err := ethereumClient.PendingNonceAt(ctx, fromAddress)
+	if err != nil {
+		return common.Hash{}, c.logAndReturnError("TransferEther: can't determine pending nonce: %v", err)
+	}
+
+	value := c.EtherToWei(new(big.Float).SetFloat64(amount))
+
+	// TODO: set it dynamically
+	gasLimit := uint64(100000) // in units
+	gasPrice, err := ethereumClient.SuggestGasPrice(context.Background())
+	if err != nil {
+		return common.Hash{}, c.logAndReturnError("TransferEther: can't eastimate gas price: %v", err)
+	}
+
+	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, []byte{})
+
+	chainID, err := ethereumClient.NetworkID(context.Background())
+	if err != nil {
+		return common.Hash{}, c.logAndReturnError("TransferEther: can't obtain network ID %v", err)
+	}
+
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), c.privateKey)
+	if err != nil {
+		return common.Hash{}, c.logAndReturnError("TransferEther: can't sign the tx: %v", err)
+	}
+
+	if err := ethereumClient.SendTransaction(context.Background(), signedTx); err != nil {
+		return common.Hash{}, c.logAndReturnError("TransferEther: can't send the tx: %v", err)
+	}
+
+	return signedTx.Hash(), nil
+}
+
 // TransferERC20Tokens sends specified amount of ERC20 tokens to given account.
 func (c *Client) TransferERC20Tokens(ctx context.Context,
 	amount int64,
