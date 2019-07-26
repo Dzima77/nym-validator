@@ -138,6 +138,7 @@ func (app *NymApplication) handleCredentialRequest(reqb []byte) types.ResponseDe
 		app.log.Info("HandleCredentialRequest failed checkTx")
 		return types.ResponseDeliverTx{Code: checkResult}
 	}
+	app.setNonce(req.Nonce, req.ClientAddress)
 
 	cryptoMaterialsBytes, err := proto.Marshal(req.CryptoMaterials)
 	if err != nil {
@@ -312,6 +313,7 @@ func (app *NymApplication) handleTokenRedemption(reqb []byte) types.ResponseDeli
 	}
 
 	address := ethcommon.BytesToAddress(req.UserAddress)
+	app.setNonce(req.Nonce, req.UserAddress)
 
 	// we know user has enough funds, nonce is unique, signature is valid, etc.
 
