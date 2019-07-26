@@ -1,5 +1,13 @@
 # CoconutGo Changelog
 
+## 0.12.2
+
+* Fixed Dockerfile for the issuer
+* Fixed Dockerfile for the provider
+* Fixed Dockerfile for the verifier
+* Added start-up script for running everything locally
+* Adjusted width of the field displaying value of currently chosen credential
+
 ## 0.12.1
 
 * Faucet checking and printing its own ERC20 and Ether balances before each request
