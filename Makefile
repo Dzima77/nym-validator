@@ -131,9 +131,13 @@ localnet-clear:
 	make localnet-stop
 	rm -rf build
 
-
 build_gui:
 	qtdeploy build desktop clientapp
+
+build_release_gui:
+	rm build/*.zip
+	qtdeploy build desktop clientapp
+	(cd clientapp/deploy/linux; zip -r ../../../build/linux_amd64.zip *) 
 
 run_gui:
 	clientapp/deploy/linux/clientapp
