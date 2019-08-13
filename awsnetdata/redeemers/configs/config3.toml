@@ -6,10 +6,10 @@
   Identifier = "Redeemer 3"
 
   # KeyFile defines path to file containing ECDSA private key of the redeemer.
-  KeyFile = "~/nymnet/redeemer/redeemer.key"
+  KeyFile = "/home/ec2-user/nymnet/redeemer/redeemer.key"
 
   # DataDir specifies path to a .db file holding relevant server-specific persistent data.
-  DataDir = "~/nymnet/redeemer/"
+  DataDir = "/home/ec2-user/nymnet/redeemer/"
   
   # BlockchainNodeAddresses specifies addresses of Tendermint blockchain nodes
   # to which the issuer should send all relevant requests. 
@@ -18,7 +18,7 @@
   BlockchainNodeAddresses = [ "localhost:26657" ]
 
 	# PipeAccountKeyFile defines path to file containing ECDSA private key for the pipe account contract.
-	PipeAccountKeyFile = "~/nymnet/redeemer/pipeAccount.key"
+	PipeAccountKeyFile = "/home/ec2-user/nymnet/redeemer/pipeAccount.key"
 
 	# EthereumNodeAddress defines address of an Ethereum node to which transactions are sent.
   EthereumNodeAddress = "https://ropsten.infura.io/v3/131453a5470641cd9f64942eecd8add2"

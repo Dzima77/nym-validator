@@ -15,7 +15,7 @@
 
   # DataDir specifies path to a .db file holding relevant server-specific persistent data.
   # Currently nothing is being stored, but this is included for completion sake.
-  DataDir = "~/nymnet/faucet/"
+  DataDir = "/home/ec2-user/nymnet/faucet/"
   
   # MaximumAttributes specifies the maximum number of attributes the system supports.
   MaximumAttributes = 5
@@ -38,7 +38,7 @@
   PipeAccount = "0xb749305b3293477b4d6b498b22db5353c9acb3f1"
 
   # BlockchainKeyFile specifies the file containing the Blockchain relevant keys.
-  BlockchainKeyFile = "~/nymnet/faucet/faucet.key"
+  BlockchainKeyFile = "/home/ec2-user/nymnet/faucet/faucet.key"
 
 [Logging]
 

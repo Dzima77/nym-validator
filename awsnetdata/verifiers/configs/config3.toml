@@ -6,10 +6,10 @@
   Identifier = "Verifier 3"
 
   # KeyFile defines path to file containing ECDSA private key of the verifier.
-  KeyFile = "~/nymnet/verifier/verifier.key"
+  KeyFile = "/home/ec2-user/nymnet/verifier/verifier.key"
 
   # DataDir specifies path to a .db file holding relevant server-specific persistent data.
-  DataDir = "~/nymnet/verifier/"
+  DataDir = "/home/ec2-user/nymnet/verifier/"
   
   # MaximumAttributes specifies the maximum number of attributes the system supports.
   MaximumAttributes = 5
@@ -24,11 +24,11 @@
   IAAddresses = [ "3.8.244.109:4000", "3.9.102.214:4000", "3.9.129.61:4000", "3.9.222.1:4000" ]
   
   # IAVerificationKeys specifies files containing Coconut Verification keys of all Issuing Authorities.
-  IAVerificationKeys = [ "~/nymnet/verifier/issuerKeys/threshold-verificationKey-id=1-attrs=5-n=5-t=3.pem" ,
-  "~/nymnet/verifier/issuerKeys/threshold-verificationKey-id=2-attrs=5-n=5-t=3.pem",
-  "~/nymnet/verifier/issuerKeys/threshold-verificationKey-id=3-attrs=5-n=5-t=3.pem",
-  "~/nymnet/verifier/issuerKeys/threshold-verificationKey-id=4-attrs=5-n=5-t=3.pem",
-  "~/nymnet/verifier/issuerKeys/threshold-verificationKey-id=5-attrs=5-n=5-t=3.pem"]
+  IAVerificationKeys = [ "/home/ec2-user/nymnet/verifier/issuerKeys/threshold-verificationKey-id=1-attrs=5-n=5-t=3.pem" ,
+  "/home/ec2-user/nymnet/verifier/issuerKeys/threshold-verificationKey-id=2-attrs=5-n=5-t=3.pem",
+  "/home/ec2-user/nymnet/verifier/issuerKeys/threshold-verificationKey-id=3-attrs=5-n=5-t=3.pem",
+  "/home/ec2-user/nymnet/verifier/issuerKeys/threshold-verificationKey-id=4-attrs=5-n=5-t=3.pem",
+  "/home/ec2-user/nymnet/verifier/issuerKeys/threshold-verificationKey-id=5-attrs=5-n=5-t=3.pem"]
 
   # Threshold defines minimum number of verification keys verifier needs to obtain. Default = len(IAAddresses).
   Threshold = 3

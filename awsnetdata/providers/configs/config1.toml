@@ -14,7 +14,7 @@
   GRPCAddresses = [ "0.0.0.0:5000" ]
 
   # DataDir specifies path to a .db file holding relevant server-specific persistent data.
-  DataDir = "~/nymnet/provider/"
+  DataDir = "/home/ec2-user/nymnet/provider/"
   
   # MaximumAttributes specifies the maximum number of attributes the system supports.
   MaximumAttributes = 5
@@ -32,18 +32,18 @@
   IAAddresses = [ "3.8.244.109:4000", "3.9.102.214:4000", "3.9.129.61:4000", "3.9.222.1:4000" ]
   
   # IAVerificationKeys specifies files containing Coconut Verification keys of all Issuing Authorities.
-  IAVerificationKeys = [ "~/nymnet/provider/issuerKeys/threshold-verificationKey-id=1-attrs=5-n=5-t=3.pem" ,
-  "~/nymnet/provider/issuerKeys/threshold-verificationKey-id=2-attrs=5-n=5-t=3.pem",
-  "~/nymnet/provider/issuerKeys/threshold-verificationKey-id=3-attrs=5-n=5-t=3.pem",
-  "~/nymnet/provider/issuerKeys/threshold-verificationKey-id=4-attrs=5-n=5-t=3.pem",
-  "~/nymnet/provider/issuerKeys/threshold-verificationKey-id=5-attrs=5-n=5-t=3.pem"]
+  IAVerificationKeys = [ "/home/ec2-user/nymnet/provider/issuerKeys/threshold-verificationKey-id=1-attrs=5-n=5-t=3.pem" ,
+  "/home/ec2-user/nymnet/provider/issuerKeys/threshold-verificationKey-id=2-attrs=5-n=5-t=3.pem",
+  "/home/ec2-user/nymnet/provider/issuerKeys/threshold-verificationKey-id=3-attrs=5-n=5-t=3.pem",
+  "/home/ec2-user/nymnet/provider/issuerKeys/threshold-verificationKey-id=4-attrs=5-n=5-t=3.pem",
+  "/home/ec2-user/nymnet/provider/issuerKeys/threshold-verificationKey-id=5-attrs=5-n=5-t=3.pem"]
 
   # Threshold defines minimum number of verification keys provider needs to obtain. Default = len(IAAddresses).
   # TODO: should it be server or debug property?
   Threshold = 3
 
   # BlockchainKeysFile specifies the file containing the Blockchain relevant keys.
-  BlockchainKeyFile = "~/nymnet/provider/accountKey/provider.key"
+  BlockchainKeyFile = "/home/ec2-user/nymnet/provider/accountKey/provider.key"
 
 	# DisableLocalCredentialsChecks specifies whether the provider should check the credentials and proofs it receives
 	# or just send everything to the chain and wait for the verifier nodes to check it.
