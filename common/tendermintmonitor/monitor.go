@@ -542,8 +542,24 @@ func New(l *logger.Logger, tmClient *tmclient.Client, store *storage.Database, i
 		return nil, err
 	}
 
-	if err := monitor.resyncWithBlockchain(); err != nil {
-		return nil, err
+	// if the Tendermint network is not up yet and the chain is fresh, it will try to query for block 0
+	// which is not allowed by Tendermint.
+
+	// TODO: move that into config
+	maxRetries := 3
+	timeout := 10 * time.Second
+
+	var resyncErr error
+	for i := 0; i < maxRetries; i++ {
+		resyncErr = monitor.resyncWithBlockchain()
+		if resyncErr == nil {
+			break
+		}
+		time.Sleep(timeout)
+	}
+
+	if resyncErr != nil {
+		return nil, resyncErr
 	}
 
 	monitor.Go(monitor.worker)
