@@ -8,6 +8,15 @@ NUM_NODES=4
 APP_STATE_ORIGINAL='\"app_hash\": \"\"'
 APP_STATE_REPLACEMENT=$(<awsnetdata/temp_escaped_genesis_app_state)
 
+if [ ! -z "$1" ]; then
+    if [ "$1" = "-rm" ]; then 
+        for (( i = 1; i <= $NUM_NODES; i++ )); do
+            echo "removing remote data on node $i..."
+            ssh fullnode$i.nym "rm -rf ~/nymnet"
+        done
+    fi
+fi
+
 rm -rf `pwd`/build/aws_tmp_nodes
 mkdir -p build/aws_tmp_nodes
 docker run --user $(id -u ${USER}):$(id -g ${USER}) --rm -v `pwd`/build/aws_tmp_nodes:/tendermint:Z tendermint/tendermint testnet --v $NUM_NODES --o . --populate-persistent-peers --starting-ip-address 1.2.3.1 
