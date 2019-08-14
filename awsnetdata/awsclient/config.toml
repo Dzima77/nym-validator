@@ -52,6 +52,12 @@
   # FaucetAddress defines address of ERC20 Nym Faucet.
   FaucetAddress = "3.8.244.109:9000"
 
+  # ServiceProviders defines addresses of dummy Nym Service Providers. Added for the sake of demo.
+	# It is a temporary parameter.
+  [Nym.ServiceProviders]
+    "3.9.102.214:6000" = "0x5F828924E58f98f3dA07596F392fCB094aC818ad"
+    "3.9.129.61:6000" = "0xEe45d746721633f37142EDa6bd99F115aEb2Ff2D"
+  
 [Logging]
 
   # Disable disables logging entirely.
