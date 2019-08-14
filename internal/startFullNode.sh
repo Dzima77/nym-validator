@@ -2,7 +2,8 @@
 
 NUM_NODES=4
 
-if (( $1 >= 0 && $1 < NUM_NODES )); then 
+# node are strictly greater than 0
+if (( $1 > 0 && $1 <= NUM_NODES )); then 
     echo "starting node $1"
     session="nymnet"
 
@@ -21,7 +22,7 @@ if (( $1 >= 0 && $1 < NUM_NODES )); then
 
     tmux new-window -t $session:2 -n "ethw."
     tmux select-window -t $session:2
-    tmux send-keys -t $session:2 "nym_eth_watcher -f ~/nymnet/ethereum_watcher/config.toml" 
+    tmux send-keys -t $session:2 "nym_eth_watcher -f ~/nymnet/ethereum-watcher/config.toml" 
     tmux send-keys -t $session:2 C-m 
 
     tmux new-window -t $session:3 -n "ver."

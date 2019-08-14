@@ -4,6 +4,8 @@
 # node2 is also a provider
 # node3 is also a provider
 
+cd $GOPATH/src/github.com/nymtech/nym/
+
 NUM_NODES=4
 APP_STATE_ORIGINAL='\"app_hash\": \"\"'
 APP_STATE_REPLACEMENT=$(<awsnetdata/temp_escaped_genesis_app_state)
@@ -40,7 +42,9 @@ for (( i = 1; i <= $NUM_NODES; i++ )); do
         sed -i -e "s/$addr/$target/g" build/aws_tmp_nodes/node$di/config/config.toml
     done
 
-    ssh fullnode$i.nym "mkdir -p ~/nymnet/node/ && mkdir -p ~/nymnet/issuer/coconutkeys/ && mkdir -p ~/nymnet/ethereum_watcher/ && mkdir -p ~/nymnet/verifier/issuerKeys/ && mkdir -p ~/nymnet/redeemer/"
+    scp internal/startFullNode.sh fullnode$i.nym:~
+
+    ssh fullnode$i.nym "mkdir -p ~/nymnet/node/ && mkdir -p ~/nymnet/issuer/coconutkeys/ && mkdir -p ~/nymnet/ethereum-watcher/ && mkdir -p ~/nymnet/verifier/issuerKeys/ && mkdir -p ~/nymnet/redeemer/"
 
     scp -r build/aws_tmp_nodes/node$di/* fullnode$i.nym:~/nymnet/node
 
@@ -50,8 +54,8 @@ for (( i = 1; i <= $NUM_NODES; i++ )); do
     scp awsnetdata/issuers/keys/coconutkeys/threshold-verificationKey-id=$i-attrs=5-n=5-t=3.pem fullnode$i.nym:~/nymnet/issuer/coconutkeys/
 
     echo "Copying ethereum watcher data..."
-    scp awsnetdata/ethereum-watchers/configs/config$i.toml fullnode$i.nym:~/nymnet/ethereum_watcher/config.toml
-    scp awsnetdata/ethereum-watchers/keys/watcher$i.key fullnode$i.nym:~/nymnet/ethereum_watcher/watcher.key
+    scp awsnetdata/ethereum-watchers/configs/config$i.toml fullnode$i.nym:~/nymnet/ethereum-watcher/config.toml
+    scp awsnetdata/ethereum-watchers/keys/watcher$i.key fullnode$i.nym:~/nymnet/ethereum-watcher/watcher.key
 
     echo "Copying credential verifier data..."
     scp awsnetdata/verifiers/configs/config$i.toml fullnode$i.nym:~/nymnet/verifier/config.toml
