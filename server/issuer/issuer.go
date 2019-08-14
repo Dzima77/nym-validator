@@ -108,11 +108,12 @@ func New(cfg *config.Config) (*Issuer, error) {
 	processors := make([]*processor.Processor, cfg.Debug.NumProcessors)
 
 	if !cfg.Debug.DisableBlockchainMonitoring && !cfg.Debug.DisableAllBlockchainCommunication {
-		mon, err = monitor.New(log, baseServer.NymClient(), baseServer.Store(), fmt.Sprintf("issur%v", tsk.ID()))
+		mon, err = monitor.New(log, baseServer.NymClient(), baseServer.Store(), fmt.Sprintf("issuer%v", tsk.ID()))
 		if err != nil {
 			// in theory we could still progress if chain comes back later on.
 			// We will just have to catch up on the blocks
-			issuerLog.Errorf("Failed to spawn blockchain monitor")
+			issuerLog.Errorf("Failed to spawn blockchain monitor: %v", err)
+			return nil, err
 		}
 		issuerLog.Noticef("Spawned blockchain monitor")
 		for i := 0; i < cfg.Debug.NumProcessors; i++ {
