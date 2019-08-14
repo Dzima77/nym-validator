@@ -72,8 +72,12 @@ for (( i = 1; i <= $NUM_NODES; i++ )); do
     if (($i == 2 || $i == 3)); then
         echo "Copying provider data..."
         ssh fullnode$i.nym "mkdir -p ~/nymnet/provider/issuerKeys && mkdir -p ~/nymnet/provider/accountKey"
-        scp awsnetdata/providers/configs/config$i.toml fullnode$i.nym:~/nymnet/provider/config.toml
-		scp awsnetdata/providers/keys/accountKeys/provider$i.key fullnode$i.nym:~/nymnet/provider/accountKey/provider.key
+
+        # naive workaround but temporarily works
+        let "pi = i - 1"
+
+        scp awsnetdata/providers/configs/config$pi.toml fullnode$i.nym:~/nymnet/provider/config.toml
+		scp awsnetdata/providers/keys/accountKeys/provider$pi.key fullnode$i.nym:~/nymnet/provider/accountKey/provider.key
 		scp awsnetdata/issuers/keys/coconutkeys/threshold-verificationKey-* fullnode$i.nym:~/nymnet/provider/issuerKeys/
     fi   
 done
