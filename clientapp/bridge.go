@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 	"github.com/nymtech/nym/client"
@@ -257,9 +258,9 @@ func (qb *QmlBridge) confirmConfig() {
 	qb.PopulateValueComboBox(valueList)
 
 	// gui only cares about physical addresses (for now)
-	spAddresses := make([]string, len(serviceProviders))
+	spAddresses := make([]string, len(qb.cfg.Nym.ServiceProviders))
 	i := 0
-	for sp := range serviceProviders {
+	for sp, _ := range qb.cfg.Nym.ServiceProviders {
 		spAddresses[i] = sp
 		i++
 	}
@@ -443,7 +444,8 @@ func (qb *QmlBridge) spendCredential(chosenSP, seqString string, busyIndicator *
 		toggleIndicatorAndObjects(busyIndicator, []*core.QObject{mainLayoutObject}, true)
 		defer toggleIndicatorAndObjects(busyIndicator, []*core.QObject{mainLayoutObject}, false)
 
-		spAddress, ok := serviceProviders[chosenSP]
+		spAddressRaw, ok := qb.cfg.Nym.ServiceProviders[chosenSP]
+		spAddress := ethcommon.HexToAddress(spAddressRaw)
 		if !ok {
 			qb.DisplayNotificationf(errNotificationTitle, "No service provider with address %v exists", chosenSP)
 			return

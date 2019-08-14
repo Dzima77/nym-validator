@@ -102,6 +102,10 @@ type Nym struct {
 
 	// FaucetAddress defines address of ERC20 Nym Faucet.
 	FaucetAddress string
+
+	// ServiceProviders defines addresses of dummy Nym Service Providers. Added for the sake of demo.
+	// It is a temporary parameter.
+	ServiceProviders map[string]string
 }
 
 // Debug is the Coconut Client debug configuration.

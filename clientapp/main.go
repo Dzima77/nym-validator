@@ -18,7 +18,6 @@ package main
 import (
 	"os"
 
-	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/qml"
@@ -30,12 +29,6 @@ var (
 	configBridge *ConfigBridge
 
 	credentialMap map[string]*IssuedCredential
-
-	// temp. probably will be moved to config or something
-	serviceProviders = map[string]ethcommon.Address{
-		"127.0.0.1:4100": ethcommon.HexToAddress("0x5F828924E58f98f3dA07596F392fCB094aC818ad"),
-		"127.0.0.1:4101": ethcommon.HexToAddress("0xEe45d746721633f37142EDa6bd99F115aEb2Ff2D"),
-	}
 )
 
 func main() {
