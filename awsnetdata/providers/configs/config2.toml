@@ -7,11 +7,11 @@
 
   # Addresses are the IP address/port combinations that the server will bind
   # to for incoming connections.
-  Addresses = [ "0.0.0.0:4000" ]
+  Addresses = [ "0.0.0.0:6000" ]
 
   # GRPCAddresses are the IP address:port combinations that the server will bind
   # to for incoming grpcs.
-  GRPCAddresses = [ "0.0.0.0:5000" ]
+  GRPCAddresses = [ "0.0.0.0:7000" ]
 
   # DataDir specifies path to a .db file holding relevant server-specific persistent data.
   DataDir = "/home/ec2-user/nymnet/provider/"
