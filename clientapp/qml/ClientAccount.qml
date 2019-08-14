@@ -555,6 +555,13 @@ ColumnLayout {
             accountStatusLabel.accountExists = accountExists
         }
     }
+
+    onVisibleChanged: {
+        if (visible) {
+            // basically update balance when component is being displayed
+            QmlBridge.forceUpdateBalances(balanceUpdateIndicator, mainColumn)
+        } 
+    }
 }
 
 
