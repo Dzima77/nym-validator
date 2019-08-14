@@ -88,6 +88,7 @@ type QmlBridge struct {
 	_ func(accountExists bool)                                                                      `signal:"setAccountStatus"`
 	_ func(busyIndicator *core.QObject, mainLayoutObject *core.QObject)                             `slot:"registerAccount,auto"`
 	_ func(busyIndicator *core.QObject, mainLayoutObject *core.QObject)                             `slot:"getFaucetNym,auto"`
+	_ func(seqString string) string                                                                 `slot:"randomizeCredential,auto"`
 }
 
 func enableAllObjects(objs []*core.QObject) {
@@ -557,6 +558,28 @@ func (qb *QmlBridge) getFaucetNym(busyIndicator *core.QObject, mainLayoutObject 
 			qb.DisplayNotificationf(warnNotificationTitle, "unknown error when trying to receive funds from the faucet")
 		}
 	}(nyms)
+}
+
+func (qb *QmlBridge) randomizeCredential(seqString string) string {
+	cred, ok := credentialMap[seqString]
+	if !ok {
+		qb.DisplayNotificationf(errNotificationTitle, "no credential exists for that sequence number (%v)", seqString)
+		return ""
+	}
+
+	rcred := qb.clientInstance.ForceReRandomizeCredential(cred.credential)
+	if rcred != nil {
+		// it should ALWAYS be not nil, it's just a sanity check
+		credentialMap[seqString].credential = rcred
+	}
+
+	rCredBytes, err := rcred.MarshalBinary()
+	if err != nil {
+		qb.DisplayNotificationf(errNotificationTitle, "could not marshal randomized credential: %v", err)
+		return ""
+	}
+
+	return base64.StdEncoding.EncodeToString(rCredBytes)
 }
 
 // this function will be automatically called, when you use the `NewQmlBridge` function

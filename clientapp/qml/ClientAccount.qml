@@ -371,10 +371,10 @@ ColumnLayout {
                         width: 500
                         height: 30
 
-                        property string displayCredential: Credential.substr(0,8) + " ... " + Credential.substr(-8)
-                        property string displaySequence: Sequence.substr(0,8) + " ... " + Sequence.substr(-16)
                         property string credential: Credential
                         property string sequence: Sequence
+                        property string displayCredential: credential.substr(0,8) + " ... " + credential.substr(-8)
+                        property string displaySequence: sequence.substr(0,8) + " ... " + sequence.substr(-16)
                         property string value: Value
                         property bool isSpent: false
 
@@ -464,6 +464,15 @@ ColumnLayout {
             textFieldText: credentialList.currentItem != null ? credentialList.currentItem.displaySequence : ""
             textFieldPlaceholderText: "N/A"
             tooltipText: credentialList.currentItem != null ? credentialList.currentItem.sequence : ""
+        }
+
+        Button {
+            id: randomizeButton
+            text: qsTr("Re-randomize")
+            enabled: credentialList.currentItem != null
+            onClicked: {
+                credentialList.currentItem.credential = QmlBridge.randomizeCredential(credentialList.currentItem.sequence)
+            }
         }
     }
 
