@@ -33,14 +33,12 @@ ColumnLayout {
         Layout.fillHeight: false
         Layout.fillWidth: true
 
-
         RowLayout {
             width: 100
             height: 100
             spacing: 5
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             Layout.fillWidth: true
-
 
             Label {
                 text: "Account status:"
@@ -56,7 +54,6 @@ ColumnLayout {
                 text: accountExists ? qsTr("EXISTS") : qsTr("DOES NOT EXIST")
                 color: accountExists ? "limegreen" : "orangered"               
             }
-
 
             Button {
                 id: registerButton
@@ -75,7 +72,7 @@ ColumnLayout {
 
             Button {
                 id: faucetButton
-                enabled: (parseInt(erc20BalanceField.text, 10) >= 0 && parseInt(erc20BalanceField.text, 10) <= 5) ? true : false
+                enabled: (parseInt(erc20BalanceField.text, 10) >= 0 && parseInt(erc20BalanceField.text, 10) <= 5 && accountStatusLabel.accountExists) ? true : false
                 text: qsTr("Request 50 ERC20 Nym from faucet")
                 onClicked: QmlBridge.getFaucetNym(faucetIndicator, mainColumn)
             }
@@ -88,8 +85,6 @@ ColumnLayout {
                 Layout.preferredWidth: 50
             }
         }
-
-
 
         RowLayout {
             id: rowLayout
@@ -371,10 +366,10 @@ ColumnLayout {
                         width: 500
                         height: 30
 
-                        property string displayCredential: Credential.substr(0,8) + " ... " + Credential.substr(-8)
-                        property string displaySequence: Sequence.substr(0,8) + " ... " + Sequence.substr(-16)
                         property string credential: Credential
                         property string sequence: Sequence
+                        property string displayCredential: credential.substr(0,8) + " ... " + credential.substr(-8)
+                        property string displaySequence: sequence.substr(0,8) + " ... " + sequence.substr(-16)
                         property string value: Value
                         property bool isSpent: false
 
@@ -465,6 +460,15 @@ ColumnLayout {
             textFieldPlaceholderText: "N/A"
             tooltipText: credentialList.currentItem != null ? credentialList.currentItem.sequence : ""
         }
+
+        Button {
+            id: randomizeButton
+            text: qsTr("Re-randomize")
+            enabled: credentialList.currentItem != null
+            onClicked: {
+                credentialList.currentItem.credential = QmlBridge.randomizeCredential(credentialList.currentItem.sequence)
+            }
+        }
     }
 
     RowLayout {
@@ -550,6 +554,13 @@ ColumnLayout {
         onSetAccountStatus: {
             accountStatusLabel.accountExists = accountExists
         }
+    }
+
+    onVisibleChanged: {
+        if (visible) {
+            // basically update balance when component is being displayed
+            QmlBridge.forceUpdateBalances(balanceUpdateIndicator, mainColumn)
+        } 
     }
 }
 
