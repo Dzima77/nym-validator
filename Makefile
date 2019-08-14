@@ -144,7 +144,7 @@ build_gui:
 	qtdeploy build desktop clientapp
 
 build_release_gui:
-	rm build/*.zip
+	rm -f build/*.zip
 	qtdeploy build desktop clientapp
 	(cd clientapp/deploy/linux; zip -r ../../../build/linux_amd64.zip *) 
 
