@@ -33,14 +33,12 @@ ColumnLayout {
         Layout.fillHeight: false
         Layout.fillWidth: true
 
-
         RowLayout {
             width: 100
             height: 100
             spacing: 5
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             Layout.fillWidth: true
-
 
             Label {
                 text: "Account status:"
@@ -56,7 +54,6 @@ ColumnLayout {
                 text: accountExists ? qsTr("EXISTS") : qsTr("DOES NOT EXIST")
                 color: accountExists ? "limegreen" : "orangered"               
             }
-
 
             Button {
                 id: registerButton
@@ -75,7 +72,7 @@ ColumnLayout {
 
             Button {
                 id: faucetButton
-                enabled: (parseInt(erc20BalanceField.text, 10) >= 0 && parseInt(erc20BalanceField.text, 10) <= 5) ? true : false
+                enabled: (parseInt(erc20BalanceField.text, 10) >= 0 && parseInt(erc20BalanceField.text, 10) <= 5 && accountStatusLabel.accountExists) ? true : false
                 text: qsTr("Request 50 ERC20 Nym from faucet")
                 onClicked: QmlBridge.getFaucetNym(faucetIndicator, mainColumn)
             }
@@ -88,8 +85,6 @@ ColumnLayout {
                 Layout.preferredWidth: 50
             }
         }
-
-
 
         RowLayout {
             id: rowLayout
