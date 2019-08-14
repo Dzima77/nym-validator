@@ -1,5 +1,9 @@
 # CoconutGo Changelog
 
+## 0.12.4
+
+* Added option to specify Service Providers in client's config
+
 ## 0.12.3
 
 * Added timeout to tendermint monitor startup. It is required for fresh chains that have not gone past genesis block
