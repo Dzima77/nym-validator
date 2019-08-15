@@ -368,7 +368,7 @@ ColumnLayout {
 
                         property string credential: Credential
                         property string sequence: Sequence
-                        property string displayCredential: credential.substr(0,8) + " ... " + credential.substr(-8)
+                        property string displayCredential: credential.substr(0,12) + " ... " + credential.substr(-16)
                         property string displaySequence: sequence.substr(0,8) + " ... " + sequence.substr(-16)
                         property string value: Value
                         property bool isSpent: false
@@ -513,8 +513,6 @@ ColumnLayout {
             Layout.preferredHeight: 50
             Layout.preferredWidth: 50
         }
-
-
     }
     Connections {
         target: QmlBridge
