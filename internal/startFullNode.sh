@@ -9,7 +9,7 @@ if (( $1 > 0 && $1 <= NUM_NODES )); then
 
     tmux new-session -d -s $session -n "tmnode"
     tmux select-window -t $session:0
-    tmux send-keys -t $session:0 "nym_nymnode -cfgFile ~/nymnet/node/config/config.toml -dataRoot ~/nymnet/node/" 
+    tmux send-keys -t $session:0 "nym_nymnode -cfgFile ~/nymnet/node/config/config.toml -dataRoot ~/nymnet/node/ -emptyBlocksInterval 10s" 
     tmux send-keys -t $session:0 C-m 
 
     # gives just enough time for the node to startup so that the other services would not need to go into timeout immediately

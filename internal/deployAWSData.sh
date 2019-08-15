@@ -10,13 +10,48 @@ NUM_NODES=4
 APP_STATE_ORIGINAL='\"app_hash\": \"\"'
 APP_STATE_REPLACEMENT=$(<awsnetdata/temp_escaped_genesis_app_state)
 
-if [ ! -z "$1" ]; then
-    if [ "$1" = "-rm" ]; then 
-        for (( i = 1; i <= $NUM_NODES; i++ )); do
-            echo "removing remote data on node $i..."
-            ssh fullnode$i.nym "rm -rf ~/nymnet"
-        done
-    fi
+rmRemote=false
+rebuildBins=false
+useDevelop=false
+
+print_usage() {
+  printf "Usage:\n
+   -r to remove existing remote data\n
+   -b to rebuild all remote binaries\n
+   -d if binaries are to be rebuilt, use develop branch\n
+   -h show help\n
+"
+}
+
+while getopts 'rbdh' flag; do
+  case "${flag}" in
+    r) rmRemote=true ;;
+    b) rebuildBins=true ;;
+    d) useDevelop=true ;;
+    h) print_usage
+        exit 1 ;;
+    *) print_usage
+       exit 1 ;;
+  esac
+done
+
+if [ $rmRemote = true ]; then
+    for (( i = 1; i <= $NUM_NODES; i++ )); do
+        echo "removing remote data on node $i..."
+        ssh fullnode$i.nym "rm -rf ~/nymnet"
+    done
+fi
+
+if [ $rebuildBins = true ]; then
+    for (( i = 1; i <= $NUM_NODES; i++ )); do
+        echo "rebuilding binaries on node $i..."
+        if [ $useDevelop = true ]; then
+            echo "using develop branch"
+            ssh fullnode$i.nym "cd \$GOPATH/src/github.com/nymtech/nym/ && git checkout develop && git pull && make build_binaries && cd"
+        else 
+            ssh fullnode$i.nym "cd \$GOPATH/src/github.com/nymtech/nym/ && git checkout master && git pull && make build_binaries && cd" 
+        fi
+    done
 fi
 
 rm -rf `pwd`/build/aws_tmp_nodes
