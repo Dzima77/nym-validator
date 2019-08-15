@@ -428,7 +428,12 @@ func (m *Monitor) fillBlockGaps() {
 		} else if _, ok := m.unprocessedBlocks[h]; !ok {
 			m.log.Debugf("Found gap at height: %v remaining: %v", h, remainingBlocks)
 			// if it's not in processed nor unprocessed blocks, it means we never got the data hence it's a gap
-			gaps = append(gaps, h)
+
+			// way more inefficient solution resulting in a lot of memory allocations, but in theory the maximum allocated size should be smaller
+			gapsNew := make([]int64, len(gaps)+1)
+			copy(gapsNew, gaps)
+			gapsNew[len(gapsNew)-1] = h
+			// gaps = append(gaps, h)
 		}
 	}
 
