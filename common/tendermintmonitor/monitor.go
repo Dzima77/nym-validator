@@ -428,7 +428,12 @@ func (m *Monitor) fillBlockGaps() {
 		} else if _, ok := m.unprocessedBlocks[h]; !ok {
 			m.log.Debugf("Found gap at height: %v remaining: %v", h, remainingBlocks)
 			// if it's not in processed nor unprocessed blocks, it means we never got the data hence it's a gap
-			gaps = append(gaps, h)
+
+			// way more inefficient solution resulting in a lot of memory allocations, but in theory the maximum allocated size should be smaller
+			gapsNew := make([]int64, len(gaps)+1)
+			copy(gapsNew, gaps)
+			gapsNew[len(gapsNew)-1] = h
+			// gaps = append(gaps, h)
 		}
 	}
 
@@ -542,8 +547,24 @@ func New(l *logger.Logger, tmClient *tmclient.Client, store *storage.Database, i
 		return nil, err
 	}
 
-	if err := monitor.resyncWithBlockchain(); err != nil {
-		return nil, err
+	// if the Tendermint network is not up yet and the chain is fresh, it will try to query for block 0
+	// which is not allowed by Tendermint.
+
+	// TODO: move that into config
+	maxRetries := 3
+	timeout := 10 * time.Second
+
+	var resyncErr error
+	for i := 0; i < maxRetries; i++ {
+		resyncErr = monitor.resyncWithBlockchain()
+		if resyncErr == nil {
+			break
+		}
+		time.Sleep(timeout)
+	}
+
+	if resyncErr != nil {
+		return nil, resyncErr
 	}
 
 	monitor.Go(monitor.worker)

@@ -194,13 +194,13 @@ func (l *Listener) onNewConn(conn net.Conn) {
 func (l *Listener) replyToClient(packet *packet.Packet, conn net.Conn) {
 	l.log.Noticef("Replying back to the client (%v)", conn.RemoteAddr())
 	b, err := packet.MarshalBinary()
-	if err == nil {
-		if _, err = conn.Write(b); err == nil {
-			return
-		}
+	if err != nil {
+		l.log.Error("Couldn't reply to the client. Packet marshal: %v", err)
+		return
 	}
-
-	l.log.Error("Couldn't reply to the client") // conn will close regardless after this
+	if _, err = conn.Write(b); err != nil {
+		l.log.Error("Couldn't reply to the client. Connection write: %v", err)
+	}
 }
 
 func (l *Listener) resolveCommand(ctx context.Context, cmd commands.Command, resCh chan *commands.Response) *packet.Packet {

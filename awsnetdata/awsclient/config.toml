@@ -6,13 +6,13 @@
   Identifier = "Client"
 
   # IAAddresses are the IP address:port combinations of Issuing Authority Servers.
-  IAAddresses = [ "127.0.0.1:4000", "127.0.0.1:4001", "127.0.0.1:4002" ]
+  IAAddresses = [ "3.8.244.109:4000", "3.9.102.214:4000", "3.9.129.61:4000", "3.9.222.1:4000" ]
 
   # UseGRPC specifies whether to use gRPC for sending server requests or TCP sockets.
   UseGRPC = false
 
   # IAgRPCAddresses are the gRPC IP address:port combinations of Issuing Authority Servers.
-  IAgRPCAddresses = [ "127.0.0.1:5000", "127.0.0.1:5001", "127.0.0.1:5002" ]
+  IAgRPCAddresses = [ ]
 
   # MaxRequests defines maximum number of concurrent requests each client can make.
   # -1 indicates no limit
@@ -28,13 +28,13 @@
 [Nym]
 
   # AccountKeysFile specifies the file containing keys used for the accounts on the Nym Blockchain.
-  AccountKeysFile = "/tmp/newKeyTest3.key" #"localnetdata/localclient/clientAccount.key"
+  AccountKeysFile = "/tmp/nymkey.key" #"localnetdata/localclient/clientAccount.key"
 
   # BlockchainNodeAddresses specifies addresses of a blockchain nodes
 	# to which the client should send all relevant requests.
 	# Note that only a single request will ever be sent, but multiple addresses are provided in case
 	# the particular node was unavailable.
-	BlockchainNodeAddresses = [ "127.0.0.1:26657", "127.0.0.1:26659", "127.0.0.1:26661", "127.0.0.1:26663" ]
+	BlockchainNodeAddresses = [ "3.8.244.109:26657", "3.9.102.214:26657", "3.9.129.61:26657", "3.9.222.1:26657" ]
 
 	# EthereumNodeAddresses specifies addresses of Ethereum nodes
 	# to which the client should send all relevant requests.
@@ -50,13 +50,13 @@
 	PipeAccount = "0xb749305b3293477b4d6b498b22db5353c9acb3f1"
 
   # FaucetAddress defines address of ERC20 Nym Faucet.
-  FaucetAddress = "127.0.0.1:9000"
+  FaucetAddress = "3.8.244.109:9000"
 
   # ServiceProviders defines addresses of dummy Nym Service Providers. Added for the sake of demo.
 	# It is a temporary parameter.
   [Nym.ServiceProviders]
-    "127.0.0.1:4100" = "0x5F828924E58f98f3dA07596F392fCB094aC818ad"
-    "127.0.0.1:4101" = "0xEe45d746721633f37142EDa6bd99F115aEb2Ff2D"
+    "3.9.102.214:6000" = "0x5F828924E58f98f3dA07596F392fCB094aC818ad"
+    "3.9.129.61:6000" = "0xEe45d746721633f37142EDa6bd99F115aEb2Ff2D"
   
 [Logging]
 

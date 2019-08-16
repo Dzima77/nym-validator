@@ -78,8 +78,15 @@ outerFor:
 			return
 		case <-heartbeat.C:
 			latestBlockNumber := w.getLatestBlockNumber()
+			// temporary work around
+			if latestBlockNumber == nil {
+				continue
+			}
 			// latestBlockNumber := big.NewInt(int64(5422702)) // TEMP
 			block := w.getFinalizedBlock(latestBlockNumber)
+			if block == nil {
+				continue
+			}
 			w.log.Debugf("Heartbeat blockNum: %d ", block.Number())
 			if latestSeen == 0 {
 				latestSeen = block.Number().Int64() - 1
@@ -190,7 +197,8 @@ func erc20decode(log types.Log) (common.Address, common.Address) {
 func (w *Watcher) getTransactionReceipt(txHash common.Hash) types.Receipt {
 	tr, err := w.ethClient.TransactionReceipt(context.Background(), txHash)
 	if err != nil {
-		log.Fatalf("Error getting TransactionReceipt: %s", err)
+		// log.Fatalf("Error getting TransactionReceipt: %s", err)
+		w.log.Critical(fmt.Sprintf("Failed getting TransactionReceipt: %s", err))
 	}
 	return *tr
 }
@@ -199,7 +207,8 @@ func (w *Watcher) getFinalizedBlock(latestBlockNumber *big.Int) *types.Block {
 	finalizedBlockNumber := latestBlockNumber.Sub(latestBlockNumber, big.NewInt(w.cfg.Debug.NumConfirmations))
 	block, err := w.ethClient.BlockByNumber(context.Background(), finalizedBlockNumber)
 	if err != nil {
-		log.Fatalf("Failed getting block: %s", err)
+		// log.Fatalf("Failed getting block: %s", err)
+		w.log.Critical(fmt.Sprintf("Failed getting block: %s", err))
 	}
 
 	return block
@@ -219,7 +228,8 @@ func (w *Watcher) getFinalizedBalance(addr common.Address, latestBlockNumber *bi
 
 	balance, err := w.ethClient.BalanceAt(context.Background(), addr, finalizedBlockNumber)
 	if err != nil {
-		log.Fatalf("Error getting account balance: %s", err)
+		// log.Fatalf("Error getting account balance: %s", err)
+		w.log.Critical(fmt.Sprintf("Failed getting account balance: %s", err))
 	}
 
 	return balance
@@ -228,7 +238,8 @@ func (w *Watcher) getFinalizedBalance(addr common.Address, latestBlockNumber *bi
 func (w *Watcher) getLatestBlockNumber() *big.Int {
 	latestHeader, err := w.ethClient.HeaderByNumber(context.Background(), nil)
 	if err != nil {
-		log.Fatalf("Error getting latest block header: %s", err)
+		// log.Fatalf("Error getting latest block header: %s", err)
+		w.log.Critical(fmt.Sprintf("Failed getting latest block header: %s", err))
 	}
 
 	return latestHeader.Number

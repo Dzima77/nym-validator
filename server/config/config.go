@@ -33,10 +33,10 @@ const (
 	defaultNumServerWorkers = 1
 	defaultNumProcessors    = 1
 
-	defaultConnectTimeout               = 15 * 1000 // 15 sec.
-	defaultRequestTimeout               = 60 * 1000 // 60 sec.
-	defaultProviderStartupTimeout       = 30 * 1000 // 30 sec.
-	defaultProviderStartupRetryInterval = 5 * 1000  // 5s.
+	defaultConnectTimeout               = 120 * 1000 // 120 sec.
+	defaultRequestTimeout               = 180 * 1000 // 180 sec.
+	defaultProviderStartupTimeout       = 30 * 1000  // 30 sec.
+	defaultProviderStartupRetryInterval = 5 * 1000   // 5s.
 	defaultProviderMaxRequests          = 16
 	defaultEtherAmount                  = 0.005
 )

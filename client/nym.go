@@ -598,7 +598,8 @@ func (c *Client) SpendCredential(
 	}
 
 	// TODO: is it the actual connect timeout or rather timeout to receive any response?
-	sderr := conn.SetReadDeadline(time.Now().Add(time.Duration(c.cfg.Debug.ConnectTimeout+c.cfg.Debug.RequestTimeout) * time.Millisecond))
+	// TODO: replace with Dialer similarly to how other requests are done.
+	sderr := conn.SetDeadline(time.Now().Add(time.Duration(c.cfg.Debug.ConnectTimeout+c.cfg.Debug.RequestTimeout) * time.Millisecond))
 	if sderr != nil {
 		return false,
 			c.logAndReturnError("SpendCredential: Failed to set read deadline for connection: %v",

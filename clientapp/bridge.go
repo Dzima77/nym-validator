@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 	"github.com/nymtech/nym/client"
@@ -88,6 +89,7 @@ type QmlBridge struct {
 	_ func(accountExists bool)                                                                      `signal:"setAccountStatus"`
 	_ func(busyIndicator *core.QObject, mainLayoutObject *core.QObject)                             `slot:"registerAccount,auto"`
 	_ func(busyIndicator *core.QObject, mainLayoutObject *core.QObject)                             `slot:"getFaucetNym,auto"`
+	_ func(seqString string) string                                                                 `slot:"randomizeCredential,auto"`
 }
 
 func enableAllObjects(objs []*core.QObject) {
@@ -256,9 +258,9 @@ func (qb *QmlBridge) confirmConfig() {
 	qb.PopulateValueComboBox(valueList)
 
 	// gui only cares about physical addresses (for now)
-	spAddresses := make([]string, len(serviceProviders))
+	spAddresses := make([]string, len(qb.cfg.Nym.ServiceProviders))
 	i := 0
-	for sp := range serviceProviders {
+	for sp, _ := range qb.cfg.Nym.ServiceProviders {
 		spAddresses[i] = sp
 		i++
 	}
@@ -442,7 +444,8 @@ func (qb *QmlBridge) spendCredential(chosenSP, seqString string, busyIndicator *
 		toggleIndicatorAndObjects(busyIndicator, []*core.QObject{mainLayoutObject}, true)
 		defer toggleIndicatorAndObjects(busyIndicator, []*core.QObject{mainLayoutObject}, false)
 
-		spAddress, ok := serviceProviders[chosenSP]
+		spAddressRaw, ok := qb.cfg.Nym.ServiceProviders[chosenSP]
+		spAddress := ethcommon.HexToAddress(spAddressRaw)
 		if !ok {
 			qb.DisplayNotificationf(errNotificationTitle, "No service provider with address %v exists", chosenSP)
 			return
@@ -557,6 +560,28 @@ func (qb *QmlBridge) getFaucetNym(busyIndicator *core.QObject, mainLayoutObject 
 			qb.DisplayNotificationf(warnNotificationTitle, "unknown error when trying to receive funds from the faucet")
 		}
 	}(nyms)
+}
+
+func (qb *QmlBridge) randomizeCredential(seqString string) string {
+	cred, ok := credentialMap[seqString]
+	if !ok {
+		qb.DisplayNotificationf(errNotificationTitle, "no credential exists for that sequence number (%v)", seqString)
+		return ""
+	}
+
+	rcred := qb.clientInstance.ForceReRandomizeCredential(cred.credential)
+	if rcred != nil {
+		// it should ALWAYS be not nil, it's just a sanity check
+		credentialMap[seqString].credential = rcred
+	}
+
+	rCredBytes, err := rcred.MarshalBinary()
+	if err != nil {
+		qb.DisplayNotificationf(errNotificationTitle, "could not marshal randomized credential: %v", err)
+		return ""
+	}
+
+	return base64.StdEncoding.EncodeToString(rCredBytes)
 }
 
 // this function will be automatically called, when you use the `NewQmlBridge` function

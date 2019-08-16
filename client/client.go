@@ -74,6 +74,10 @@ func (c *Client) RandomBIG() *Curve.BIG {
 	return c.cryptoworker.CoconutWorker().RandomBIG()
 }
 
+func (c *Client) ForceReRandomizeCredential(cred *coconut.Signature) *coconut.Signature {
+	return c.cryptoworker.CoconutWorker().RandomizeWrapper(cred)
+}
+
 func (c *Client) checkResponseStatus(resp commands.ProtoResponse) error {
 	if resp == nil || resp.GetStatus() == nil {
 		return c.logAndReturnError("checkResponseStatus: Received response (or part of it) was nil")
@@ -782,7 +786,7 @@ func (c *Client) SendCredentialsForVerification(pubM []*Curve.BIG, sig *coconut.
 		return false, c.logAndReturnError("SendCredentialsForVerification: Failed to write to connection: %v", werr)
 	}
 
-	sderr := conn.SetReadDeadline(time.Now().Add(time.Duration(c.cfg.Debug.ConnectTimeout) * time.Millisecond))
+	sderr := conn.SetDeadline(time.Now().Add(time.Duration(c.cfg.Debug.ConnectTimeout) * time.Millisecond))
 	if sderr != nil {
 		return false,
 			c.logAndReturnError("SendCredentialsForVerification: Failed to set read deadline for connection: %v",

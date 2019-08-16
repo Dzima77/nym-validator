@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION=v0.12.2
+VERSION=v0.12.3
 
 command -v unzip >/dev/null 2>&1 || { echo >&2 "unzip is not installed. Aborting."; exit 1; }
 command -v docker >/dev/null 2>&1 || { echo >&2 "docker is not installed. Aborting."; exit 1; }

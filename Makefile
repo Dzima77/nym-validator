@@ -103,6 +103,15 @@ build_faucet:
 	fi
 	docker build -t nym/faucet -f ./DOCKER/faucet/Dockerfile .
 
+build_binaries:
+	go build -o $(GOPATH)/bin/nym_eth_watcher ./daemon/eth-watcher
+	go build -o $(GOPATH)/bin/nym_faucet ./daemon/faucet
+	go build -o $(GOPATH)/bin/nym_issuer ./daemon/issuer
+	go build -o $(GOPATH)/bin/nym_nymnode ./daemon/nymnode
+	go build -o $(GOPATH)/bin/nym_provider ./daemon/provider
+	go build -o $(GOPATH)/bin/nym_redeemer ./daemon/redeemer
+	go build -o $(GOPATH)/bin/nym_verifier ./daemon/verifier
+
 localnet-build:
 	make build_nym_nodes
 	make build_issuers
@@ -135,7 +144,7 @@ build_gui:
 	qtdeploy build desktop clientapp
 
 build_release_gui:
-	rm build/*.zip
+	rm -f build/*.zip
 	qtdeploy build desktop clientapp
 	(cd clientapp/deploy/linux; zip -r ../../../build/linux_amd64.zip *) 
 
