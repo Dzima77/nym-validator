@@ -786,7 +786,7 @@ func (c *Client) SendCredentialsForVerification(pubM []*Curve.BIG, sig *coconut.
 		return false, c.logAndReturnError("SendCredentialsForVerification: Failed to write to connection: %v", werr)
 	}
 
-	sderr := conn.SetReadDeadline(time.Now().Add(time.Duration(c.cfg.Debug.ConnectTimeout) * time.Millisecond))
+	sderr := conn.SetDeadline(time.Now().Add(time.Duration(c.cfg.Debug.ConnectTimeout) * time.Millisecond))
 	if sderr != nil {
 		return false,
 			c.logAndReturnError("SendCredentialsForVerification: Failed to set read deadline for connection: %v",
