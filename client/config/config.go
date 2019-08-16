@@ -39,8 +39,8 @@ const (
 	noLimitMaxRequests          = 16
 	defaultMaximumAttributes    = 5
 
-	defaultLookUpBackoff         = 10 * 1000 // 10 sec.
-	defaultNumberOfLookUpRetries = 5
+	defaultLookUpBackoff         = 15 * 1000 // 10 sec.
+	defaultNumberOfLookUpRetries = 10
 )
 
 // nolint: gochecknoglobals
