@@ -1,5 +1,12 @@
 # CoconutGo Changelog
 
+## 0.12.5
+
+* More detailed error on server replies
+* Increased default connection timeouts on both sides
+* Possibly decreased maximum memory usage by token redeemer
+* Increased number of displayed bytes of credential in the GUI
+
 ## 0.12.4
 
 * Added option to specify Service Providers in client's config
