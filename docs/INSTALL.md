@@ -8,7 +8,7 @@ The installation process of the Coconut servers takes multiple steps.
 
 2. Build the entire system by invoking `make localnet-build`.
 
-3. If you wish to modify keys used by issuers or their configuration, modify files inside `localnetdata/` directory. Currently those files are being coppied into docker volumes.
+3. If you wish to modify keys used by issuers or their configuration, modify files inside `localnetdata/` directory. Currently those files are being copied into Docker volumes.
 
 4. Run the system with `make localnet-start`
 
