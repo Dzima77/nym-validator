@@ -135,7 +135,7 @@ func (v *Verifier) worker() {
 
 		height, nextBlock := v.monitor.GetLowestFullUnprocessedBlock()
 		if nextBlock == nil {
-			v.log.Info("No blocks to process")
+			v.log.Debugf("No blocks to process at height: %v", height)
 			select {
 			case <-v.HaltCh():
 				v.log.Debug("Returning from backoff select")

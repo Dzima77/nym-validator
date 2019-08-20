@@ -193,7 +193,7 @@ ColumnLayout {
 
 
         Label {
-            text: qsTr("Send to Pipe Account")
+            text: qsTr("Send to Nym")
             horizontalAlignment: Text.AlignRight
             font.weight: Font.DemiBold
         }
@@ -222,49 +222,49 @@ ColumnLayout {
         }
 
 
-        Label {
-            text: "Redeem Tokens"
-            horizontalAlignment: Text.AlignRight
-            font.weight: Font.DemiBold
-        }
+        // Label {
+        //     text: "Redeem Tokens"
+        //     horizontalAlignment: Text.AlignRight
+        //     font.weight: Font.DemiBold
+        // }
 
-        TextField {
-            // inputMethodHints: Qt.ImhDigitsOnly
-            id: redeemTokensAmount
-            placeholderText: "enter amount"
-            Layout.fillWidth: false
-        }
+        // TextField {
+        //     // inputMethodHints: Qt.ImhDigitsOnly
+        //     id: redeemTokensAmount
+        //     placeholderText: "enter amount"
+        //     Layout.fillWidth: false
+        // }
 
-        Button {
-            text: "Confirm"
-            onClicked: {
-                QmlBridge.redeemTokens(redeemTokensAmount.text, redeemTokensIndicator, mainColumn)
-            }
-        }
+        // Button {
+        //     text: "Confirm"
+        //     onClicked: {
+        //         QmlBridge.redeemTokens(redeemTokensAmount.text, redeemTokensIndicator, mainColumn)
+        //     }
+        // }
 
-        BusyIndicator {
-            id: redeemTokensIndicator
-            running: false
-            width: 60
-            Layout.preferredHeight: 50
-            Layout.preferredWidth: 50
-        }
+        // BusyIndicator {
+        //     id: redeemTokensIndicator
+        //     running: false
+        //     width: 60
+        //     Layout.preferredHeight: 50
+        //     Layout.preferredWidth: 50
+        // }
 
-        Label {
-            text: "Long term secret (TEMPORARY!)"
-            horizontalAlignment: Text.AlignRight
-            font.weight: Font.DemiBold
-        }
+        // Label {
+        //     text: "Long term secret (TEMPORARY!)"
+        //     horizontalAlignment: Text.AlignRight
+        //     font.weight: Font.DemiBold
+        // }
 
-        TooltipTextField {
-            id: secretField
-            textFieldText: ""
-            textFieldPlaceholderText: "N/A"
-            tooltipText: ""
+        // TooltipTextField {
+        //     id: secretField
+        //     textFieldText: ""
+        //     textFieldPlaceholderText: "N/A"
+        //     tooltipText: ""
 
-            Layout.columnSpan: 3
-            Layout.fillWidth: true
-        }
+        //     Layout.columnSpan: 3
+        //     Layout.fillWidth: true
+        // }
 
 
         Label {
