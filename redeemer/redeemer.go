@@ -104,7 +104,7 @@ func (r *Redeemer) worker() {
 
 		height, nextBlock := r.monitor.GetLowestFullUnprocessedBlock()
 		if nextBlock == nil {
-			r.log.Debug("No blocks to process")
+			r.log.Debugf("No blocks to process at height: %v", height)
 			select {
 			case <-r.HaltCh():
 				r.log.Debug("Returning from backoff select")
