@@ -31,7 +31,7 @@ while getopts 'rbdh' flag; do
     h) print_usage
         exit 1 ;;
     *) print_usage
-       exit 1 ;;
+        exit 1 ;;
   esac
 done
 

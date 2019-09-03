@@ -64,7 +64,7 @@ func (p *Processor) worker() {
 
 		height, nextBlock := p.monitor.GetLowestFullUnprocessedBlock()
 		if nextBlock == nil {
-			p.log.Debug("No blocks to process")
+			p.log.Debugf("No blocks to process at height: %v", height)
 			select {
 			case <-p.HaltCh():
 				p.log.Debug("Returning from backoff select")
