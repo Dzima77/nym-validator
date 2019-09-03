@@ -1,10 +1,14 @@
 # CoconutGo Changelog
 
+## 0.12.7
+
+* Provider depositing received credential in background, i.e. new gouroutine, after receiving it, hence reintroducing proper double-spending checks
+
 ## 0.12.6
 
 * Hidden unnecessary parts of the UI
 * Included configs in the release package
-* Temporarily disabled sample service providers from depositing received credentials immediately as in the actual system they might be batching them 
+* Temporarily disabled sample service providers from depositing received credentials immediately as in the actual system they might be batching them
 
 ## 0.12.5
 
