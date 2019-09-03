@@ -240,6 +240,7 @@ func (w *Watcher) getLatestBlockNumber() *big.Int {
 	if err != nil {
 		// log.Fatalf("Error getting latest block header: %s", err)
 		w.log.Critical(fmt.Sprintf("Failed getting latest block header: %s", err))
+		return nil
 	}
 
 	return latestHeader.Number

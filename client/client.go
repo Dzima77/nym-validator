@@ -786,6 +786,7 @@ func (c *Client) SendCredentialsForVerification(pubM []*Curve.BIG, sig *coconut.
 		return false, c.logAndReturnError("SendCredentialsForVerification: Failed to write to connection: %v", werr)
 	}
 
+	// TODO: replace with Dialer similarly to how other requests are done.s
 	sderr := conn.SetDeadline(time.Now().Add(time.Duration(c.cfg.Debug.ConnectTimeout) * time.Millisecond))
 	if sderr != nil {
 		return false,

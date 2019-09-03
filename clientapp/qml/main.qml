@@ -33,9 +33,9 @@ ApplicationWindow {
 	minimumWidth: 900
 	minimumHeight: 900
 
-	footer: Text {
-		text: "TODO: format and insert link here"
-	}
+	// footer: Text {
+	// 	text: "TODO: format and insert link here"
+	// }
 
 	ColumnLayout {
 		id: mainView

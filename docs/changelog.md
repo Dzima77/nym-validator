@@ -1,5 +1,18 @@
 # CoconutGo Changelog
 
+## 0.12.6
+
+* Hidden unnecessary parts of the UI
+* Included configs in the release package
+* Temporarily disabled sample service providers from depositing received credentials immediately as in the actual system they might be batching them 
+
+## 0.12.5
+
+* More detailed error on server replies
+* Increased default connection timeouts on both sides
+* Possibly decreased maximum memory usage by token redeemer
+* Increased number of displayed bytes of credential in the GUI
+
 ## 0.12.4
 
 * Added option to specify Service Providers in client's config

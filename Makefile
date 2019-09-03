@@ -146,6 +146,8 @@ build_gui:
 build_release_gui:
 	rm -f build/*.zip
 	qtdeploy build desktop clientapp
+	# move client configs to include them in the release zip
+	cp -a internal/demo_configs/. clientapp/deploy/linux/
 	(cd clientapp/deploy/linux; zip -r ../../../build/linux_amd64.zip *) 
 
 run_gui:
