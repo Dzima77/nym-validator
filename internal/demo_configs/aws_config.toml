@@ -28,7 +28,7 @@
 [Nym]
 
   # AccountKeysFile specifies the file containing keys used for the accounts on the Nym Blockchain.
-  AccountKeysFile = "/tmp/nymkey.key" #"localnetdata/localclient/clientAccount.key"
+  AccountKeysFile = "clientKey.key"
 
   # BlockchainNodeAddresses specifies addresses of a blockchain nodes
 	# to which the client should send all relevant requests.
