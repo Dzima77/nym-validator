@@ -762,14 +762,7 @@
   branch = "master"
   digest = "1:41897fa220f1bab84e06d98f47c6519034ed865a4171ac87f99331ae5e55c60a"
   name = "github.com/therecipe/qt"
-  packages = [
-    ".",
-    "core",
-    "gui",
-    "network",
-    "qml",
-    "quickcontrols2",
-  ]
+  packages = ["."]
   pruneopts = ""
   revision = "a9acd1ab63c1365681bac0d31ce994989a9dd433"
 
@@ -1001,10 +994,6 @@
     "github.com/tendermint/tendermint/version",
     "github.com/tendermint/tm-cmn/db",
     "github.com/therecipe/qt",
-    "github.com/therecipe/qt/core",
-    "github.com/therecipe/qt/gui",
-    "github.com/therecipe/qt/qml",
-    "github.com/therecipe/qt/quickcontrols2",
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/status",
