@@ -1,4 +1,4 @@
-// provider.go - service provider daemon.
+// run.go - provider startup definition.
 // Copyright (C) 2019  Jedrzej Stuczynski.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
@@ -26,24 +25,36 @@ import (
 	"github.com/nymtech/nym/server/provider"
 )
 
-func main() {
-	daemon.Start(func() {
-		flag.String("f", "/config.toml", "Path to the config file of the provider")
-	},
-		func() daemon.Service {
-			cfgFile := flag.Lookup("f").Value.(flag.Getter).Get().(string)
-			cfg, err := config.LoadFile(cfgFile)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to load config file '%v': %v\n", cfgFile, err)
-				os.Exit(-1)
-			}
+const (
+	serviceName       = "nym-provider"
+	defaultConfigFile = "/config.toml"
+)
 
-			// Start up the provider.
-			provider, err := provider.New(cfg)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to spawn provider instance: %v\n", err)
-				os.Exit(-1)
-			}
-			return provider
-		})
+func cmdRun(args []string, usage string) {
+	opts := daemon.NewOpts(serviceName, "run [OPTIONS]", usage)
+
+	daemon.Start(func(args []string) daemon.Service {
+		cfgFile := opts.Flags("--f").Label("CFGFILE").String("Path to the config file of the provider", defaultConfigFile)
+
+		params := opts.Parse(args)
+		if len(params) != 0 {
+			opts.PrintUsage()
+			os.Exit(-1)
+		}
+
+		cfg, err := config.LoadFile(*cfgFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to load config file '%v': %v\n", *cfgFile, err)
+			os.Exit(-1)
+		}
+
+		// Start up the provider.
+		provider, err := provider.New(cfg)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to spawn provider instance: %v\n", err)
+			os.Exit(-1)
+		}
+
+		return provider
+	}, args)
 }

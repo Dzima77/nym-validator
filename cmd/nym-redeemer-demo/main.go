@@ -1,4 +1,4 @@
-// faucet.go - service faucet daemon.
+// main.go - redeemer entrypoint.
 // Copyright (C) 2019  Jedrzej Stuczynski.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,34 +16,23 @@
 
 package main
 
-import (
-	"flag"
-	"fmt"
-	"os"
-
-	"github.com/nymtech/nym/daemon"
-	"github.com/nymtech/nym/faucet"
-	"github.com/nymtech/nym/server/config"
-)
+import "github.com/tav/golly/optparse"
 
 func main() {
-	daemon.Start(func() {
-		flag.String("f", "/config.toml", "Path to the config file of the faucet")
-	},
-		func() daemon.Service {
-			cfgFile := flag.Lookup("f").Value.(flag.Getter).Get().(string)
-			cfg, err := config.LoadFile(cfgFile)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to load config file '%v': %v\n", cfgFile, err)
-				os.Exit(-1)
-			}
-
-			// Start up the faucet.
-			faucet, err := faucet.New(cfg)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to spawn faucet instance: %v\n", err)
-				os.Exit(-1)
-			}
-			return faucet
-		})
+	var logo = `
+  ____                            _        _   _                 
+ / ___|___   ___ ___  _ __  _   _| |_     | \ | |_   _ _ __ ___  
+| |   / _ \ / __/ _ \| '_ \| | | | __|____|  \| | | | | '_ \ _ \ 
+| |___ (_) | (__ (_) | | | | |_| | |______| |\  | |_| | | | | | |
+ \____\___/ \___\___/|_| |_|\__,_|\__|    |_| \_|\__, |_| |_| |_|
+             (nym-redeemer-demo)                 |___/           
+										 
+`
+	cmds := map[string]func([]string, string){
+		"run": cmdRun,
+	}
+	info := map[string]string{
+		"run": "Run a persistent demo nym token redeemer",
+	}
+	optparse.Commands("nym-redeemer-demo", "0.12.8", cmds, info, logo)
 }

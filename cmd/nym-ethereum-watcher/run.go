@@ -1,4 +1,4 @@
-// eth-watcher.go - ethereum-watcher daemon.
+// run.go - ethereum-watcher startup definition.
 // Copyright (C) 2019  Jedrzej Stuczynski.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
@@ -26,25 +25,36 @@ import (
 	"github.com/nymtech/nym/ethereum/watcher/config"
 )
 
-func main() {
-	daemon.Start(func() {
-		flag.String("f", "/ethereum-watcher/config.toml", "Path to the config file of the watcher")
-	},
-		func() daemon.Service {
-			cfgFile := flag.Lookup("f").Value.(flag.Getter).Get().(string)
+const (
+	serviceName       = "nym-ethereum-watcher"
+	defaultConfigFile = "/config.toml"
+)
 
-			cfg, err := config.LoadFile(cfgFile)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to load config file '%v': %v\n", cfgFile, err)
-				os.Exit(-1)
-			}
+func cmdRun(args []string, usage string) {
+	opts := daemon.NewOpts(serviceName, "run [OPTIONS]", usage)
 
-			// Start up the watcher.
-			watcher, err := watcher.New(cfg)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to spawn watcher instance: %v\n", err)
-				os.Exit(-1)
-			}
-			return watcher
-		})
+	daemon.Start(func(args []string) daemon.Service {
+		cfgFile := opts.Flags("--f").Label("CFGFILE").String("Path to the config file of the watcher", defaultConfigFile)
+
+		params := opts.Parse(args)
+		if len(params) != 0 {
+			opts.PrintUsage()
+			os.Exit(-1)
+		}
+
+		cfg, err := config.LoadFile(*cfgFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to load config file '%v': %v\n", *cfgFile, err)
+			os.Exit(-1)
+		}
+
+		// Start up the watcher.
+		watcher, err := watcher.New(cfg)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to spawn watcher instance: %v\n", err)
+			os.Exit(-1)
+		}
+
+		return watcher
+	}, args)
 }

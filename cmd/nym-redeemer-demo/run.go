@@ -1,4 +1,4 @@
-// main.go - redeemer daemon.
+// run.go - redeemer startup definition.
 // Copyright (C) 2019  Jedrzej Stuczynski.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
@@ -26,24 +25,36 @@ import (
 	"github.com/nymtech/nym/redeemer/config"
 )
 
-func main() {
-	daemon.Start(func() {
-		flag.String("f", "/config.toml", "Path to the config file of the redeemer")
-	},
-		func() daemon.Service {
-			cfgFile := flag.Lookup("f").Value.(flag.Getter).Get().(string)
-			cfg, err := config.LoadFile(cfgFile)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to load config file '%v': %v\n", cfgFile, err)
-				os.Exit(-1)
-			}
+const (
+	serviceName       = "nym-redeemer-demo"
+	defaultConfigFile = "/config.toml"
+)
 
-			// Start up the redeemer.
-			redeemer, err := redeemer.New(cfg)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to spawn redeemer instance: %v\n", err)
-				os.Exit(-1)
-			}
-			return redeemer
-		})
+func cmdRun(args []string, usage string) {
+	opts := daemon.NewOpts(serviceName, "run [OPTIONS]", usage)
+
+	daemon.Start(func(args []string) daemon.Service {
+		cfgFile := opts.Flags("--f").Label("CFGFILE").String("Path to the config file of the redeemer", defaultConfigFile)
+
+		params := opts.Parse(args)
+		if len(params) != 0 {
+			opts.PrintUsage()
+			os.Exit(-1)
+		}
+
+		cfg, err := config.LoadFile(*cfgFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to load config file '%v': %v\n", *cfgFile, err)
+			os.Exit(-1)
+		}
+
+		// Start up the redeemer.
+		redeemer, err := redeemer.New(cfg)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to spawn redeemer instance: %v\n", err)
+			os.Exit(-1)
+		}
+
+		return redeemer
+	}, args)
 }
