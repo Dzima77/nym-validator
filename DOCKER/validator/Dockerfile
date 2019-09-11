@@ -19,12 +19,13 @@ COPY . .
 # Fetch dependencies if we decide to remove the vendor directory at some point
 # RUN go get -d -v
 
-WORKDIR $GOPATH/src/github.com/nymtech/nym/cmd/nym-ethereum-watcher/
+WORKDIR $GOPATH/src/github.com/nymtech/nym/cmd/nym-validator/
+
 
 # Build the binary
 # for production: removes debug, etc. 
-# RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o /go/bin/eth_watcher .
-RUN go build -o /go/bin/eth_watcher . 
+# RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o /go/bin/nym-validator .
+RUN go build -o /go/bin/nym-validator .
 
 # ############################
 # # STEP 2 build a small image
@@ -39,10 +40,10 @@ COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /etc/passwd /etc/passwd
 
-# Copy our static executable 
-COPY --from=builder /go/bin/eth_watcher /app/eth_watcher
+# Copy our static executable + configs etc
+COPY --from=builder /go/bin/nym-validator /app/nym-validator
 
 # Use an unprivileged user.
 USER appuser
 
-ENTRYPOINT [ "/app/eth_watcher" ]
+ENTRYPOINT [ "/app/nym-validator" ]

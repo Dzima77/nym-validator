@@ -24,8 +24,8 @@ WORKDIR $GOPATH/src/github.com/nymtech/nym/cmd/nym-verifier/
 
 # Build the binary
 # for production: removes debug, etc. 
-# RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o /go/bin/verifier .
-RUN go build -o /go/bin/verifier .
+# RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o /go/bin/nym-verifier .
+RUN go build -o /go/bin/nym-verifier .
 
 # ############################
 # # STEP 2 build a small image
@@ -41,9 +41,9 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /etc/passwd /etc/passwd
 
 # Copy our static executable + configs etc
-COPY --from=builder /go/bin/verifier /app/verifier
+COPY --from=builder /go/bin/nym-verifier /app/nym-verifier
 
 # Use an unprivileged user.
 USER appuser
 
-ENTRYPOINT [ "/app/verifier" ]
+ENTRYPOINT [ "/app/nym-verifier" ]

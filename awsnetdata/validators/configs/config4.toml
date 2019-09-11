@@ -14,7 +14,7 @@
   GRPCAddresses = [ "0.0.0.0:5000" ]
 
   # DataDir specifies path to a .db file holding relevant server-specific persistent data.
-  DataDir = "/home/ec2-user/nymnet/issuer/"
+  DataDir = "/home/ec2-user/nymnet/validator/"
 
   # MaximumAttributes specifies the maximum number of attributes the system supports.
   MaximumAttributes = 5
@@ -28,10 +28,10 @@
 [Issuer]
   
   # VerificationKeyFile specifies the file containing the Coconut Verification Key.
-  VerificationKeyFile = "/home/ec2-user/nymnet/issuer/coconutkeys/threshold-verificationKey-id=4-attrs=5-n=5-t=3.pem"
+  VerificationKeyFile = "/home/ec2-user/nymnet/validator/coconutkeys/threshold-verificationKey-id=4-attrs=5-n=5-t=3.pem"
 
   # SecretKeyFile specifies the file containing the Coconut Secret Key.
-  SecretKeyFile = "/home/ec2-user/nymnet/issuer/coconutkeys/threshold-secretKey-id=4-attrs=5-n=5-t=3.pem"
+  SecretKeyFile = "/home/ec2-user/nymnet/validator/coconutkeys/threshold-secretKey-id=4-attrs=5-n=5-t=3.pem"
 
 [Logging]
 

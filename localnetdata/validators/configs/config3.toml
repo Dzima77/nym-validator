@@ -3,7 +3,7 @@
 [Server]
 
   # Identifier is the human readable identifier for the node (eg: FQDN).
-  Identifier = "Issuer 2"
+  Identifier = "Issuer 3"
 
   # Addresses are the IP address/port combinations that the server will bind
   # to for incoming connections.
@@ -14,24 +14,24 @@
 	GRPCAddresses = [ "0.0.0.0:5000" ]
 
 	# DataDir specifies path to a .db file holding relevant server-specific persistent data.
-	DataDir = "/issuer/"
-  
+	DataDir = "/validator/"
+
 	# MaximumAttributes specifies the maximum number of attributes the system supports.
 	MaximumAttributes = 5
-
-	# BlockchainNodeAddresses specifies addresses of a blockchain nodes
+  
+  # BlockchainNodeAddresses specifies addresses of a blockchain nodes
 	# to which the issuer should send all relevant requests. 
 	# Note that only a single request will ever be sent, but multiple addresses are provided in case 
 	# the particular node was unavailable.
 	BlockchainNodeAddresses = [ "192.167.10.2:26657", "192.167.10.3:26657", "192.167.10.4:26657", "192.167.10.5:26657" ]
 
 [Issuer]
-
+  
   # VerificationKeyFile specifies the file containing the Coconut Verification Key.
-  VerificationKeyFile = "/issuer/coconutkeys/threshold-verificationKey-id=2-attrs=5-n=5-t=3.pem"
+  VerificationKeyFile = "/issuer/coconutkeys/threshold-verificationKey-id=3-attrs=5-n=5-t=3.pem"
 
   # SecretKeyFile specifies the file containing the Coconut Secret Key.
-  SecretKeyFile = "/issuer/coconutkeys/threshold-secretKey-id=2-attrs=5-n=5-t=3.pem"
+  SecretKeyFile = "/issuer/coconutkeys/threshold-secretKey-id=3-attrs=5-n=5-t=3.pem"
 
 [Logging]
 
