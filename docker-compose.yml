@@ -82,7 +82,7 @@ services:
     ports:
       - "4000:4000"
       - "5000:5000"
-    command: "-f /issuer/config.toml"
+    command: "--f /issuer/config.toml"
     volumes:
       - ./build/issuers/issuer1:/issuer:Z
     depends_on:
@@ -103,7 +103,7 @@ services:
     ports:
       - "4001:4000"
       - "5001:5000"
-    command: "-f /issuer/config.toml"
+    command: "--f /issuer/config.toml"
     volumes:
       - ./build/issuers/issuer2:/issuer:Z
     depends_on:
@@ -124,7 +124,7 @@ services:
     ports:
       - "4002:4000"
       - "5002:5000"
-    command: "-f /issuer/config.toml"
+    command: "--f /issuer/config.toml"
     volumes:
       - ./build/issuers/issuer3:/issuer:Z
     depends_on:
@@ -205,7 +205,7 @@ services:
     ports:
       - "4100:4000"
       - "5100:5000"
-    command: "-f /provider/config.toml"
+    command: "--f /provider/config.toml"
     volumes:
       - ./build/providers/provider1:/provider:Z
     depends_on:
@@ -225,7 +225,7 @@ services:
     ports:
       - "4101:4000"
       - "5101:5000"
-    command: "-f /provider/config.toml"
+    command: "--f /provider/config.toml"
     volumes:
       - ./build/providers/provider2:/provider:Z
     depends_on:
@@ -242,7 +242,7 @@ services:
     tty: true
     container_name: verifier1
     image: "nym/verifier"
-    command: "-f /verifier/config.toml"
+    command: "--f /verifier/config.toml"
     volumes:
       - ./build/verifiers/verifier1:/verifier:Z
     depends_on:
@@ -260,7 +260,7 @@ services:
     tty: true
     container_name: verifier2
     image: "nym/verifier"
-    command: "-f /verifier/config.toml"
+    command: "--f /verifier/config.toml"
     volumes:
       - ./build/verifiers/verifier2:/verifier:Z
     depends_on:
@@ -278,7 +278,7 @@ services:
     tty: true
     container_name: redeemer1
     image: "nym/redeemer"
-    command: "-f /redeemer/config.toml"
+    command: "--f /redeemer/config.toml"
     volumes:
       - ./build/redeemers/redeemer1:/redeemer:Z
     depends_on:
@@ -296,7 +296,7 @@ services:
     tty: true
     container_name: redeemer2
     image: "nym/redeemer"
-    command: "-f /redeemer/config.toml"
+    command: "--f /redeemer/config.toml"
     volumes:
       - ./build/redeemers/redeemer2:/redeemer:Z
     depends_on:
@@ -314,7 +314,7 @@ services:
     tty: true
     container_name: redeemer3
     image: "nym/redeemer"
-    command: "-f /redeemer/config.toml"
+    command: "--f /redeemer/config.toml"
     volumes:
       - ./build/redeemers/redeemer3:/redeemer:Z
     depends_on:
@@ -334,7 +334,7 @@ services:
     image: "nym/faucet"
     ports:
       - "9000:9000"
-    command: "-f /faucet/config.toml"
+    command: "--f /faucet/config.toml"
     volumes:
       - ./build/faucet:/faucet:Z
     networks:

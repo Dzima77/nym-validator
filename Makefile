@@ -17,8 +17,12 @@ NUM_REDEEMERS=3
 # requires presence of appropriate keys
 THRESHOLD=3
 
+all:
+	make localnet-build
+	make build_binaries
+	make build_release_gui
 
-build_issuers:
+build_local_validators:
 	@if ! [ -f build/issuers/issuer1/config.toml ]; then \
 		i=1; while [ "$$i" -le $(NUM_ISSUERS) ]; do \
 			mkdir -p build/issuers/issuer$$i/coconutkeys ;\
@@ -30,7 +34,7 @@ build_issuers:
 	fi
 	docker build -t nym/issuer -f ./DOCKER/issuer/Dockerfile .
 
-build_providers:
+build_local_providers:
 	@if ! [ -f build/providers/provider1/config.toml ]; then \
 		i=1; while [ "$$i" -le $(NUM_PROVIDERS) ]; do \
 			mkdir -p build/providers/provider$$i/accountKey ;\
@@ -44,7 +48,7 @@ build_providers:
 	docker build -t nym/provider -f ./DOCKER/provider/Dockerfile .
 
 
-build_nym_nodes:
+build_local_nym_nodes:
 	@if ! [ -f build/nodes/node0/config/genesis.json ]; then  \
 		i=0; while [ "$$i" -lt $(NUM_NODES) ]; do \
 			mkdir -p build/nodes/node$$i/config; \
@@ -59,7 +63,7 @@ build_nym_nodes:
 	done ;\
 	docker build -t nym/nymnode -f ./DOCKER/nym_node/Dockerfile .
 
-build_ethereum_watchers:
+build_local_ethereum_watchers:
 	@if ! [ -f build/eth_watchers/watcher1/config.toml ]; then \
 		i=1; while [ "$$i" -le $(NUM_WATCHERS) ]; do \
 			mkdir -p build/ethereum-watchers/watcher$$i; \
@@ -70,7 +74,7 @@ build_ethereum_watchers:
 	fi
 	docker build -t nym/ethereum-watcher -f ./DOCKER/ethereum_watcher/Dockerfile .
 
-build_verifiers:
+build_local_verifiers:
 	@if ! [ -f build/verifiers/verifier1/config.toml ]; then \
 		i=1; while [ "$$i" -le $(NUM_VERIFIERS) ]; do \
 			mkdir -p build/verifiers/verifier$$i/issuerKeys ;\
@@ -83,7 +87,7 @@ build_verifiers:
 	docker build -t nym/verifier -f ./DOCKER/verifier/Dockerfile .
 
 
-build_redeemers:
+build_local_redeemers:
 	@if ! [ -f build/redeemers/redeemer1/config.toml ]; then \
 		i=1; while [ "$$i" -le $(NUM_REDEEMERS) ]; do \
 			mkdir -p build/redeemers/redeemer$$i ;\
@@ -95,7 +99,7 @@ build_redeemers:
 	fi
 	docker build -t nym/redeemer -f ./DOCKER/redeemer/Dockerfile .
 
-build_faucet:
+build_local_faucet:
 	@if ! [ -f build/faucet/config.toml ]; then \
 		mkdir -p build/faucet ;\
 		cp localnetdata/faucet/config.toml build/faucet/config.toml ;\
@@ -103,23 +107,35 @@ build_faucet:
 	fi
 	docker build -t nym/faucet -f ./DOCKER/faucet/Dockerfile .
 
+build_dockerfiles:
+	dep ensure
+	docker build -t nym/validator -f ./DOCKER/validator/Dockerfile .
+	docker build -t nym/provider -f ./DOCKER/provider/Dockerfile .
+	docker build -t nym/nymnode -f ./DOCKER/nym_node/Dockerfile .
+	docker build -t nym/ethereum-watcher -f ./DOCKER/ethereum_watcher/Dockerfile .
+	docker build -t nym/verifier -f ./DOCKER/verifier/Dockerfile .
+	docker build -t nym/redeemer -f ./DOCKER/redeemer/Dockerfile .
+	docker build -t nym/faucet -f ./DOCKER/faucet/Dockerfile .
+
 build_binaries:
-	go build -o $(GOPATH)/bin/nym_eth_watcher ./daemon/eth-watcher
-	go build -o $(GOPATH)/bin/nym_faucet ./daemon/faucet
-	go build -o $(GOPATH)/bin/nym_issuer ./daemon/issuer
-	go build -o $(GOPATH)/bin/nym_nymnode ./daemon/nymnode
-	go build -o $(GOPATH)/bin/nym_provider ./daemon/provider
-	go build -o $(GOPATH)/bin/nym_redeemer ./daemon/redeemer
-	go build -o $(GOPATH)/bin/nym_verifier ./daemon/verifier
+	dep ensure
+	go build -o $(GOPATH)/bin/nym_validator ./cmd/nym-validator
+	go build -o $(GOPATH)/bin/nym_provider ./cmd/nym-provider
+	go build -o $(GOPATH)/bin/nym_nymnode ./cmd/nym-tendermint-node
+	go build -o $(GOPATH)/bin/nym_eth_watcher ./cmd/nym-ethereum-watcher
+	go build -o $(GOPATH)/bin/nym_verifier ./cmd/nym-verifier
+	go build -o $(GOPATH)/bin/nym_redeemer ./cmd/nym-redeemer-demo
+	go build -o $(GOPATH)/bin/nym_faucet ./cmd/nym-faucet-demo
 
 localnet-build:
-	make build_nym_nodes
-	make build_issuers
-	make build_ethereum_watchers
-	make build_providers
-	make build_verifiers
-	make build_redeemers
-	make build_faucet
+	dep ensure
+	make build_local_nym_nodes
+	make build_local_validators
+	make build_local_ethereum_watchers
+	make build_local_providers
+	make build_local_verifiers
+	make build_local_redeemers
+	make build_local_faucet
 
 # Run a local testnet consisting currently of:
 # 4 tendermint nodes
