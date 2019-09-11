@@ -22,7 +22,7 @@
 
 [[constraint]]
   name = "github.com/stretchr/testify"
-  version = "1.2.2"
+  version = "1.4.0"
 
 [[override]]
   name = "github.com/golang/protobuf"
@@ -34,4 +34,8 @@
   
 [[override]]
   name = "github.com/tendermint/tendermint"
-  version = "v0.32.1" # master is now under development and we should not point to it anymore
+  version = "v0.32.3" # master is now under development and we should not point to it anymore
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/tav/golly"
