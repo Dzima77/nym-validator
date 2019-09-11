@@ -27,7 +27,7 @@ import (
 
 const (
 	serviceName       = "nym-provider"
-	defaultConfigFile = "/config.toml"
+	defaultConfigFile = "/provider/config.toml"
 )
 
 func cmdRun(args []string, usage string) {

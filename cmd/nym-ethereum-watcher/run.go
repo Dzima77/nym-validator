@@ -27,7 +27,7 @@ import (
 
 const (
 	serviceName       = "nym-ethereum-watcher"
-	defaultConfigFile = "/config.toml"
+	defaultConfigFile = "/ethereum-watcher/config.toml"
 )
 
 func cmdRun(args []string, usage string) {

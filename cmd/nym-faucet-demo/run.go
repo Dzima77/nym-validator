@@ -27,7 +27,7 @@ import (
 
 const (
 	serviceName       = "nym-faucet-demo"
-	defaultConfigFile = "/config.toml"
+	defaultConfigFile = "/faucet/config.toml"
 )
 
 func cmdRun(args []string, usage string) {

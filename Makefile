@@ -121,8 +121,8 @@ build_binaries:
 	dep ensure
 	go build -o $(GOPATH)/bin/nym_validator ./cmd/nym-validator
 	go build -o $(GOPATH)/bin/nym_provider ./cmd/nym-provider
-	go build -o $(GOPATH)/bin/nym_nymnode ./cmd/nym-tendermint-node
-	go build -o $(GOPATH)/bin/nym_eth_watcher ./cmd/nym-ethereum-watcher
+	go build -o $(GOPATH)/bin/nym_tendermint_node ./cmd/nym-tendermint-node
+	go build -o $(GOPATH)/bin/nym_ethereum_watcher ./cmd/nym-ethereum-watcher
 	go build -o $(GOPATH)/bin/nym_verifier ./cmd/nym-verifier
 	go build -o $(GOPATH)/bin/nym_redeemer ./cmd/nym-redeemer-demo
 	go build -o $(GOPATH)/bin/nym_faucet ./cmd/nym-faucet-demo

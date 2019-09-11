@@ -13,6 +13,7 @@ services:
       - ID=0
 # Is this still applicable?
       - LOG=$${LOG:-tendermint.log}
+    command: "run"
     volumes:
       - ./build/nodes/node0:/tendermint:Z
     networks:
@@ -31,6 +32,7 @@ services:
       - ID=1
 # Is this still applicable?
       - LOG=$${LOG:-tendermint.log}
+    command: "run"
     volumes:
       - ./build/nodes/node1:/tendermint:Z
     networks:
@@ -47,6 +49,7 @@ services:
       - ID=2
 # Is this still applicable?
       - LOG=$${LOG:-tendermint.log}
+    command: "run"
     ports:
       - "26660-26661:26656-26657"
     volumes:
@@ -65,6 +68,7 @@ services:
       - ID=3
 # Is this still applicable?
       - LOG=$${LOG:-tendermint.log}
+    command: "run"
     ports:
       - "26662-26663:26656-26657"
     volumes:
@@ -82,7 +86,7 @@ services:
     ports:
       - "4000:4000"
       - "5000:5000"
-    command: "--f /issuer/config.toml"
+    command: "run --f /issuer/config.toml"
     volumes:
       - ./build/issuers/issuer1:/issuer:Z
     depends_on:
@@ -103,7 +107,7 @@ services:
     ports:
       - "4001:4000"
       - "5001:5000"
-    command: "--f /issuer/config.toml"
+    command: "run --f /issuer/config.toml"
     volumes:
       - ./build/issuers/issuer2:/issuer:Z
     depends_on:
@@ -124,7 +128,7 @@ services:
     ports:
       - "4002:4000"
       - "5002:5000"
-    command: "--f /issuer/config.toml"
+    command: "run --f /issuer/config.toml"
     volumes:
       - ./build/issuers/issuer3:/issuer:Z
     depends_on:
@@ -205,7 +209,7 @@ services:
     ports:
       - "4100:4000"
       - "5100:5000"
-    command: "--f /provider/config.toml"
+    command: "run --f /provider/config.toml"
     volumes:
       - ./build/providers/provider1:/provider:Z
     depends_on:
@@ -225,7 +229,7 @@ services:
     ports:
       - "4101:4000"
       - "5101:5000"
-    command: "--f /provider/config.toml"
+    command: "run --f /provider/config.toml"
     volumes:
       - ./build/providers/provider2:/provider:Z
     depends_on:
@@ -242,7 +246,7 @@ services:
     tty: true
     container_name: verifier1
     image: "nym/verifier"
-    command: "--f /verifier/config.toml"
+    command: "run --f /verifier/config.toml"
     volumes:
       - ./build/verifiers/verifier1:/verifier:Z
     depends_on:
@@ -260,7 +264,7 @@ services:
     tty: true
     container_name: verifier2
     image: "nym/verifier"
-    command: "--f /verifier/config.toml"
+    command: "run --f /verifier/config.toml"
     volumes:
       - ./build/verifiers/verifier2:/verifier:Z
     depends_on:
@@ -278,7 +282,7 @@ services:
     tty: true
     container_name: redeemer1
     image: "nym/redeemer"
-    command: "--f /redeemer/config.toml"
+    command: "run --f /redeemer/config.toml"
     volumes:
       - ./build/redeemers/redeemer1:/redeemer:Z
     depends_on:
@@ -296,7 +300,7 @@ services:
     tty: true
     container_name: redeemer2
     image: "nym/redeemer"
-    command: "--f /redeemer/config.toml"
+    command: "run --f /redeemer/config.toml"
     volumes:
       - ./build/redeemers/redeemer2:/redeemer:Z
     depends_on:
@@ -314,7 +318,7 @@ services:
     tty: true
     container_name: redeemer3
     image: "nym/redeemer"
-    command: "--f /redeemer/config.toml"
+    command: "run --f /redeemer/config.toml"
     volumes:
       - ./build/redeemers/redeemer3:/redeemer:Z
     depends_on:
@@ -334,7 +338,7 @@ services:
     image: "nym/faucet"
     ports:
       - "9000:9000"
-    command: "--f /faucet/config.toml"
+    command: "run --f /faucet/config.toml"
     volumes:
       - ./build/faucet:/faucet:Z
     networks:

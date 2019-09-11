@@ -27,7 +27,7 @@ import (
 
 const (
 	serviceName       = "nym-verifier"
-	defaultConfigFile = "/config.toml"
+	defaultConfigFile = "/verifier/config.toml"
 )
 
 func cmdRun(args []string, usage string) {

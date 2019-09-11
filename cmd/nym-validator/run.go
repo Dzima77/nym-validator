@@ -27,7 +27,7 @@ import (
 
 const (
 	serviceName       = "nym-validator-demo"
-	defaultConfigFile = "/config.toml"
+	defaultConfigFile = "/issuer/config.toml"
 )
 
 func cmdRun(args []string, usage string) {

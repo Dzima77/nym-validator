@@ -27,7 +27,7 @@ import (
 
 const (
 	serviceName       = "nym-redeemer-demo"
-	defaultConfigFile = "/config.toml"
+	defaultConfigFile = "/redeemer/config.toml"
 )
 
 func cmdRun(args []string, usage string) {

@@ -34,5 +34,5 @@ func main() {
 	info := map[string]string{
 		"run": "Run a persistent nym-tendermint node",
 	}
-	optparse.Commands("nym-tendermint node", "0.12.8", cmds, info, logo)
+	optparse.Commands("nym_tendermint_node", "0.12.8", cmds, info, logo)
 }
