@@ -28,10 +28,10 @@
 [Issuer]
   
   # VerificationKeyFile specifies the file containing the Coconut Verification Key.
-  VerificationKeyFile = "/issuer/coconutkeys/threshold-verificationKey-id=3-attrs=5-n=5-t=3.pem"
+  VerificationKeyFile = "/validator/coconutkeys/threshold-verificationKey-id=3-attrs=5-n=5-t=3.pem"
 
   # SecretKeyFile specifies the file containing the Coconut Secret Key.
-  SecretKeyFile = "/issuer/coconutkeys/threshold-secretKey-id=3-attrs=5-n=5-t=3.pem"
+  SecretKeyFile = "/validator/coconutkeys/threshold-secretKey-id=3-attrs=5-n=5-t=3.pem"
 
 [Logging]
 

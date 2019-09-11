@@ -19,7 +19,7 @@ before_script:
 
 script: 
   # for time being ignore tests on multiple curves
-  - go test `go list ./... | grep -v clientapp` -race -coverprofile=coverage.txt -covermode=atomic
+  - go test `go list ./... | grep -v clientapp` -timeout=60m -race -coverprofile=coverage.txt -covermode=atomic
 
   # - ./changecurve.sh BLS
   # - go test `go list ./... | grep -v clientapp` -race -coverprofile=coverageBLS.out -covermode=atomic
