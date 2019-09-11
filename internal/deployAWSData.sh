@@ -41,7 +41,7 @@ done
 if [ $rmRemote = true ]; then
     for (( i = 1; i <= $NUM_NODES; i++ )); do
         echo "removing remote data on node $i..."
-        # ssh fullnode$i.nym "rm -rf ~/nymnet"
+        ssh fullnode$i.nym "rm -rf ~/nymnet"
     done
 fi
 
