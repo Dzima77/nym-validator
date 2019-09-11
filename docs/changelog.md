@@ -1,5 +1,11 @@
 # CoconutGo Changelog
 
+## 0.12.8
+
+* Updated daemons of all entities to provide more information regarding required flags; similar to current design of loopix
+* Made naming scheme slightly more consistent
+* Restored travis-ci integration
+
 ## 0.12.7
 
 * Provider depositing received credential in background, i.e. new gouroutine, after receiving it, hence reintroducing proper double-spending checks
