@@ -13,18 +13,18 @@ install:
   - dep ensure
 
 before_script:
-  - go get github.com/wadey/gocovmerge
-  - go install $GOPATH/src/github.com/wadey/gocovmerge
+  # - go get github.com/wadey/gocovmerge
+  # - go install $GOPATH/src/github.com/wadey/gocovmerge
   - 
 
 script: 
   # for time being ignore tests on multiple curves
-  - go test `go list ./... | grep -v directoriesToSkip` -race -coverprofile=coverage.txt -covermode=atomic
+  - go test `go list ./... | grep -v clientapp` -race -coverprofile=coverage.txt -covermode=atomic
 
   # - ./changecurve.sh BLS
-  # - go test `go list ./... | grep -v directoriesToSkip` -race -coverprofile=coverageBLS.out -covermode=atomic
+  # - go test `go list ./... | grep -v clientapp` -race -coverprofile=coverageBLS.out -covermode=atomic
   # - ./changecurve.sh BN
-  # - go test `go list ./... | grep -v directoriesToSkip` -race -coverprofile=coverageBN.out -covermode=atomic
+  # - go test `go list ./... | grep -v clientapp` -race -coverprofile=coverageBN.out -covermode=atomic
   # - $GOPATH/bin/gocovmerge coverageBLS.out coverageBN.out > coverage.txt
   # - rm coverageB*
   # - go test ./... -timeout=60m -run nothing -bench=. -cpu=1,2,4 -benchtime=2s
