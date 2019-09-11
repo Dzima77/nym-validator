@@ -19,13 +19,13 @@ COPY . .
 # Fetch dependencies if we decide to remove the vendor directory at some point
 # RUN go get -d -v
 
-WORKDIR $GOPATH/src/github.com/nymtech/nym/daemon/provider/
+WORKDIR $GOPATH/src/github.com/nymtech/nym/cmd/nym-provider/
 
 
 # Build the binary
 # for production: removes debug, etc. 
-# RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o /go/bin/provider .
-RUN go build -o /go/bin/provider .
+# RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o /go/bin/nym-provider .
+RUN go build -o /go/bin/nym-provider .
 
 # ############################
 # # STEP 2 build a small image
@@ -41,9 +41,9 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /etc/passwd /etc/passwd
 
 # Copy our static executable + configs etc
-COPY --from=builder /go/bin/provider /app/provider
+COPY --from=builder /go/bin/nym-provider /app/nym-provider
 
 # Use an unprivileged user.
 USER appuser
 
-ENTRYPOINT [ "/app/provider" ]
+ENTRYPOINT [ "/app/nym-provider" ]

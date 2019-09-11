@@ -18,13 +18,14 @@
 package daemon
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"os/signal"
 	"runtime"
 	"strconv"
 	"syscall"
+
+	"github.com/tav/golly/optparse"
 )
 
 type Service interface {
@@ -32,10 +33,9 @@ type Service interface {
 	Wait()
 }
 
-type StartUpFunc func() Service
-type FlagDefineFunc func()
+type StartUpFunc func(args []string) Service
 
-func Start(flagsFn FlagDefineFunc, startFn StartUpFunc) {
+func Start(startFn StartUpFunc, args []string) {
 	const PtrSize = 32 << uintptr(^uintptr(0)>>63)
 	if PtrSize != 64 || strconv.IntSize != 64 {
 		fmt.Fprintf(os.Stderr,
@@ -45,9 +45,6 @@ func Start(flagsFn FlagDefineFunc, startFn StartUpFunc) {
 		)
 		os.Exit(-1)
 	}
-
-	flagsFn()
-	flag.Parse()
 
 	syscall.Umask(0077)
 
@@ -66,7 +63,7 @@ func Start(flagsFn FlagDefineFunc, startFn StartUpFunc) {
 	signal.Notify(haltCh, os.Interrupt, syscall.SIGTERM)
 	// for now ignore SIGHUP signal, TODO: handle it similarly to katzenpost
 
-	service := startFn()
+	service := startFn(args)
 	defer service.Shutdown()
 
 	// Halt the service gracefully on SIGINT/SIGTERM.
@@ -77,4 +74,8 @@ func Start(flagsFn FlagDefineFunc, startFn StartUpFunc) {
 
 	// Wait for the service to explode or be terminated.
 	service.Wait()
+}
+
+func NewOpts(serviceName string, command string, usage string) *optparse.Parser {
+	return optparse.New(fmt.Sprintf("Usage: %s %s\n\n  %s\n", serviceName, command, usage))
 }

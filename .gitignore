@@ -12,3 +12,4 @@ mainaccount.key
 /awsnetdata/*/*/*.key
 /awsnetdata/*/*/*/*.key
 /awsnetdata/temp*
+/vendor

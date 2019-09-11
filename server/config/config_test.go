@@ -132,31 +132,8 @@ func TestServer(t *testing.T) {
 }
 
 func TestIssuer(t *testing.T) {
-	// shouldn't care about block present when flag is not set
-	_, err := config.LoadBinary([]byte(`
-	[Server]
-	MaximumAttributes = 5
-	IsIssuer = false
-	Addresses = [ "127.0.0.1:4000" ]
-	DataDir = "/foo"
-	[Issuer]
-	SecretKeyFile = "/foo/bar"
-	VerificationKeyFile = "/foo/bar"
-	`))
-	assert.Error(t, err)
-
-	// empty block
-	_, err = config.LoadBinary([]byte(`
-	[Server]
-	MaximumAttributes = 5
-	IsIssuer = true
-	Addresses = [ "127.0.0.1:4000" ]
-	DataDir = "/foo"
-	`))
-	assert.Error(t, err)
-
 	// needs both keys to be explicitly set
-	_, err = config.LoadBinary([]byte(`
+	_, err := config.LoadBinary([]byte(`
 	[Server]
 	MaximumAttributes = 5
 	IsIssuer = true
@@ -192,16 +169,6 @@ func TestProvider(t *testing.T) {
 	[Provider]
 	SecretKeyFile = "/foo/bar"
 	VerificationKeyFile = "/foo/bar"
-	`))
-	assert.Error(t, err)
-
-	// empty block
-	_, err = config.LoadBinary([]byte(`
-	[Server]
-	MaximumAttributes = 5
-	IsProvider = true
-	Addresses = [ "127.0.0.1:4000" ]
-	DataDir = "/foo"
 	`))
 	assert.Error(t, err)
 

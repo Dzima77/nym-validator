@@ -13,21 +13,24 @@ APP_STATE_REPLACEMENT=$(<awsnetdata/temp_escaped_genesis_app_state)
 rmRemote=false
 rebuildBins=false
 useDevelop=false
+feature='NO_FEATURE'
 
 print_usage() {
   printf "Usage:\n
    -r to remove existing remote data\n
    -b to rebuild all remote binaries\n
    -d if binaries are to be rebuilt, use develop branch\n
+   -f if binaries are to be rebuilt, use provided feature branch\n
    -h show help\n
 "
 }
 
-while getopts 'rbdh' flag; do
+while getopts 'rbdf:h' flag; do
   case "${flag}" in
     r) rmRemote=true ;;
     b) rebuildBins=true ;;
     d) useDevelop=true ;;
+    f) feature="${OPTARG}" ;;
     h) print_usage
         exit 1 ;;
     *) print_usage
@@ -45,7 +48,10 @@ fi
 if [ $rebuildBins = true ]; then
     for (( i = 1; i <= $NUM_NODES; i++ )); do
         echo "rebuilding binaries on node $i..."
-        if [ $useDevelop = true ]; then
+        if [ $feature != 'NO_FEATURE' ]; then
+            echo "using feature branch: feature/"$feature
+            ssh fullnode$i.nym "cd \$GOPATH/src/github.com/nymtech/nym/ && git pull && git checkout feature/$feature && git pull && make build_binaries && cd"
+        elif [ $useDevelop = true ]; then
             echo "using develop branch"
             ssh fullnode$i.nym "cd \$GOPATH/src/github.com/nymtech/nym/ && git checkout develop && git pull && make build_binaries && cd"
         else 
@@ -79,14 +85,14 @@ for (( i = 1; i <= $NUM_NODES; i++ )); do
 
     scp internal/startFullNode.sh fullnode$i.nym:~
 
-    ssh fullnode$i.nym "mkdir -p ~/nymnet/node/ && mkdir -p ~/nymnet/issuer/coconutkeys/ && mkdir -p ~/nymnet/ethereum-watcher/ && mkdir -p ~/nymnet/verifier/issuerKeys/ && mkdir -p ~/nymnet/redeemer/"
+    ssh fullnode$i.nym "mkdir -p ~/nymnet/node/ && mkdir -p ~/nymnet/validator/coconutkeys/ && mkdir -p ~/nymnet/ethereum-watcher/ && mkdir -p ~/nymnet/verifier/validatorKeys/ && mkdir -p ~/nymnet/redeemer/"
 
     scp -r build/aws_tmp_nodes/node$di/* fullnode$i.nym:~/nymnet/node
 
     echo "Copying nym validator data..."
-    scp awsnetdata/issuers/configs/config$i.toml fullnode$i.nym:~/nymnet/issuer/config.toml
-    scp awsnetdata/issuers/keys/coconutkeys/threshold-secretKey-id=$i-attrs=5-n=5-t=3.pem fullnode$i.nym:~/nymnet/issuer/coconutkeys/
-    scp awsnetdata/issuers/keys/coconutkeys/threshold-verificationKey-id=$i-attrs=5-n=5-t=3.pem fullnode$i.nym:~/nymnet/issuer/coconutkeys/
+    scp awsnetdata/validators/configs/config$i.toml fullnode$i.nym:~/nymnet/validator/config.toml
+    scp awsnetdata/validators/keys/coconutkeys/threshold-secretKey-id=$i-attrs=5-n=5-t=3.pem fullnode$i.nym:~/nymnet/validator/coconutkeys/
+    scp awsnetdata/validators/keys/coconutkeys/threshold-verificationKey-id=$i-attrs=5-n=5-t=3.pem fullnode$i.nym:~/nymnet/validator/coconutkeys/
 
     echo "Copying ethereum watcher data..."
     scp awsnetdata/ethereum-watchers/configs/config$i.toml fullnode$i.nym:~/nymnet/ethereum-watcher/config.toml
@@ -95,7 +101,7 @@ for (( i = 1; i <= $NUM_NODES; i++ )); do
     echo "Copying credential verifier data..."
     scp awsnetdata/verifiers/configs/config$i.toml fullnode$i.nym:~/nymnet/verifier/config.toml
     scp awsnetdata/verifiers/keys/verifier$i.key fullnode$i.nym:~/nymnet/verifier/verifier.key
-    scp awsnetdata/issuers/keys/coconutkeys/threshold-verificationKey-* fullnode$i.nym:~/nymnet/verifier/issuerKeys/
+    scp awsnetdata/validators/keys/coconutkeys/threshold-verificationKey-* fullnode$i.nym:~/nymnet/verifier/validatorKeys/
 
     echo "Copying token redeemer data..."
     scp awsnetdata/redeemers/configs/config$i.toml fullnode$i.nym:~/nymnet/redeemer/config.toml
@@ -110,14 +116,14 @@ for (( i = 1; i <= $NUM_NODES; i++ )); do
     fi
     if (($i == 2 || $i == 3)); then
         echo "Copying provider data..."
-        ssh fullnode$i.nym "mkdir -p ~/nymnet/provider/issuerKeys && mkdir -p ~/nymnet/provider/accountKey"
+        ssh fullnode$i.nym "mkdir -p ~/nymnet/provider/validatorKeys && mkdir -p ~/nymnet/provider/accountKey"
 
         # naive workaround but temporarily works
         let "pi = i - 1"
 
         scp awsnetdata/providers/configs/config$pi.toml fullnode$i.nym:~/nymnet/provider/config.toml
 		scp awsnetdata/providers/keys/accountKeys/provider$pi.key fullnode$i.nym:~/nymnet/provider/accountKey/provider.key
-		scp awsnetdata/issuers/keys/coconutkeys/threshold-verificationKey-* fullnode$i.nym:~/nymnet/provider/issuerKeys/
+		scp awsnetdata/validators/keys/coconutkeys/threshold-verificationKey-* fullnode$i.nym:~/nymnet/provider/validatorKeys/
     fi   
 done
 

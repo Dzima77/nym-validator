@@ -35,7 +35,7 @@ func TestMain(m *testing.M) {
 
 	logger := log.NewTMLogger(log.NewSyncWriter(ioutil.Discard)).With("module", "test")
 
-	app = NewNymApplication("leveldb", tmpDbDir, logger)
+	app = NewNymApplication("goleveldb", tmpDbDir, logger)
 	runTests := m.Run()
 
 	os.RemoveAll(tmpDbDir)

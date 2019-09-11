@@ -24,11 +24,11 @@
   IAAddresses = [ "192.167.11.1:4000", "192.167.11.2:4000", "192.167.11.3:4000" ]
   
   # IAVerificationKeys specifies files containing Coconut Verification keys of all Issuing Authorities.
-  IAVerificationKeys = [ "/verifier/issuerKeys/threshold-verificationKey-id=1-attrs=5-n=5-t=3.pem" ,
-  "/verifier/issuerKeys/threshold-verificationKey-id=2-attrs=5-n=5-t=3.pem",
-  "/verifier/issuerKeys/threshold-verificationKey-id=3-attrs=5-n=5-t=3.pem",
-  "/verifier/issuerKeys/threshold-verificationKey-id=4-attrs=5-n=5-t=3.pem",
-  "/verifier/issuerKeys/threshold-verificationKey-id=5-attrs=5-n=5-t=3.pem"]
+  IAVerificationKeys = [ "/verifier/validatorKeys/threshold-verificationKey-id=1-attrs=5-n=5-t=3.pem" ,
+  "/verifier/validatorKeys/threshold-verificationKey-id=2-attrs=5-n=5-t=3.pem",
+  "/verifier/validatorKeys/threshold-verificationKey-id=3-attrs=5-n=5-t=3.pem",
+  "/verifier/validatorKeys/threshold-verificationKey-id=4-attrs=5-n=5-t=3.pem",
+  "/verifier/validatorKeys/threshold-verificationKey-id=5-attrs=5-n=5-t=3.pem"]
 
   # Threshold defines minimum number of verification keys verifier needs to obtain. Default = len(IAAddresses).
   Threshold = 3

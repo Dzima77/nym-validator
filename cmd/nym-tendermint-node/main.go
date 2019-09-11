@@ -1,0 +1,38 @@
+// main.go - nym-tendermint node entrypoint.
+// Copyright (C) 2019  Jedrzej Stuczynski.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+package main
+
+import "github.com/tav/golly/optparse"
+
+func main() {
+	var logo = `
+  ____                            _        _   _                 
+ / ___|___   ___ ___  _ __  _   _| |_     | \ | |_   _ _ __ ___  
+| |   / _ \ / __/ _ \| '_ \| | | | __|____|  \| | | | | '_ \ _ \ 
+| |___ (_) | (__ (_) | | | | |_| | |______| |\  | |_| | | | | | |
+ \____\___/ \___\___/|_| |_|\__,_|\__|    |_| \_|\__, |_| |_| |_|
+             (nym-tendermint node)               |___/           
+										 
+`
+	cmds := map[string]func([]string, string){
+		"run": cmdRun,
+	}
+	info := map[string]string{
+		"run": "Run a persistent nym-tendermint node",
+	}
+	optparse.Commands("nym_tendermint_node", "0.12.8", cmds, info, logo)
+}

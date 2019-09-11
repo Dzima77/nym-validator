@@ -193,7 +193,7 @@ func (c *Client) sendGRPCs(respCh chan<- *comm.ServerResponseGrpc,
 				if !ok {
 					return
 				}
-				c.log.Debugf("Dialing %v", req.ServerMetadata.Address)
+				c.log.Debugf("Dialling %v", req.ServerMetadata.Address)
 				conn, err := grpc.Dial(req.ServerMetadata.Address, dialOptions...)
 				if err != nil {
 					c.log.Errorf("Could not dial %v (%v)", req.ServerMetadata.Address, err)
@@ -734,7 +734,7 @@ func (c *Client) SendCredentialsForVerificationGrpc(pubM []*Curve.BIG,
 		return false, c.logAndReturnError("SendCredentialsForVerificationGrpc: Failed to create Verify request: %v", err)
 	}
 
-	c.log.Debugf("Dialing %v", addr)
+	c.log.Debugf("Dialling %v", addr)
 	conn, err := grpc.Dial(addr, grpcDialOptions...)
 	if err != nil {
 		return false, c.logAndReturnError("SendCredentialsForVerificationGrpc: Could not dial %v (%v)", addr, err)
@@ -775,7 +775,7 @@ func (c *Client) SendCredentialsForVerification(pubM []*Curve.BIG, sig *coconut.
 		return false, c.logAndReturnError("Could not create data packet for verify command: %v", err)
 	}
 
-	c.log.Debugf("Dialing %v", addr)
+	c.log.Debugf("Dialling %v", addr)
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		return false, c.logAndReturnError("SendCredentialsForVerification: Could not dial %v (%v)", addr, err)
@@ -891,7 +891,7 @@ func (c *Client) SendCredentialsForBlindVerificationGrpc(pubM []*Curve.BIG,
 			)
 	}
 
-	c.log.Debugf("Dialing %v", addr)
+	c.log.Debugf("Dialling %v", addr)
 	conn, err := grpc.Dial(addr, grpcDialOptions...)
 	if err != nil {
 		c.log.Errorf("Could not dial %v (%v)", addr, err)
@@ -946,7 +946,7 @@ func (c *Client) SendCredentialsForBlindVerification(pubM []*Curve.BIG,
 		return false, c.logAndReturnError("Could not create data packet for blind verify command: %v", err)
 	}
 
-	c.log.Debugf("Dialing %v", addr)
+	c.log.Debugf("Dialling %v", addr)
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		return false, c.logAndReturnError("SendCredentialsForBlindVerification: Could not dial %v (%v)", addr, err)
