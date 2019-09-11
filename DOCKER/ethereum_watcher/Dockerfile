@@ -19,7 +19,7 @@ COPY . .
 # Fetch dependencies if we decide to remove the vendor directory at some point
 # RUN go get -d -v
 
-WORKDIR $GOPATH/src/github.com/nymtech/nym/daemon/eth-watcher/
+WORKDIR $GOPATH/src/github.com/nymtech/nym/cmd/nym-ethereum-watcher/
 
 # Build the binary
 # for production: removes debug, etc. 

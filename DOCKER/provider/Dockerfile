@@ -19,7 +19,7 @@ COPY . .
 # Fetch dependencies if we decide to remove the vendor directory at some point
 # RUN go get -d -v
 
-WORKDIR $GOPATH/src/github.com/nymtech/nym/daemon/provider/
+WORKDIR $GOPATH/src/github.com/nymtech/nym/cmd/nym-provider/
 
 
 # Build the binary
