@@ -45,6 +45,7 @@ import (
 
 func (c *Client) WaitForEthereumTxToResolve(ctx context.Context, txHash ethcommon.Hash) (bool, error) {
 	// TODO: variable ticket interval?
+	c.log.Infof("Waiting for tx %v to get accepted", txHash.Hex())
 	ticker := time.NewTicker(1500 * time.Millisecond)
 
 	for {
@@ -230,7 +231,7 @@ func (c *Client) parseFaucetTransferResponse(packetResponse *packet.Packet) (eth
 	erc20Hash := ethcommon.BytesToHash(faucetTransferResponse.Erc20TxHash)
 	etherHash := ethcommon.BytesToHash(faucetTransferResponse.EtherTxHash)
 
-	c.log.Warningf("hash1: %v, hash2: %v", erc20Hash.Hex(), etherHash.Hex())
+	c.log.Infof("Hash of ERC20 Nym token transfer:: %v\n, Hash of Ether transfer: %v", erc20Hash.Hex(), etherHash.Hex())
 
 	return erc20Hash, etherHash, nil
 }
