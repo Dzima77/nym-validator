@@ -23,7 +23,8 @@ import (
 )
 
 const (
-	headerLength = 4 // just holds length of payload - 4 bytes
+	headerLength     = 4 // just holds length of payload - 4 bytes
+	MaxPayloadLength = 32768
 )
 
 type header struct {

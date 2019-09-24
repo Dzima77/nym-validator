@@ -87,6 +87,10 @@ func ReadPacketFromConn(conn net.Conn) (*packet.Packet, error) {
 		return nil, err
 	}
 	packetOutLength := binary.BigEndian.Uint32(tmp)
+	if packetOutLength > packet.MaxPayloadLength {
+		return nil, fmt.Errorf("packet too long: %v", packetOutLength)
+	}
+
 	packetOutBytes := make([]byte, packetOutLength)
 	copy(packetOutBytes, tmp)
 	if _, err = io.ReadFull(conn, packetOutBytes[4:]); err != nil {
@@ -119,7 +123,7 @@ func SendServerRequests(ctx context.Context,
 				dialer := &net.Dialer{
 					Timeout: connectionTimeout,
 				}
-				log.Debugf("Dialing %v", req.ServerMetadata.Address)
+				log.Debugf("Dialling %v", req.ServerMetadata.Address)
 				conn, err := dialer.DialContext(ctx, "tcp", req.ServerMetadata.Address)
 				if err != nil {
 					log.Errorf("Could not dial %v", req.ServerMetadata.Address)
