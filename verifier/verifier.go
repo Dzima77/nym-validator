@@ -29,7 +29,7 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/golang/protobuf/proto"
-	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	"github.com/nymtech/nym-validator/common/comm/commands"
 	monitor "github.com/nymtech/nym-validator/common/tendermintmonitor"
 	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobqueue"

@@ -25,7 +25,7 @@ import (
 	"github.com/nymtech/nym-validator/constants"
 	"github.com/nymtech/nym-validator/crypto/bpgroup"
 	proto "github.com/golang/protobuf/proto"
-	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 )
 
 var (

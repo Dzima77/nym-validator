@@ -340,7 +340,7 @@
 [[projects]]
   branch = "master"
   digest = "1:a379f24690a850d93efdfee23b14da4a05fc0e49c8c7d8ab45f166138cc162c0"
-  name = "github.com/jstuczyn/amcl"
+  name = "github.com/nymtech/amcl"
   packages = [
     "version3/go/amcl",
     "version3/go/amcl/BLS381",
@@ -953,8 +953,8 @@
     "github.com/ethereum/go-ethereum/ethclient",
     "github.com/ethereum/go-ethereum/event",
     "github.com/golang/protobuf/proto",
-    "github.com/jstuczyn/amcl/version3/go/amcl",
-    "github.com/jstuczyn/amcl/version3/go/amcl/BLS381",
+    "github.com/nymtech/amcl/version3/go/amcl",
+    "github.com/nymtech/amcl/version3/go/amcl/BLS381",
     "github.com/spf13/viper",
     "github.com/stretchr/testify/assert",
     "github.com/syndtr/goleveldb/leveldb",

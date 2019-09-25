@@ -29,8 +29,8 @@ package account
 
 // 	"github.com/nymtech/nym-validator/common/utils"
 // 	"github.com/nymtech/nym-validator/constants"
-// 	"github.com/jstuczyn/amcl/version3/go/amcl"
-// 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+// 	"github.com/nymtech/amcl/version3/go/amcl"
+// 	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 // )
 
 // //nolint: golint

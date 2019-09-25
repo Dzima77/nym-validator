@@ -29,7 +29,7 @@ import (
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
-	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	"github.com/nymtech/nym-validator/common/comm/commands"
 	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/coconutworker"
 	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"

@@ -20,7 +20,7 @@ package account_test
 
 // 	"github.com/nymtech/nym-validator/common/utils"
 // 	"github.com/nymtech/nym-validator/tendermint/account"
-// 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+// 	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 // 	"github.com/stretchr/testify/assert"
 // )
 

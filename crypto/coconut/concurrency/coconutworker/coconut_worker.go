@@ -25,7 +25,7 @@ import (
 	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
 	"github.com/nymtech/nym-validator/crypto/elgamal"
 	"github.com/nymtech/nym-validator/nym/token"
-	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 )
 
 // CoconutWorker allows writing coconut actions to a shared job queue,

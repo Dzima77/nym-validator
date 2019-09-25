@@ -30,7 +30,7 @@ package nymapplication
 // 	tmconst "github.com/nymtech/nym-validator/tendermint/nymabci/constants"
 // 	"github.com/nymtech/nym-validator/tendermint/nymabci/transaction"
 // 	proto "github.com/golang/protobuf/proto"
-// 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+// 	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 // 	"github.com/stretchr/testify/assert"
 // )
 

@@ -31,7 +31,7 @@ linters-settings:
     include-go-root: false
     packages:
       - github.com/nymtech/nym-validator
-      - github.com/jstuczyn/amcl
+      - github.com/nymtech/amcl
       - github.com/tendermint/tendermint
       - github.com/tendermint/iavl
       - github.com/ethereum/go-ethereum

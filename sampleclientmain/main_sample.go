@@ -25,7 +25,7 @@ import (
 	"syscall"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
-	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	cclient "github.com/nymtech/nym-validator/client"
 	"github.com/nymtech/nym-validator/client/config"
 	"github.com/nymtech/nym-validator/crypto/bpgroup"
