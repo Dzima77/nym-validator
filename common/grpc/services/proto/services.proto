@@ -2,7 +2,7 @@ syntax = "proto3";
 import "common/comm/commands/proto/types.proto";
 
 package services;
-option go_package = "github.com/nymtech/nym/common/grpc/services";
+option go_package = "github.com/nymtech/nym-validator/common/grpc/services";
 
 service Issuer {
     rpc GetVerificationKey(commands.VerificationKeyRequest) returns (commands.VerificationKeyResponse);

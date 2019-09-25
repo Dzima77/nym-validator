@@ -24,9 +24,9 @@ import (
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	"github.com/nymtech/nym/tendermint/nymabci/code"
-	tmconst "github.com/nymtech/nym/tendermint/nymabci/constants"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/tendermint/nymabci/code"
+	tmconst "github.com/nymtech/nym-validator/tendermint/nymabci/constants"
 )
 
 func balanceToBytes(balance uint64) []byte {

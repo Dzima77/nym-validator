@@ -26,10 +26,10 @@ import (
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	proto "github.com/golang/protobuf/proto"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
-	"github.com/nymtech/nym/common/utils"
-	"github.com/nymtech/nym/constants"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	tmconst "github.com/nymtech/nym/tendermint/nymabci/constants"
+	"github.com/nymtech/nym-validator/common/utils"
+	"github.com/nymtech/nym-validator/constants"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	tmconst "github.com/nymtech/nym-validator/tendermint/nymabci/constants"
 )
 
 const (

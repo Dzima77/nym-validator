@@ -26,7 +26,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/nymtech/nym/logger"
+	"github.com/nymtech/nym-validator/logger"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	tmclient "github.com/tendermint/tendermint/rpc/client"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"

@@ -24,7 +24,7 @@ import (
 	"path/filepath"
 	"time"
 
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
 )
 
 // main takes the arguments passed on command line

@@ -4,7 +4,7 @@ The installation process of the Coconut servers takes multiple steps.
 
 0. Ensure you have correctly installed and configured docker and docker-compose.
 
-1. Firstly get the copy of the repo with either `git clone git@github.com:nymtech/nym.git` or `go get github.com/nymtech/nym`. Using the first command is recommended in case there were any issue with go tools.
+1. Firstly get the copy of the repo with either `git clone git@github.com:nymtech/nym.git` or `go get github.com/nymtech/nym-validator`. Using the first command is recommended in case there were any issue with go tools.
 
 2. Build the entire system by invoking `make localnet-build`.
 

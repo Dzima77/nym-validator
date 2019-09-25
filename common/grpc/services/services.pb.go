@@ -7,7 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	commands "github.com/nymtech/nym/common/comm/commands"
+	commands "github.com/nymtech/nym-validator/common/comm/commands"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"

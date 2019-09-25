@@ -28,10 +28,10 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
-	"github.com/nymtech/nym/common/comm/commands"
-	"github.com/nymtech/nym/common/comm/packet"
-	"github.com/nymtech/nym/constants"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/common/comm/commands"
+	"github.com/nymtech/nym-validator/common/comm/packet"
+	"github.com/nymtech/nym-validator/constants"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
 	"gopkg.in/op/go-logging.v1"
 )
 

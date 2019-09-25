@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nymtech/nym/daemon"
-	"github.com/nymtech/nym/ethereum/watcher"
-	"github.com/nymtech/nym/ethereum/watcher/config"
+	"github.com/nymtech/nym-validator/daemon"
+	"github.com/nymtech/nym-validator/ethereum/watcher"
+	"github.com/nymtech/nym-validator/ethereum/watcher/config"
 )
 
 const (

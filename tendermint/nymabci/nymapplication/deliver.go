@@ -23,10 +23,10 @@ import (
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/golang/protobuf/proto"
-	"github.com/nymtech/nym/constants"
-	"github.com/nymtech/nym/tendermint/nymabci/code"
-	tmconst "github.com/nymtech/nym/tendermint/nymabci/constants"
-	"github.com/nymtech/nym/tendermint/nymabci/transaction"
+	"github.com/nymtech/nym-validator/constants"
+	"github.com/nymtech/nym-validator/tendermint/nymabci/code"
+	tmconst "github.com/nymtech/nym-validator/tendermint/nymabci/constants"
+	"github.com/nymtech/nym-validator/tendermint/nymabci/transaction"
 	"github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 )
@@ -350,7 +350,7 @@ func (app *NymApplication) handleTokenRedemption(reqb []byte) types.ResponseDeli
 					// in this dummy implementation we don't really need to attach much information,
 					// only just enough to identify this particular transaction because no processing on redeemer side is required
 					// [ Prefix || User || Amount || Nonce --- nil? ]
-					// TODO: resolve https://github.com/nymtech/nym/issues/7#issue-461004937 and put the data more nicely in here
+					// TODO: resolve https://github.com/nymtech/nym-validator/issues/7#issue-461004937 and put the data more nicely in here
 					{Key: key, Value: nil},
 				},
 			},

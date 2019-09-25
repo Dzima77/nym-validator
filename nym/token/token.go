@@ -21,8 +21,8 @@ import (
 	"fmt"
 
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	"github.com/nymtech/nym/crypto/elgamal"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/crypto/elgamal"
 )
 
 // TODO: refactor the entire file? - move somewhere more appropriate and perhaps rename it

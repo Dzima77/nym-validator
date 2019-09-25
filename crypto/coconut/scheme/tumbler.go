@@ -24,8 +24,8 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	"github.com/jstuczyn/amcl/version3/go/amcl"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
-	"github.com/nymtech/nym/constants"
-	"github.com/nymtech/nym/crypto/coconut/utils"
+	"github.com/nymtech/nym-validator/constants"
+	"github.com/nymtech/nym-validator/crypto/coconut/utils"
 )
 
 // TumblerProof is a special case of VerifierProof that is bound to some address

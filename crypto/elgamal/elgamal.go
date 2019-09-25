@@ -21,9 +21,9 @@ package elgamal
 import (
 	"errors"
 
-	cmnutils "github.com/nymtech/nym/common/utils"
-	"github.com/nymtech/nym/constants"
-	"github.com/nymtech/nym/crypto/bpgroup"
+	cmnutils "github.com/nymtech/nym-validator/common/utils"
+	"github.com/nymtech/nym-validator/constants"
+	"github.com/nymtech/nym-validator/crypto/bpgroup"
 	proto "github.com/golang/protobuf/proto"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 )

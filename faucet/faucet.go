@@ -23,9 +23,9 @@ import (
 	"sync"
 
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
-	"github.com/nymtech/nym/logger"
-	"github.com/nymtech/nym/server"
-	"github.com/nymtech/nym/server/config"
+	"github.com/nymtech/nym-validator/logger"
+	"github.com/nymtech/nym-validator/server"
+	"github.com/nymtech/nym-validator/server/config"
 	"gopkg.in/op/go-logging.v1"
 )
 

@@ -27,11 +27,11 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
-	"github.com/nymtech/nym/client"
-	"github.com/nymtech/nym/client/config"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	"github.com/nymtech/nym/crypto/coconut/utils"
-	"github.com/nymtech/nym/nym/token"
+	"github.com/nymtech/nym-validator/client"
+	"github.com/nymtech/nym-validator/client/config"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/crypto/coconut/utils"
+	"github.com/nymtech/nym-validator/nym/token"
 	"github.com/therecipe/qt/core"
 )
 

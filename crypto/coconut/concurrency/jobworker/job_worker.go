@@ -20,9 +20,9 @@ package jobworker
 import (
 	"fmt"
 
-	"github.com/nymtech/nym/crypto/coconut/concurrency/jobpacket"
-	"github.com/nymtech/nym/logger"
-	"github.com/nymtech/nym/worker"
+	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobpacket"
+	"github.com/nymtech/nym-validator/logger"
+	"github.com/nymtech/nym-validator/worker"
 	"gopkg.in/op/go-logging.v1"
 )
 

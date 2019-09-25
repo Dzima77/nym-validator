@@ -4,12 +4,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/nymtech/nym/crypto/coconut/concurrency/coconutworker"
-	"github.com/nymtech/nym/crypto/coconut/concurrency/jobqueue"
-	"github.com/nymtech/nym/crypto/coconut/concurrency/jobworker"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	. "github.com/nymtech/nym/crypto/testutils"
-	"github.com/nymtech/nym/logger"
+	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/coconutworker"
+	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobqueue"
+	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobworker"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	. "github.com/nymtech/nym-validator/crypto/testutils"
+	"github.com/nymtech/nym-validator/logger"
 	"github.com/stretchr/testify/assert"
 )
 

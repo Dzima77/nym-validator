@@ -24,7 +24,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/nymtech/nym/tendermint/nymabci/nymapplication"
+	"github.com/nymtech/nym-validator/tendermint/nymabci/nymapplication"
 	"github.com/spf13/viper"
 	tmConfig "github.com/tendermint/tendermint/config"
 	cmn "github.com/tendermint/tendermint/libs/common"

@@ -19,7 +19,7 @@ package config_test
 import (
 	"testing"
 
-	"github.com/nymtech/nym/client/config"
+	"github.com/nymtech/nym-validator/client/config"
 	"github.com/stretchr/testify/assert"
 )
 

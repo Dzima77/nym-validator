@@ -18,11 +18,11 @@ package commands_test
 import (
 	"testing"
 
-	"github.com/nymtech/nym/common/comm/commands"
-	"github.com/nymtech/nym/common/comm/packet"
-	"github.com/nymtech/nym/crypto/bpgroup"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	"github.com/nymtech/nym/crypto/elgamal"
+	"github.com/nymtech/nym-validator/common/comm/commands"
+	"github.com/nymtech/nym-validator/common/comm/packet"
+	"github.com/nymtech/nym-validator/crypto/bpgroup"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/crypto/elgamal"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 	"github.com/stretchr/testify/assert"
 )

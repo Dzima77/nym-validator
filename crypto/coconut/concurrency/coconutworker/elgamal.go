@@ -18,7 +18,7 @@
 package coconutworker
 
 import (
-	"github.com/nymtech/nym/crypto/elgamal"
+	"github.com/nymtech/nym-validator/crypto/elgamal"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 )
 

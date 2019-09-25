@@ -5,8 +5,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/nymtech/nym/ethereum/client"
-	"github.com/nymtech/nym/logger"
+	"github.com/nymtech/nym-validator/ethereum/client"
+	"github.com/nymtech/nym-validator/logger"
 )
 
 // just sends some tokens to the pipe account

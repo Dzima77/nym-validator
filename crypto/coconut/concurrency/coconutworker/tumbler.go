@@ -20,9 +20,9 @@ package coconutworker
 import (
 	"fmt"
 
-	"github.com/nymtech/nym/crypto/coconut/concurrency/jobpacket"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	"github.com/nymtech/nym/crypto/coconut/utils"
+	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobpacket"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/crypto/coconut/utils"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 )
 

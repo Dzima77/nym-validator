@@ -23,9 +23,9 @@ import (
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/golang/protobuf/proto"
-	"github.com/nymtech/nym/common/comm/commands"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	"github.com/nymtech/nym/server/issuer/utils"
+	"github.com/nymtech/nym-validator/common/comm/commands"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/server/issuer/utils"
 )
 
 // TODO: perhaps if it's too expensive, replace reflect.Type with some string or even a byte?

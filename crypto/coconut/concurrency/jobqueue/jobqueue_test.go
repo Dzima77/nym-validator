@@ -23,7 +23,7 @@ package jobqueue
 import (
 	"testing"
 
-	"github.com/nymtech/nym/crypto/coconut/concurrency/jobpacket"
+	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobpacket"
 	"github.com/stretchr/testify/assert"
 )
 

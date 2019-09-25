@@ -18,8 +18,8 @@ package account_test
 // import (
 // 	"testing"
 
-// 	"github.com/nymtech/nym/common/utils"
-// 	"github.com/nymtech/nym/tendermint/account"
+// 	"github.com/nymtech/nym-validator/common/utils"
+// 	"github.com/nymtech/nym-validator/tendermint/account"
 // 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 // 	"github.com/stretchr/testify/assert"
 // )

@@ -27,7 +27,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/nymtech/nym/constants"
+	"github.com/nymtech/nym-validator/constants"
 )
 
 // GenerateRandomBytes return slice of bytes of specified size of cryptographically secure random numbers.

@@ -28,7 +28,7 @@ package requestqueue
 import (
 	"fmt"
 
-	"github.com/nymtech/nym/common/comm/commands"
+	"github.com/nymtech/nym-validator/common/comm/commands"
 	"github.com/Workiva/go-datastructures/queue"
 )
 

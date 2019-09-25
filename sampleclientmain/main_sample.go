@@ -26,12 +26,12 @@ import (
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
-	cclient "github.com/nymtech/nym/client"
-	"github.com/nymtech/nym/client/config"
-	"github.com/nymtech/nym/crypto/bpgroup"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	"github.com/nymtech/nym/logger"
-	"github.com/nymtech/nym/nym/token"
+	cclient "github.com/nymtech/nym-validator/client"
+	"github.com/nymtech/nym-validator/client/config"
+	"github.com/nymtech/nym-validator/crypto/bpgroup"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/logger"
+	"github.com/nymtech/nym-validator/nym/token"
 	"gopkg.in/op/go-logging.v1"
 )
 

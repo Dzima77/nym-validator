@@ -28,7 +28,7 @@ package jobqueue
 import (
 	"fmt"
 
-	"github.com/nymtech/nym/crypto/coconut/concurrency/jobpacket"
+	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobpacket"
 	"github.com/Workiva/go-datastructures/queue"
 )
 

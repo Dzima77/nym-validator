@@ -22,8 +22,8 @@ package client
 import (
 	"testing"
 
-	"github.com/nymtech/nym/common/comm/commands"
-	"github.com/nymtech/nym/logger"
+	"github.com/nymtech/nym-validator/common/comm/commands"
+	"github.com/nymtech/nym-validator/logger"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 	"github.com/stretchr/testify/assert"
 )

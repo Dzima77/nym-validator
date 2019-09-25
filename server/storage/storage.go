@@ -22,9 +22,9 @@ import (
 	"encoding/binary"
 	"path/filepath"
 
-	"github.com/nymtech/nym/common/comm/commands"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	"github.com/nymtech/nym/server/issuer/utils"
+	"github.com/nymtech/nym-validator/common/comm/commands"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/server/issuer/utils"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/errors"
 	"github.com/syndtr/goleveldb/leveldb/util"

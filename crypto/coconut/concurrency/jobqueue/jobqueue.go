@@ -1,4 +1,4 @@
-//go:generate go run $GOPATH/src/github.com/nymtech/nym/gen/queueGenMain.go --name=JobQueue --type=*jobpacket.JobPacket --typeName=JobPacket --typeImportPath=github.com/nymtech/nym/crypto/coconut/concurrency/jobpacket
+//go:generate go run $GOPATH/src/github.com/nymtech/nym-validator/gen/queueGenMain.go --name=JobQueue --type=*jobpacket.JobPacket --typeName=JobPacket --typeImportPath=github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobpacket
 
 // jobqueue.go - Entry point for go generate to create a job queue.
 // Copyright (C) 2019  Jedrzej Stuczynski.

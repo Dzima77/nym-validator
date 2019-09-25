@@ -26,13 +26,13 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/nymtech/nym/common/comm"
-	"github.com/nymtech/nym/common/comm/commands"
-	"github.com/nymtech/nym/common/comm/packet"
-	"github.com/nymtech/nym/logger"
-	"github.com/nymtech/nym/server/config"
-	"github.com/nymtech/nym/server/listener/requesthandler"
-	"github.com/nymtech/nym/worker"
+	"github.com/nymtech/nym-validator/common/comm"
+	"github.com/nymtech/nym-validator/common/comm/commands"
+	"github.com/nymtech/nym-validator/common/comm/packet"
+	"github.com/nymtech/nym-validator/logger"
+	"github.com/nymtech/nym-validator/server/config"
+	"github.com/nymtech/nym-validator/server/listener/requesthandler"
+	"github.com/nymtech/nym-validator/worker"
 	"gopkg.in/op/go-logging.v1"
 )
 

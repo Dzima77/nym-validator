@@ -20,10 +20,10 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/nymtech/nym/tendermint/nymabci/query"
+	"github.com/nymtech/nym-validator/tendermint/nymabci/query"
 
-	"github.com/nymtech/nym/tendermint/nymabci/code"
-	tmconst "github.com/nymtech/nym/tendermint/nymabci/constants"
+	"github.com/nymtech/nym-validator/tendermint/nymabci/code"
+	tmconst "github.com/nymtech/nym-validator/tendermint/nymabci/constants"
 	"github.com/tendermint/tendermint/abci/types"
 )
 

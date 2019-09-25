@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nymtech/nym/daemon"
-	"github.com/nymtech/nym/server/config"
-	"github.com/nymtech/nym/server/issuer"
+	"github.com/nymtech/nym-validator/daemon"
+	"github.com/nymtech/nym-validator/server/config"
+	"github.com/nymtech/nym-validator/server/issuer"
 )
 
 const (

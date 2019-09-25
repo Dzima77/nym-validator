@@ -6,7 +6,7 @@ package transaction
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	scheme "github.com/nymtech/nym/crypto/coconut/scheme"
+	scheme "github.com/nymtech/nym-validator/crypto/coconut/scheme"
 	math "math"
 )
 

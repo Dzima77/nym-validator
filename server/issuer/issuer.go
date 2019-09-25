@@ -22,12 +22,12 @@ import (
 	"fmt"
 	"sync"
 
-	monitor "github.com/nymtech/nym/common/tendermintmonitor"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	"github.com/nymtech/nym/logger"
-	"github.com/nymtech/nym/server"
-	"github.com/nymtech/nym/server/config"
-	processor "github.com/nymtech/nym/server/issuer/tendermintprocessor"
+	monitor "github.com/nymtech/nym-validator/common/tendermintmonitor"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/logger"
+	"github.com/nymtech/nym-validator/server"
+	"github.com/nymtech/nym-validator/server/config"
+	processor "github.com/nymtech/nym-validator/server/issuer/tendermintprocessor"
 	"gopkg.in/op/go-logging.v1"
 )
 

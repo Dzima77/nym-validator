@@ -24,9 +24,9 @@ package client
 // 	"sync"
 // 	"testing"
 
-// 	"github.com/nymtech/nym/logger"
-// 	"github.com/nymtech/nym/tendermint/nymabci/query"
-// 	"github.com/nymtech/nym/tendermint/nymnode/testnode"
+// 	"github.com/nymtech/nym-validator/logger"
+// 	"github.com/nymtech/nym-validator/tendermint/nymabci/query"
+// 	"github.com/nymtech/nym-validator/tendermint/nymnode/testnode"
 // 	"github.com/stretchr/testify/assert"
 // 	cmn "github.com/tendermint/tendermint/libs/common"
 // )

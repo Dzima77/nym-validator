@@ -13,13 +13,13 @@ RUN apk update && apk add --no-cache git ca-certificates tzdata build-base && up
 # Create appuser
 RUN adduser -D -g '' appuser
 
-WORKDIR $GOPATH/src/github.com/nymtech/nym/
+WORKDIR $GOPATH/src/github.com/nymtech/nym-validator/
 COPY . .
 
 # Fetch dependencies if we decide to remove the vendor directory at some point
 # RUN go get -d -v
 
-WORKDIR $GOPATH/src/github.com/nymtech/nym/cmd/nym-tendermint-node/
+WORKDIR $GOPATH/src/github.com/nymtech/nym-validator/cmd/nym-tendermint-node/
 
 # Build the binary
 # for production: removes debug, etc. 

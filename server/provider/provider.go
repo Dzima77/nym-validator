@@ -24,10 +24,10 @@ import (
 
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	"github.com/nymtech/nym/logger"
-	"github.com/nymtech/nym/server"
-	"github.com/nymtech/nym/server/config"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/logger"
+	"github.com/nymtech/nym-validator/server"
+	"github.com/nymtech/nym-validator/server/config"
 	"gopkg.in/op/go-logging.v1"
 )
 

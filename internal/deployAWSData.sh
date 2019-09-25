@@ -4,7 +4,7 @@
 # node2 is also a provider
 # node3 is also a provider
 
-cd $GOPATH/src/github.com/nymtech/nym/
+cd $GOPATH/src/github.com/nymtech/nym-validator/
 
 NUM_NODES=4
 APP_STATE_ORIGINAL='\"app_hash\": \"\"'
@@ -50,12 +50,12 @@ if [ $rebuildBins = true ]; then
         echo "rebuilding binaries on node $i..."
         if [ $feature != 'NO_FEATURE' ]; then
             echo "using feature branch: feature/"$feature
-            ssh fullnode$i.nym "cd \$GOPATH/src/github.com/nymtech/nym/ && git pull && git checkout feature/$feature && git pull && make build_binaries && cd"
+            ssh fullnode$i.nym "cd \$GOPATH/src/github.com/nymtech/nym-validator/ && git pull && git checkout feature/$feature && git pull && make build_binaries && cd"
         elif [ $useDevelop = true ]; then
             echo "using develop branch"
-            ssh fullnode$i.nym "cd \$GOPATH/src/github.com/nymtech/nym/ && git checkout develop && git pull && make build_binaries && cd"
+            ssh fullnode$i.nym "cd \$GOPATH/src/github.com/nymtech/nym-validator/ && git checkout develop && git pull && make build_binaries && cd"
         else 
-            ssh fullnode$i.nym "cd \$GOPATH/src/github.com/nymtech/nym/ && git checkout master && git pull && make build_binaries && cd" 
+            ssh fullnode$i.nym "cd \$GOPATH/src/github.com/nymtech/nym-validator/ && git checkout master && git pull && make build_binaries && cd" 
         fi
     done
 fi

@@ -20,11 +20,11 @@ package schemetest
 import (
 	"testing"
 
-	"github.com/nymtech/nym/constants"
-	"github.com/nymtech/nym/crypto/bpgroup"
-	"github.com/nymtech/nym/crypto/coconut/concurrency/coconutworker"
-	coconut "github.com/nymtech/nym/crypto/coconut/scheme"
-	"github.com/nymtech/nym/crypto/coconut/utils"
+	"github.com/nymtech/nym-validator/constants"
+	"github.com/nymtech/nym-validator/crypto/bpgroup"
+	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/coconutworker"
+	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
+	"github.com/nymtech/nym-validator/crypto/coconut/utils"
 	"github.com/jstuczyn/amcl/version3/go/amcl"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 	"github.com/stretchr/testify/assert"

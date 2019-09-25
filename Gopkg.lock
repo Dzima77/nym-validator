@@ -268,14 +268,6 @@
   version = "v1.1.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:9f069b4f202ac0f0c40e0a3d07790691d73cca9a5da1d6749532c21df99d58f7"
-  name = "github.com/gopherjs/gopherjs"
-  packages = ["js"]
-  pruneopts = ""
-  revision = "3e4dfb77656c424b6d1196a4d5fed0fcf63677cc"
-
-[[projects]]
   digest = "1:09aa5dd1332b93c96bde671bafb053249dc813febf7d5ca84e8f382ba255d67d"
   name = "github.com/gorilla/websocket"
   packages = ["."]
@@ -759,14 +751,6 @@
   version = "v0.1.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:41897fa220f1bab84e06d98f47c6519034ed865a4171ac87f99331ae5e55c60a"
-  name = "github.com/therecipe/qt"
-  packages = ["."]
-  pruneopts = ""
-  revision = "a9acd1ab63c1365681bac0d31ce994989a9dd433"
-
-[[projects]]
   digest = "1:a5ebfadf0cea7fd2eabc0cb179dbbe371b92d41659de9247a281f132761fe33a"
   name = "github.com/tyler-smith/go-bip39"
   packages = [
@@ -993,7 +977,6 @@
     "github.com/tendermint/tendermint/types/time",
     "github.com/tendermint/tendermint/version",
     "github.com/tendermint/tm-cmn/db",
-    "github.com/therecipe/qt",
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/status",

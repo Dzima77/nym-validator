@@ -20,10 +20,10 @@ package nymapplication
 // 	"encoding/binary"
 // 	"testing"
 
-// 	"github.com/nymtech/nym/tendermint/account"
-// 	"github.com/nymtech/nym/tendermint/nymabci/code"
-// 	tmconst "github.com/nymtech/nym/tendermint/nymabci/constants"
-// 	"github.com/nymtech/nym/tendermint/nymabci/transaction"
+// 	"github.com/nymtech/nym-validator/tendermint/account"
+// 	"github.com/nymtech/nym-validator/tendermint/nymabci/code"
+// 	tmconst "github.com/nymtech/nym-validator/tendermint/nymabci/constants"
+// 	"github.com/nymtech/nym-validator/tendermint/nymabci/transaction"
 // 	proto "github.com/golang/protobuf/proto"
 // 	"github.com/stretchr/testify/assert"
 // )

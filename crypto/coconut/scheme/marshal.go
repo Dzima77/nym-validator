@@ -21,9 +21,9 @@ import (
 	"encoding/binary"
 	"errors"
 
-	"github.com/nymtech/nym/constants"
-	"github.com/nymtech/nym/crypto/bpgroup"
-	"github.com/nymtech/nym/crypto/elgamal"
+	"github.com/nymtech/nym-validator/constants"
+	"github.com/nymtech/nym-validator/crypto/bpgroup"
+	"github.com/nymtech/nym-validator/crypto/elgamal"
 	proto "github.com/golang/protobuf/proto"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 )

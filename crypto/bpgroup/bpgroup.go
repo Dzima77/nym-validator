@@ -18,8 +18,8 @@
 package bpgroup
 
 import (
-	"github.com/nymtech/nym/common/utils"
-	"github.com/nymtech/nym/constants"
+	"github.com/nymtech/nym-validator/common/utils"
+	"github.com/nymtech/nym-validator/constants"
 	"github.com/jstuczyn/amcl/version3/go/amcl"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 )

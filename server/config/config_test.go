@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/nymtech/nym/server/config"
+	"github.com/nymtech/nym-validator/server/config"
 	"github.com/stretchr/testify/assert"
 )
 

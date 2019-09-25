@@ -18,7 +18,7 @@ package bpgroup_test
 import (
 	"testing"
 
-	"github.com/nymtech/nym/crypto/bpgroup"
+	"github.com/nymtech/nym-validator/crypto/bpgroup"
 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
 	"github.com/stretchr/testify/assert"
 )
