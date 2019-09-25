@@ -32,7 +32,7 @@ RUN go build -o /go/bin/nym_abci .
 # FROM scratch - go back to it once we don't need any additional binaries
 FROM alpine
 
-LABEL maintainer="Jedrzej Stuczynski"
+LABEL maintainer="Nym Authors"
 
 # Import from builder.
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo

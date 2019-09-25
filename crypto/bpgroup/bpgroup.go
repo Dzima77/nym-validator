@@ -1,5 +1,5 @@
 // bpgroup.go - bilinear pairing wrapper
-// Copyright (C) 2018  Jedrzej Stuczynski.
+// Copyright (C) 2018  Nym Authors.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as

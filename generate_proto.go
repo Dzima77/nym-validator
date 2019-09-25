@@ -1,7 +1,7 @@
 //go:generate ./compileProto.sh
 //
 // generate_proto.go - Coconut go generate command for protobuf code generation
-// Copyright (C) 2019  Jedrzej Stuczynski.
+// Copyright (C) 2019  Nym Authors.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as

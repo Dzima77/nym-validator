@@ -1,5 +1,5 @@
 // config.go - config for Ethereum watcher
-// Copyright (C) 2019  Dave Hrycyszyn and Jedrzej Stuczynski.
+// Copyright (C) 2019  Dave Hrycyszyn and Nym Authors.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as

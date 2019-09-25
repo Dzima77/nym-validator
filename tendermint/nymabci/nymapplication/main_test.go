@@ -1,5 +1,5 @@
 // main_test.go - entry point for the tests for the nymapplication
-// Copyright (C) 2019  Jedrzej Stuczynski.
+// Copyright (C) 2019  Nym Authors.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
