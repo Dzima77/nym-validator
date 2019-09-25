@@ -1,6 +1,6 @@
 # Installation
 
-The installation process of the Coconut servers takes multiple steps.
+The installation process of the Nym validator for development purposes takes multiple steps.
 
 0. Ensure you have correctly installed and configured docker and docker-compose.
 
