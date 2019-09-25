@@ -42,7 +42,7 @@ package client
 // 	"github.com/nymtech/nym-validator/server"
 // 	sconfig "github.com/nymtech/nym-validator/server/config"
 // 	"github.com/nymtech/nym-validator/tendermint/nymnode/testnode"
-// 	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+// 	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 // 	"github.com/stretchr/testify/assert"
 // 	cmn "github.com/tendermint/tendermint/libs/common"
 // )

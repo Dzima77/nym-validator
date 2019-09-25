@@ -20,7 +20,7 @@ package token
 import (
 	"fmt"
 
-	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
 	"github.com/nymtech/nym-validator/crypto/elgamal"
 )

@@ -25,8 +25,8 @@ import (
 	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
 	"github.com/nymtech/nym-validator/crypto/coconut/utils"
 	"github.com/nymtech/nym-validator/crypto/elgamal"
-	"github.com/jstuczyn/amcl/version3/go/amcl"
-	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+	"github.com/nymtech/amcl/version3/go/amcl"
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 )
 
 // MuxParams is identical to normal params, but has an attached mutex, so that

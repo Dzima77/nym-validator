@@ -23,7 +23,7 @@ import (
 	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobpacket"
 	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
 	"github.com/nymtech/nym-validator/crypto/coconut/utils"
-	Curve "github.com/jstuczyn/amcl/version3/go/amcl/BLS381"
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 )
 
 // ConstructTumblerProof constructs a zero knowledge proof required to

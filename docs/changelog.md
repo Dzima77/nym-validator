@@ -1,5 +1,9 @@
 # nym-validator Changelog
 
+## 0.12.10
+
+* Changed references of imported BLS381 curve implementation from `github.com/nymtech/jstuczyn/version3/go/amcl/BLS381` to `github.com/nymtech/amcl/version3/go/amcl/BLS381`
+
 ## 0.12.9
 
 * Renamed the repository from 'nym' into 'nym-validator'
