@@ -3,10 +3,6 @@
 /build
 /ethereum/tmpPrivate
 mainaccount.key
-/clientapp/moc*
-/clientapp/rcc*
-/clientapp/deploy
-/clientapp/linux
 /awsnetdata/*/*/*/*.pem
 /awsnetdata/*/*.key
 /awsnetdata/*/*/*.key
