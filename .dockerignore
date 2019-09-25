@@ -1,6 +1,3 @@
 /.vscode
 /build
 **/*_test.go
-/clientapp
-# No point in passing qt-related dependencies when building non-client binaries
-/vendor/github.com/therecipe
