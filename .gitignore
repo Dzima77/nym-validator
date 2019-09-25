@@ -13,3 +13,4 @@ mainaccount.key
 /awsnetdata/*/*/*/*.key
 /awsnetdata/temp*
 /vendor
+/.idea
