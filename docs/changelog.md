@@ -1,4 +1,11 @@
-# CoconutGo Changelog
+# nym-validator Changelog
+
+## 0.12.9
+
+* Renamed the repository from 'nym' into 'nym-validator'
+* Updated server daemons behaviour
+* Fixed possibly buffer overflow when reading packet from connection
+* Removed references to the qt client application. It is being maintained now in separate repository
 
 ## 0.12.8
 
