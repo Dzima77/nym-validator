@@ -20,10 +20,10 @@ package coconutworker
 import (
 	"fmt"
 
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobpacket"
 	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
 	"github.com/nymtech/nym-validator/crypto/coconut/utils"
-	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 )
 
 // ConstructTumblerProof constructs a zero knowledge proof required to

@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	fmtString = `%{color}%{time:15:04:05.000} %{module}/%{shortfunc} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}`
+	fmtString = `%{color}%{time:2006-01-02 15:04:05.000} %{module}/%{shortfunc} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}`
 )
 
 // Logger struct is self-explanatory

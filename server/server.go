@@ -20,7 +20,9 @@ package server
 import (
 	"errors"
 	"fmt"
+	"github.com/nymtech/nym-validator/common/utils"
 	"sync"
+	"time"
 
 	"github.com/nymtech/nym-validator/common/comm/commands"
 	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobqueue"
@@ -77,6 +79,22 @@ func (s *BaseServer) GrpcListeners() []*grpclistener.Listener {
 
 func (s *BaseServer) ServerWorkers() []*serverworker.ServerWorker {
 	return s.serverWorkers
+}
+
+func (s *BaseServer) StartReportingPresence(interval time.Duration, encodedKey []byte, typ, server string, host ...string) {
+	ticker := time.NewTicker(interval)
+	for {
+		select {
+		case <-ticker.C:
+			s.log.Debugf("reporting presence to the directory server")
+			if err := utils.ReportNodePresence(server, encodedKey, typ, host...); err != nil {
+				s.log.Errorf("Failed to register presence: %v", err)
+			}
+		case <-s.haltedCh:
+			s.log.Debugf("Halting presence reporting")
+			return
+		}
+	}
 }
 
 // New returns a new Server instance parameterized with the specified configuration.

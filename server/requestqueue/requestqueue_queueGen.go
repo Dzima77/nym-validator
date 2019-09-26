@@ -28,8 +28,8 @@ package requestqueue
 import (
 	"fmt"
 
-	"github.com/nymtech/nym-validator/common/comm/commands"
 	"github.com/Workiva/go-datastructures/queue"
+	"github.com/nymtech/nym-validator/common/comm/commands"
 )
 
 // minQueueLen is the smallest capacity that queue may have.

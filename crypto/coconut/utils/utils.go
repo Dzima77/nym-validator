@@ -23,9 +23,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nymtech/nym-validator/constants"
 	"github.com/nymtech/amcl/version3/go/amcl"
 	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
+	"github.com/nymtech/nym-validator/constants"
 )
 
 // Printable is a wrapper for all objects that have ToString method. In particular Curve.ECP and Curve.ECP2.

@@ -21,11 +21,11 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/nymtech/amcl/version3/go/amcl"
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	cmnutils "github.com/nymtech/nym-validator/common/utils"
 	"github.com/nymtech/nym-validator/constants"
 	"github.com/nymtech/nym-validator/crypto/coconut/utils"
-	"github.com/nymtech/amcl/version3/go/amcl"
-	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 )
 
 // ValidateKeyPair checks if the coconut keypair was correctly formed.

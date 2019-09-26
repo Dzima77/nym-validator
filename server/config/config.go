@@ -37,8 +37,11 @@ const (
 	defaultRequestTimeout               = 180 * 1000 // 180 sec.
 	defaultProviderStartupTimeout       = 30 * 1000  // 30 sec.
 	defaultProviderStartupRetryInterval = 5 * 1000   // 5s.
+	defaultPresenceInterval             = 5 * 1000   // 5s.
 	defaultProviderMaxRequests          = 16
 	defaultEtherAmount                  = 0.005
+
+	defaultDirectoryServerPresenceEndpoint = "https://directory.nymtech.net/api/presence/coconodes"
 )
 
 // nolint: gochecknoglobals
@@ -70,6 +73,9 @@ type Server struct {
 	// Note that only a single request will ever be sent, but multiple addresses are provided in case
 	// the particular node was unavailable.
 	BlockchainNodeAddresses []string
+
+	// DirectoryServerPresenceEndpoint specifies address to which server should be reporting its presence.
+	DirectoryServerPresenceEndpoint string
 }
 
 // Issuer is the Coconut issuing authority server configuration.
@@ -166,6 +172,9 @@ type Debug struct {
 	// However, it does not disable a blockchain client so that server can still send transactions to the chain.
 	// Not to be set in production environment. Only really applicable in tests.
 	DisableBlockchainMonitoring bool
+
+	// PresenceInterval defines time interval for sending presence information to the directory server.
+	PresenceInterval int
 }
 
 func (dCfg *Debug) applyDefaults() {
@@ -192,6 +201,9 @@ func (dCfg *Debug) applyDefaults() {
 	}
 	if dCfg.ProviderMaxRequests <= 0 {
 		dCfg.ProviderMaxRequests = defaultProviderMaxRequests
+	}
+	if dCfg.PresenceInterval <= 0 {
+		dCfg.PresenceInterval = defaultPresenceInterval
 	}
 }
 
@@ -224,6 +236,10 @@ func (cfg *Config) validateAndApplyDefaults() error {
 	}
 	if len(cfg.Server.Addresses) == 0 && len(cfg.Server.GRPCAddresses) == 0 {
 		return errors.New("config: No addresses to bind the server to")
+	}
+
+	if len(cfg.Server.DirectoryServerPresenceEndpoint) == 0 {
+		cfg.Server.DirectoryServerPresenceEndpoint = defaultDirectoryServerPresenceEndpoint
 	}
 
 	if cfg.Provider != nil {

@@ -21,11 +21,11 @@ package elgamal
 import (
 	"errors"
 
+	proto "github.com/golang/protobuf/proto"
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	cmnutils "github.com/nymtech/nym-validator/common/utils"
 	"github.com/nymtech/nym-validator/constants"
 	"github.com/nymtech/nym-validator/crypto/bpgroup"
-	proto "github.com/golang/protobuf/proto"
-	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 )
 
 var (

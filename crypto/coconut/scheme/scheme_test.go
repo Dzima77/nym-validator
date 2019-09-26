@@ -19,10 +19,10 @@ import (
 	"sync"
 	"testing"
 
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	. "github.com/nymtech/nym-validator/crypto/coconut/scheme"
 	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
 	. "github.com/nymtech/nym-validator/crypto/testutils"
-	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	"github.com/stretchr/testify/assert"
 )
 

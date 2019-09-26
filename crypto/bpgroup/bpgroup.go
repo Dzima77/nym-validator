@@ -18,10 +18,10 @@
 package bpgroup
 
 import (
-	"github.com/nymtech/nym-validator/common/utils"
-	"github.com/nymtech/nym-validator/constants"
 	"github.com/nymtech/amcl/version3/go/amcl"
 	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
+	"github.com/nymtech/nym-validator/common/utils"
+	"github.com/nymtech/nym-validator/constants"
 )
 
 // BpGroup represents data required for a bilinear pairing

@@ -21,11 +21,11 @@ package coconutworker
 import (
 	"sync"
 
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobpacket"
 	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
 	"github.com/nymtech/nym-validator/crypto/elgamal"
 	"github.com/nymtech/nym-validator/nym/token"
-	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 )
 
 // CoconutWorker allows writing coconut actions to a shared job queue,

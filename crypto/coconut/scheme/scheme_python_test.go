@@ -19,12 +19,12 @@ import (
 	"encoding/hex"
 	"testing"
 
+	"github.com/nymtech/amcl/version3/go/amcl"
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	"github.com/nymtech/nym-validator/constants"
 	"github.com/nymtech/nym-validator/crypto/bpgroup"
 	"github.com/nymtech/nym-validator/crypto/coconut/utils"
 	"github.com/nymtech/nym-validator/crypto/elgamal"
-	"github.com/nymtech/amcl/version3/go/amcl"
-	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	"github.com/stretchr/testify/assert"
 )
 
