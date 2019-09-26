@@ -18,9 +18,9 @@ package coconut_test
 import (
 	"testing"
 
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	"github.com/nymtech/nym-validator/crypto/bpgroup"
 	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
-	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	"github.com/stretchr/testify/assert"
 )
 

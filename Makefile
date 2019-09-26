@@ -118,7 +118,7 @@ build_dockerfiles:
 	docker build -t nym/nym-faucet -f ./DOCKER/faucet/Dockerfile .
 
 build_binaries:
-	dep ensure
+    dep ensure
 	go build -o $(GOPATH)/bin/nym-validator ./cmd/nym-validator
 	go build -o $(GOPATH)/bin/nym-provider ./cmd/nym-provider
 	go build -o $(GOPATH)/bin/nym-tendermint-node ./cmd/nym-tendermint-node

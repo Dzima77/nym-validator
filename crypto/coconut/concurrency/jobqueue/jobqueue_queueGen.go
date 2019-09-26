@@ -28,8 +28,8 @@ package jobqueue
 import (
 	"fmt"
 
-	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobpacket"
 	"github.com/Workiva/go-datastructures/queue"
+	"github.com/nymtech/nym-validator/crypto/coconut/concurrency/jobpacket"
 )
 
 // minQueueLen is the smallest capacity that queue may have.

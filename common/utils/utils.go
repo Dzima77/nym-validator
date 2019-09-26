@@ -18,12 +18,16 @@
 package utils
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding"
+	"encoding/base64"
+	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -87,5 +91,34 @@ func FromPEMFile(o encoding.BinaryUnmarshaler, f, pemType string) error {
 	} else if !os.IsNotExist(err) {
 		return err
 	}
+	return nil
+}
+
+// ReportNodePresence registers server presence at the directory server.
+func ReportNodePresence(server string, marshaledKey []byte, typ string, host ...string) error {
+	b64Key := base64.URLEncoding.EncodeToString(marshaledKey)
+	values := map[string]interface{}{"pubKey": b64Key, "type": typ}
+	if len(host) == 1 {
+		values["host"] = host[0]
+	}
+	jsonValue, err := json.Marshal(values)
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Post(server, "application/json", bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	_ = resp
+	// TODO: properly parse it, etc.
+
+	// body, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return err
+	// }
+	// fmt.Println(string(body))
+	// _ = resp
 	return nil
 }

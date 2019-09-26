@@ -18,8 +18,8 @@
 package coconutworker
 
 import (
-	"github.com/nymtech/nym-validator/crypto/elgamal"
 	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
+	"github.com/nymtech/nym-validator/crypto/elgamal"
 )
 
 // ElGamalKeygen generates private and public keys required for ElGamal encryption scheme.

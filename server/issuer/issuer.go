@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	monitor "github.com/nymtech/nym-validator/common/tendermintmonitor"
 	coconut "github.com/nymtech/nym-validator/crypto/coconut/scheme"
@@ -134,6 +135,16 @@ func New(cfg *config.Config) (*Issuer, error) {
 		monitor:    mon,
 		processors: processors,
 	}
+
+	marshaledKey, err := tvk.MarshalBinary()
+	if err != nil {
+		issuerLog.Fatalf("Could not marshal verification key: %v", err)
+	}
+	go ia.StartReportingPresence(time.Millisecond*time.Duration(cfg.Debug.PresenceInterval),
+		marshaledKey,
+		"validator",
+		cfg.Server.DirectoryServerPresenceEndpoint,
+	)
 
 	return ia, nil
 }

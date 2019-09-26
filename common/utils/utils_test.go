@@ -20,10 +20,10 @@ import (
 	"bytes"
 	"testing"
 
+	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	"github.com/nymtech/nym-validator/common/utils"
 	"github.com/nymtech/nym-validator/constants"
 	"github.com/nymtech/nym-validator/crypto/bpgroup"
-	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
 	"github.com/stretchr/testify/assert"
 )
 

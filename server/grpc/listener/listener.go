@@ -22,13 +22,13 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/nymtech/nym-validator/common/comm"
 	"github.com/nymtech/nym-validator/common/comm/commands"
 	pb "github.com/nymtech/nym-validator/common/grpc/services"
 	"github.com/nymtech/nym-validator/logger"
 	"github.com/nymtech/nym-validator/server/config"
 	"github.com/nymtech/nym-validator/worker"
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"gopkg.in/op/go-logging.v1"
 )
