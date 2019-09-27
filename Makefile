@@ -19,8 +19,6 @@ THRESHOLD=3
 
 all:
 	make localnet-build
-	make build_binaries
-	make build_release_gui
 
 build_local_validators:
 	@if ! [ -f build/validators/validator1/config.toml ]; then \
