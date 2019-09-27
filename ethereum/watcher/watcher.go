@@ -10,13 +10,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	token "github.com/nymtech/nym-validator/ethereum/token"
+	"github.com/nymtech/nym-validator/ethereum/token"
 	"github.com/nymtech/nym-validator/ethereum/watcher/config"
 	"github.com/nymtech/nym-validator/logger"
 	"github.com/nymtech/nym-validator/tendermint/nymabci/code"
@@ -62,89 +61,123 @@ func (w *Watcher) halt() {
 	close(w.haltedCh)
 }
 
-// stop etc are not working
+func (w *Watcher) processBlock(num *big.Int) error {
+	w.log.Infof("Processing block at height %s", num.String())
+	block := w.getFinalisedBlock(num)
+	if block == nil {
+		return fmt.Errorf("finalised block for height: %d is nil", num)
+	}
+
+	for i, tx := range block.Transactions() {
+		w.log.Debugf("Processing Tx %d for block %s", i, num.String())
+		if tx.To() == nil {
+			w.log.Debugf("Nil Tx.To() result - probably a contract creation tx")
+			continue
+		}
+		if tx.To().Hex() != w.cfg.Watcher.NymContract.Hex() { // transaction used the Nym ERC20 contract
+			w.log.Debugf("The tx was not sent to the Nym ERC20 contract")
+			continue
+		}
+
+		txHash := tx.Hash()
+		tr := w.getTransactionReceipt(txHash)
+		if len(tr.Logs) == 0 {
+			w.log.Warning("Transaction logs struct is empty")
+			continue
+		}
+
+		from, to := erc20decode(*tr.Logs[0])
+
+		if to.Hex() != w.cfg.Watcher.PipeAccount.Hex() { // transaction didn't go to the pipeAccount
+			w.log.Debugf("The tx did not go to the pipe account")
+			continue
+		}
+
+		value := getValue(*tr.Logs[0])
+		transferStr := fmt.Sprintf("Block %s [tx: %d]: %d Nyms were moved from %s to pipe account at %s",
+			num.String(),
+			i,
+			value,
+			from.Hex(),
+			to.Hex(),
+		)
+		w.log.Notice(transferStr)
+		tmtx, err := transaction.CreateNewTransferToPipeAccountNotification(w.privateKey,
+			from,
+			to,
+			value.Uint64(),
+			txHash,
+		)
+		if err != nil {
+			w.log.Errorf("Failed to create notification transaction: %v", err)
+			continue
+		}
+
+		res, err := w.tmClient.BroadcastTxCommit(tmtx)
+		if err != nil {
+			w.log.Errorf("Failed to send notification transaction: %v", err)
+			return fmt.Errorf("failed to notify tendermint about: %s", transferStr)
+		}
+		w.log.Infof("Received tendermint Response.\nCheckCode: %v, "+
+			"Check additional data: %v\nDeliverCode: %v Deliver Additional data: %v",
+			code.ToString(res.CheckTx.Code),
+			string(res.CheckTx.Data),
+			code.ToString(res.DeliverTx.Code),
+			string(res.DeliverTx.Data),
+		)
+	}
+
+	return nil
+}
+
 func (w *Watcher) worker() {
 	w.log.Noticef("Watching Ethereum blockchain at: %s", w.cfg.Watcher.EthereumNodeAddress)
-	heartbeat := time.NewTicker(500 * time.Millisecond)
+	heartbeat := time.NewTicker(100 * time.Millisecond)
 
-	// Block on the heartbeat ticker
-	// TODO: way to ensure we dont accicdentally skip a block
-	latestSeen := int64(0)
+	// Just to the simplest thing of incrementing the block number by one...
+	var currentBlockNum *big.Int
+	bigOne := big.NewInt(1)
+	for {
+		// make sure our starting block is not nil
+		currentBlockNum = w.getLatestBlockNumber()
+		if currentBlockNum == nil {
+			time.Sleep(time.Second)
+		}
+		if err := w.processBlock(currentBlockNum); err != nil {
+			w.log.Errorf("Failed to process block %s: %s", currentBlockNum.String(), err)
+		} else {
+			w.log.Debugf("Processed our first block and starting from: %s", currentBlockNum.String())
+			break
+		}
+	}
 
-outerFor:
 	for {
 		select {
 		case <-w.HaltCh():
 			return
 		case <-heartbeat.C:
 			latestBlockNumber := w.getLatestBlockNumber()
-			// temporary work around
+			w.log.Infof("most recent: %s", latestBlockNumber.String())
 			if latestBlockNumber == nil {
+				w.log.Warning("Failed to obtain latest block number - nil result")
 				continue
 			}
-			// latestBlockNumber := big.NewInt(int64(5422702)) // TEMP
-			block := w.getFinalizedBlock(latestBlockNumber)
-			if block == nil {
-				continue
-			}
-			w.log.Debugf("Heartbeat blockNum: %d ", block.Number())
-			if latestSeen == 0 {
-				latestSeen = block.Number().Int64() - 1
-			}
-			if block.Number().Int64() == latestSeen {
-				// we have already seen it
-				continue outerFor
-			}
-			if block.Number().Int64() != latestSeen+1 {
-				w.log.Warningf("We seem to have missed a block. Current: %v, latest seen: %v",
+			if latestBlockNumber.Cmp(currentBlockNum) == 1 { // latest is bigger than current
+				newTarget := big.NewInt(0)
+				newTarget.Add(currentBlockNum, bigOne)
+
+				if err := w.processBlock(newTarget); err != nil {
+					w.log.Errorf("Failed to process block %s: %s", newTarget.String(), err)
+				} else {
+					// if we're done, increment
+					currentBlockNum = newTarget
+				}
+			} else {
+				w.log.Debugf("Latest block seems to be identical or smaller than current: %s / %s",
 					latestBlockNumber.String(),
-					latestSeen,
+					currentBlockNum.String(),
 				)
 			}
-			for _, tx := range block.Transactions() {
-				if tx.To() != nil {
-					if tx.To().Hex() == w.cfg.Watcher.NymContract.Hex() { // transaction used the Nym ERC20 contract
-						txHash := tx.Hash()
-						tr := w.getTransactionReceipt(txHash)
-						if len(tr.Logs) == 0 {
-							w.log.Warning("Transaction logs struct is empty")
-							continue
-						}
-						from, to := erc20decode(*tr.Logs[0])
-						if to.Hex() == w.cfg.Watcher.PipeAccount.Hex() { // transaction went to the pipeAccount
-							value := getValue(*tr.Logs[0])
-							w.log.Noticef("\n%d Nyms from %s to pipe account at %s\n", value, from.Hex(), to.Hex())
-							// sending it multiple times is not a problem as tendermint ensures only one will go through
-							// but regardless, we shouldn't send it more than once anyway (to fix later)
-							tmtx, err := transaction.CreateNewTransferToPipeAccountNotification(w.privateKey,
-								from,
-								to,
-								value.Uint64(),
-								txHash,
-							)
-							if err != nil {
-								w.log.Errorf("Failed to create notification transaction: %v", err)
-								continue
-							}
-							// TODO: later change to send sync or even async as technically we don't need to know
-							// the resolution on this. We just need to send it.
-							res, err := w.tmClient.BroadcastTxCommit(tmtx)
-							if err != nil {
-								w.log.Errorf("Failed to send notification transaction: %v", err)
-								continue
-							}
-							w.log.Infof("Received tendermint Response.\nCheckCode: %v, Check additional data: %v\nDeliverCode: %v Deliver Aditional data: %v",
-								code.ToString(res.CheckTx.Code),
-								string(res.CheckTx.Data),
-								code.ToString(res.DeliverTx.Code),
-								string(res.DeliverTx.Data),
-							)
-						}
-					}
-				}
-			}
-			w.log.Noticef("Processed unique blockNum: %d ", block.Number())
-			latestSeen = block.Number().Int64()
 		}
 	}
 }
@@ -197,24 +230,22 @@ func erc20decode(log types.Log) (common.Address, common.Address) {
 func (w *Watcher) getTransactionReceipt(txHash common.Hash) types.Receipt {
 	tr, err := w.ethClient.TransactionReceipt(context.Background(), txHash)
 	if err != nil {
-		// log.Fatalf("Error getting TransactionReceipt: %s", err)
 		w.log.Critical(fmt.Sprintf("Failed getting TransactionReceipt: %s", err))
 	}
 	return *tr
 }
 
-func (w *Watcher) getFinalizedBlock(latestBlockNumber *big.Int) *types.Block {
-	finalizedBlockNumber := latestBlockNumber.Sub(latestBlockNumber, big.NewInt(w.cfg.Debug.NumConfirmations))
-	block, err := w.ethClient.BlockByNumber(context.Background(), finalizedBlockNumber)
+func (w *Watcher) getFinalisedBlock(latestBlockNumber *big.Int) *types.Block {
+	finalisedBlockNumber := new(big.Int).Sub(latestBlockNumber, big.NewInt(w.cfg.Debug.NumConfirmations))
+	block, err := w.ethClient.BlockByNumber(context.Background(), finalisedBlockNumber)
 	if err != nil {
-		// log.Fatalf("Failed getting block: %s", err)
 		w.log.Critical(fmt.Sprintf("Failed getting block: %s", err))
 	}
 
 	return block
 }
 
-// getFinalizedBalance returns the balance of the given account (typically the pipe account)
+// getFinalisedBalance returns the balance of the given account (typically the pipe account)
 // as it was 13 blocks ago.
 //
 // We use 13 blocks to approximate "finality" but PoW chains are not really "final" in any rigorous sense.
@@ -223,17 +254,17 @@ func (w *Watcher) getFinalizedBlock(latestBlockNumber *big.Int) *types.Block {
 // TODO: for some reason I can't find the discussion of forks which made me think that
 // 13 confirmations should have a one-in-a-million chance of a fork. Dig this out as
 // a reference.
-func (w *Watcher) getFinalizedBalance(addr common.Address, latestBlockNumber *big.Int) *big.Int {
-	finalizedBlockNumber := latestBlockNumber.Sub(latestBlockNumber, big.NewInt(w.cfg.Debug.NumConfirmations))
+// func (w *Watcher) getFinalisedBalance(addr common.Address, latestBlockNumber *big.Int) *big.Int {
+// 	finalisedBlockNumber := new(big.Int).Sub(latestBlockNumber, big.NewInt(w.cfg.Debug.NumConfirmations))
 
-	balance, err := w.ethClient.BalanceAt(context.Background(), addr, finalizedBlockNumber)
-	if err != nil {
-		// log.Fatalf("Error getting account balance: %s", err)
-		w.log.Critical(fmt.Sprintf("Failed getting account balance: %s", err))
-	}
+// 	balance, err := w.ethClient.BalanceAt(context.Background(), addr, finalisedBlockNumber)
+// 	if err != nil {
+// 		// log.Fatalf("Error getting account balance: %s", err)
+// 		w.log.Critical(fmt.Sprintf("Failed getting account balance: %s", err))
+// 	}
 
-	return balance
-}
+// 	return balance
+// }
 
 func (w *Watcher) getLatestBlockNumber() *big.Int {
 	latestHeader, err := w.ethClient.HeaderByNumber(context.Background(), nil)
@@ -244,27 +275,6 @@ func (w *Watcher) getLatestBlockNumber() *big.Int {
 	}
 
 	return latestHeader.Number
-}
-
-func (w *Watcher) subscribeBlocks(headers chan *types.Header) ethereum.Subscription {
-	subscription, err := w.ethClient.SubscribeNewHead(context.Background(), headers)
-	if err != nil {
-		log.Fatalf("Error subscribing to Ethereum blockchain: %s", err)
-	}
-	return subscription
-}
-
-// not in use at the moment, I've ditched subscriptions in favour of polling for now
-func (w *Watcher) subscribeEventLogs(startBlock *big.Int) (chan types.Log, ethereum.Subscription) {
-	query := ethereum.FilterQuery{
-		Addresses: []common.Address{w.cfg.Watcher.PipeAccount},
-	}
-	logs := make(chan types.Log)
-	sub, err := w.ethClient.SubscribeFilterLogs(context.Background(), query, logs)
-	if err != nil {
-		log.Fatalf("Failed subscribing to event logs: %s", err)
-	}
-	return logs, sub
 }
 
 func (w *Watcher) connectToEthereum(ethHost string) error {
