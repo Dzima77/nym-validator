@@ -40,7 +40,7 @@ build_local_providers:
 			cp localnetdata/providers/configs/config$$i.toml build/providers/provider$$i/config.toml ;\
 			cp localnetdata/providers/keys/accountKeys/provider$$i.key build/providers/provider$$i/accountKey/provider.key ;\
 			cp localnetdata/validators/keys/coconutkeys/threshold-verificationKey-* build/providers/provider$$i/validatorKeys/ ;\
- 			i=$$((i + 1));\
+			i=$$((i + 1));\
 		done ;\
 	fi
 	docker build -t nym/nym-provider -f ./DOCKER/provider/Dockerfile .
@@ -79,7 +79,7 @@ build_local_verifiers:
 			cp localnetdata/verifiers/configs/config$$i.toml build/verifiers/verifier$$i/config.toml ;\
 			cp localnetdata/verifiers/keys/verifier$$i.key build/verifiers/verifier$$i/verifier.key ;\
 			cp localnetdata/validators/keys/coconutkeys/threshold-verificationKey-* build/verifiers/verifier$$i/validatorKeys/ ;\
- 			i=$$((i + 1));\
+			i=$$((i + 1));\
 		done ;\
 	fi
 	docker build -t nym/nym-verifier -f ./DOCKER/verifier/Dockerfile .
@@ -92,7 +92,7 @@ build_local_redeemers:
 			cp localnetdata/redeemers/configs/config$$i.toml build/redeemers/redeemer$$i/config.toml ;\
 			cp localnetdata/redeemers/keys/redeemer$$i.key build/redeemers/redeemer$$i/redeemer.key ;\
 			cp localnetdata/redeemers/keys/pipeaccount.key build/redeemers/redeemer$$i/pipeAccount.key ;\
- 			i=$$((i + 1));\
+			i=$$((i + 1));\
 		done ;\
 	fi
 	docker build -t nym/nym-redeemer -f ./DOCKER/redeemer/Dockerfile .
@@ -116,7 +116,7 @@ build_dockerfiles:
 	docker build -t nym/nym-faucet -f ./DOCKER/faucet/Dockerfile .
 
 build_binaries:
-    dep ensure
+	dep ensure
 	go build -o $(GOPATH)/bin/nym-validator ./cmd/nym-validator
 	go build -o $(GOPATH)/bin/nym-provider ./cmd/nym-provider
 	go build -o $(GOPATH)/bin/nym-tendermint-node ./cmd/nym-tendermint-node
