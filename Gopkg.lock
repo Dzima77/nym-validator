@@ -745,17 +745,6 @@
   version = "v0.32.4"
 
 [[projects]]
-  digest = "1:e544b68c07ec10c8625a871d526ec62c1e2de1bb2fbd6fac8538a4f8de78cf64"
-  name = "github.com/tendermint/tm-cmn"
-  packages = [
-    "common",
-    "db",
-  ]
-  pruneopts = ""
-  revision = "dfcde30d5acb7defef98edb7ab2c67f9406428ec"
-  version = "0.1"
-
-[[projects]]
   digest = "1:e541da022fd4a2a7285a658d39a0f9efb4958816d1097f9b8b7a1d2c22e45ae9"
   name = "github.com/tendermint/tm-db"
   packages = ["."]
@@ -988,7 +977,7 @@
     "github.com/tendermint/tendermint/types",
     "github.com/tendermint/tendermint/types/time",
     "github.com/tendermint/tendermint/version",
-    "github.com/tendermint/tm-cmn/db",
+    "github.com/tendermint/tm-db",
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/status",

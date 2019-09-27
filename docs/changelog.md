@@ -1,5 +1,10 @@
 # nym-validator Changelog
 
+## 0.12.11
+
+* Validator reporting presence to directory server
+* Improve Ethereum watcher reliability
+
 ## 0.12.10
 
 * Changed references of imported BLS381 curve implementation from `github.com/nymtech/jstuczyn/version3/go/amcl/BLS381` to `github.com/nymtech/amcl/version3/go/amcl/BLS381`
