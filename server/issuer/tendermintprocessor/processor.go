@@ -62,8 +62,8 @@ func (p *Processor) worker() {
 			p.log.Debug("Default")
 		}
 
-		height, nextBlock := p.monitor.GetLowestFullUnprocessedBlock()
-		if nextBlock == nil {
+		height, nextBlock := p.monitor.GetLowestUnprocessedBlock()
+		if nextBlock == nil || height <= 0 {
 			p.log.Debugf("No blocks to process at height: %v", height)
 			select {
 			case <-p.HaltCh():
@@ -77,11 +77,8 @@ func (p *Processor) worker() {
 
 		p.log.Debugf("Processing block at height: %v", height)
 
-		// In principle there should be no need to use the lock here because the block shouldn't be touched anymore,
-		// but better safe than sorry
-		nextBlock.Lock()
-
-		for i, tx := range nextBlock.Txs {
+		for i, txRes := range nextBlock.Txs {
+			tx := txRes.DeliverResult
 			if tx.Code != code.OK || len(tx.Events) == 0 ||
 				!bytes.HasPrefix(tx.Events[0].Attributes[0].Key, tmconst.CredentialRequestKeyPrefix) {
 				p.log.Infof("Tx %v at height %v is not sign request", i, height)
@@ -120,7 +117,6 @@ func (p *Processor) worker() {
 			p.log.Debugf("Stored sig for tx %v on height %v", i, height)
 		}
 		p.monitor.FinalizeHeight(height)
-		nextBlock.Unlock()
 	}
 }
 

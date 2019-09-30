@@ -133,8 +133,8 @@ func (v *Verifier) worker() {
 			v.log.Debug("Default")
 		}
 
-		height, nextBlock := v.monitor.GetLowestFullUnprocessedBlock()
-		if nextBlock == nil {
+		height, nextBlock := v.monitor.GetLowestUnprocessedBlock()
+		if nextBlock == nil || height <= 0 {
 			v.log.Debugf("No blocks to process at height: %v", height)
 			select {
 			case <-v.HaltCh():
@@ -148,14 +148,11 @@ func (v *Verifier) worker() {
 
 		v.log.Debugf("Processing block at height: %v", height)
 
-		// In principle there should be no need to use the lock here because the block shouldn't be touched anymore,
-		// but better safe than sorry
-		nextBlock.Lock()
-
 		// to batch all requests for given block
 		blockResults := make([]chan *commands.Response, 0, len(nextBlock.Txs))
 
-		for i, tx := range nextBlock.Txs {
+		for i, txRes := range nextBlock.Txs {
+			tx := txRes.DeliverResult
 			if tx.Code != code.OK || len(tx.Events) == 0 ||
 				!bytes.HasPrefix(tx.Events[0].Attributes[0].Key, tmconst.RedeemCredentialRequestKeyPrefix) {
 				v.log.Infof("Tx %v at height %v is not a redeem credential request", i, height)
@@ -209,7 +206,6 @@ func (v *Verifier) worker() {
 		}
 
 		v.monitor.FinalizeHeight(height)
-		nextBlock.Unlock()
 	}
 }
 
