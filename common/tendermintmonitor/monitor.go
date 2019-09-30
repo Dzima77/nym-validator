@@ -146,7 +146,7 @@ func (m *Monitor) startNewBlock(blockResults *ctypes.ResultBlockResults) error {
 	if len(blockResults.Results.DeliverTx) > 0 {
 		m.log.Notice("Actual transactions present")
 		for _, tx := range blockResults.Results.DeliverTx {
-			if tx.Events != nil && len(tx.Events) > 0 {
+			if tx != nil && tx.Events != nil && len(tx.Events) > 0 {
 				m.log.Notice("This block should have useful transactions!")
 			}
 		}
