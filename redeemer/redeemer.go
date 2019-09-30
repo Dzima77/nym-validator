@@ -102,7 +102,7 @@ func (r *Redeemer) worker() {
 			r.log.Debug("Default")
 		}
 
-		height, nextBlock := r.monitor.GetLowestFullUnprocessedBlock()
+		height, nextBlock := r.monitor.GetLowestUnprocessedBlock()
 		if nextBlock == nil {
 			r.log.Debugf("No blocks to process at height: %v", height)
 			select {
@@ -117,11 +117,8 @@ func (r *Redeemer) worker() {
 
 		r.log.Debugf("Processing block at height: %v", height)
 
-		// In principle there should be no need to use the lock here because the block shouldn't be touched anymore,
-		// but better safe than sorry
-		nextBlock.Lock()
-
-		for i, tx := range nextBlock.Txs {
+		for i, txRes := range nextBlock.Txs {
+			tx := txRes.DeliverResult
 			if tx.Code != code.OK || len(tx.Events) == 0 ||
 				!bytes.HasPrefix(tx.Events[0].Attributes[0].Key, tmconst.RedeemTokensRequestKeyPrefix) {
 				r.log.Infof("Tx %v at height %v is not a redeem token request", i, height)
@@ -213,7 +210,6 @@ func (r *Redeemer) worker() {
 		}
 
 		r.monitor.FinalizeHeight(height)
-		nextBlock.Unlock()
 	}
 }
 
