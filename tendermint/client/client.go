@@ -265,6 +265,35 @@ func (c *Client) BlockResults(height *int64) (*ctypes.ResultBlockResults, error)
 	return res, err
 }
 
+// ABCIInfo obtains current state of the nym-tendermint ABCI.
+func (c *Client) ABCIInfo() (*ctypes.ResultABCIInfo, error) {
+	c.logMsg("DEBUG", "Getting current ABCIInfo")
+
+	var res *ctypes.ResultABCIInfo
+	var err error
+	if c.tmclient != nil && c.tmclient.IsRunning() {
+		res, err = c.tmclient.ABCIInfo()
+	} else { // reconnection is most likely already in progress
+		err = errors.New("invalid client - reconnection required")
+	}
+	// network error
+	if err != nil {
+		if match, _ := regexp.MatchString(".*connection refused.*", err.Error()); match {
+			c.logMsg("DEBUG", "Network error while getting tx result: %v", err)
+			//nolint: govet
+			err := c.reconnect(false)
+			if err != nil {
+				// workers should decide how to handle it
+				return nil, err
+			}
+			// repeat the query
+			return c.ABCIInfo()
+		}
+	}
+	c.logMsg("DEBUG", "ABCIInfo call done")
+	return res, err
+}
+
 func (c *Client) reconnect(forceTry bool) error {
 	c.connLock.Lock()
 	defer c.connLock.Unlock()
