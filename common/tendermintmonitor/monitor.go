@@ -155,13 +155,16 @@ func (m *Monitor) startNewBlock(blockResults *ctypes.ResultBlockResults) error {
 	b := &block{
 		height:         blockResults.Height,
 		beingProcessed: false,
-		Txs:            make([]*tx, len(blockResults.Results.DeliverTx)),
+		Txs:            make([]*tx, 0, len(blockResults.Results.DeliverTx)),
 	}
 
-	for i, txRes := range blockResults.Results.DeliverTx {
-		b.Txs[i] = &tx{
-			DeliverResult: *txRes,
+	for _, txRes := range blockResults.Results.DeliverTx {
+		if txRes != nil {
+			b.Txs = append(b.Txs, &tx{
+				DeliverResult: *txRes,
+			})
 		}
+
 	}
 
 	m.Lock()
