@@ -67,9 +67,7 @@ func (m *Monitor) PrintProcessingState() {
 		heights = append(heights, h)
 	}
 	sortkeys.Int64s(heights)
-	for _, h := range heights {
-		m.log.Debugf("Height: %d", h)
-	}
+	m.log.Debugf("Height: %d", heights)
 
 	m.log.Info("PROCESSED, BUT NOT COMMITTED BLOCKS:")
 	heights = make([]int64, 0, len(m.processedBlocks))
@@ -77,9 +75,7 @@ func (m *Monitor) PrintProcessingState() {
 		heights = append(heights, h)
 	}
 	sortkeys.Int64s(heights)
-	for _, h := range heights {
-		m.log.Debugf("Height: %d", h)
-	}
+	m.log.Debugf("Height: %d", heights)
 	m.log.Debug("##################")
 }
 
@@ -150,7 +146,7 @@ func (m *Monitor) startNewBlock(blockResults *ctypes.ResultBlockResults) error {
 	if len(blockResults.Results.DeliverTx) > 0 {
 		m.log.Notice("Actual transactions present")
 		for _, tx := range blockResults.Results.DeliverTx {
-			if len(tx.Events) > 0 {
+			if tx.Events != nil && len(tx.Events) > 0 {
 				m.log.Notice("This block should have useful transactions!")
 			}
 		}
