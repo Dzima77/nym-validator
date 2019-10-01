@@ -1,5 +1,9 @@
 # nym-validator Changelog
 
+## 0.12.12
+
+* Improved reliability of Tendermint chain monitor
+
 ## 0.12.11
 
 * Validator reporting presence to directory server
