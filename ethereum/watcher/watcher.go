@@ -141,6 +141,7 @@ func (w *Watcher) worker() {
 		// make sure our starting block is not nil
 		currentBlockNum = w.getLatestBlockNumber()
 		if currentBlockNum == nil {
+			w.log.Debugf("Invalid starting block number: %d. Sleeping for a second", currentBlockNum)
 			time.Sleep(time.Second)
 		}
 		if err := w.processBlock(currentBlockNum); err != nil {
