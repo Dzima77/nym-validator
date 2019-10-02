@@ -206,7 +206,7 @@ func (m *Monitor) catchupBlocks(startingHeight int64, latestBlock *ctypes.Result
 // for now assume we receive all subscription events and nodes never go down
 func (m *Monitor) worker() {
 	// TODO: make ticker value configurable in config file
-	heartbeat := time.NewTicker(2000 * time.Millisecond)
+	heartbeat := time.NewTicker(500 * time.Millisecond)
 
 	// our current block is what we already have seen and stored
 	currentBlockNum := m.store.GetHighest()

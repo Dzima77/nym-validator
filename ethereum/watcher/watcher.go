@@ -132,7 +132,7 @@ func (w *Watcher) processBlock(num *big.Int) error {
 
 func (w *Watcher) worker() {
 	w.log.Noticef("Watching Ethereum blockchain at: %s", w.cfg.Watcher.EthereumNodeAddress)
-	heartbeat := time.NewTicker(2500 * time.Millisecond)
+	heartbeat := time.NewTicker(1000 * time.Millisecond)
 
 	// Just to the simplest thing of incrementing the block number by one...
 	var currentBlockNum *big.Int

@@ -1,5 +1,9 @@
 # nym-validator Changelog
 
+## 0.12.14
+
+* Increased the default blockchain (both Tendermint and Ethereum) polling rate
+
 ## 0.12.13
 
 * Validators sending hardcoded port in their presence data
