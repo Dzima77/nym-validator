@@ -144,6 +144,7 @@ func New(cfg *config.Config) (*Issuer, error) {
 		marshaledKey,
 		"validator",
 		cfg.Server.DirectoryServerPresenceEndpoint,
+		":4000",
 	)
 
 	return ia, nil
