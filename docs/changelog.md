@@ -1,5 +1,9 @@
 # nym-validator Changelog
 
+## 0.12.13
+
+* Validators sending hardcoded port in their presence data
+
 ## 0.12.12
 
 * Improved reliability of Tendermint chain monitor
