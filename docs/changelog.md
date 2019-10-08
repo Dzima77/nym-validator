@@ -1,5 +1,9 @@
 # nym-validator Changelog
 
+## 0.12.15
+
+* Fixed possibly source of slice bounds out of range error when reading packet payload
+
 ## 0.12.14
 
 * Increased the default blockchain (both Tendermint and Ethereum) polling rate
