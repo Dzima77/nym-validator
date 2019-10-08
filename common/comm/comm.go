@@ -80,22 +80,32 @@ func LogAndReturnError(log *logging.Logger, fmtString string, a ...interface{}) 
 
 // ReadPacketFromConn reads all data from a given connection and
 // unmarshals it into a packet instance.
+// TODO: rewrite this function (alongside bunch of other code...)
 func ReadPacketFromConn(conn net.Conn) (*packet.Packet, error) {
 	var err error
-	tmp := make([]byte, 4) // packetlength
-	if _, err = io.ReadFull(conn, tmp); err != nil {
+	packetLenBytes := make([]byte, 4) // packetlength
+	if _, err = io.ReadFull(conn, packetLenBytes); err != nil {
 		return nil, err
 	}
-	packetOutLength := binary.BigEndian.Uint32(tmp)
+	packetOutLength := binary.BigEndian.Uint32(packetLenBytes)
 	if packetOutLength > packet.MaxPayloadLength {
 		return nil, fmt.Errorf("packet too long: %v", packetOutLength)
 	}
 
-	packetOutBytes := make([]byte, packetOutLength)
-	copy(packetOutBytes, tmp)
-	if _, err = io.ReadFull(conn, packetOutBytes[4:]); err != nil {
+	payloadLength := int(packetOutLength) - 4
+	if payloadLength <= 0 {
+		return nil, errors.New("invalid payload length")
+	}
+	payload := make([]byte, payloadLength)
+
+	if _, err = io.ReadFull(conn, payload); err != nil {
 		return nil, err
 	}
+
+	packetOutBytes := make([]byte, packetOutLength)
+	i := copy(packetOutBytes, packetLenBytes)
+	copy(packetOutBytes[i:], payload)
+
 	return packet.FromBytes(packetOutBytes)
 }
 

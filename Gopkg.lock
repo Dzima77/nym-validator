@@ -953,6 +953,7 @@
     "github.com/ethereum/go-ethereum/crypto",
     "github.com/ethereum/go-ethereum/ethclient",
     "github.com/ethereum/go-ethereum/event",
+    "github.com/gogo/protobuf/sortkeys",
     "github.com/golang/protobuf/proto",
     "github.com/nymtech/amcl/version3/go/amcl",
     "github.com/nymtech/amcl/version3/go/amcl/BLS381",
