@@ -1,5 +1,9 @@
 # nym-validator Changelog
 
+## 0.12.16
+
+* Defined constant specifying length of FP12 (Gt element)
+
 ## 0.12.15
 
 * Fixed possibly source of slice bounds out of range error when reading packet payload
