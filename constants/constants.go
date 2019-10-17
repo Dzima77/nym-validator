@@ -40,6 +40,9 @@ const (
 	// ECP2Len represents number of bytes each ECP2 takes.
 	ECP2Len = 4 * MB
 
+	// FP12Len represents number of bytes each FP12 (Gt element) takes.
+	FP12Len = 12 * MB
+
 	// SecretKeyType defines PEM Type for Coconut Secret Key.
 	SecretKeyType = "COCONUT SECRET KEY"
 
