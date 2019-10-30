@@ -21,3 +21,6 @@ protoc ./common/grpc/services/proto/services.proto --go_out=plugins=grpc:../../.
 
 # tendermint tx messages
 protoc --go_out=../../.. ./tendermint/nymabci/transaction/proto/types.proto
+
+# client socket
+protoc --go_out=. ./client/rpc/clienttypes/types.proto

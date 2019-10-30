@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"net"
 	"reflect"
+	"sync"
 	"time"
 
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
@@ -57,6 +58,9 @@ type Client struct {
 	privateKey *ecdsa.PrivateKey
 	nymClient  *nymclient.Client
 	ethClient  *ethclient.Client
+
+	haltedCh chan struct{}
+	haltOnce sync.Once
 }
 
 // used to share code for parsing BlindSign and GetCredential responses. They return same data but under different name
@@ -985,11 +989,26 @@ func (c *Client) logAndReturnError(fmtString string, a ...interface{}) error {
 	return errors.New(errstr)
 }
 
-// Stop stops client instance
-func (c *Client) Stop() {
+// Wait waits till the client is terminated for any reason.
+func (c *Client) Wait() {
+	<-c.haltedCh
+}
+
+// Shutdown cleanly shuts down a given client instance.
+func (c *Client) Shutdown() {
+	c.haltOnce.Do(func() { c.halt() })
+}
+
+func (c *Client) halt() {
 	c.log.Notice("Starting graceful shutdown.")
 	c.cryptoworker.Halt()
 	c.log.Notice("Shutdown complete.")
+}
+
+func (c *Client) Start() error {
+	// noop.
+	// start functionalities is unfortunately current included in New. TODO: fix that at some point
+	return nil
 }
 
 // New returns a new Client instance parameterized with the specified configuration.
@@ -1061,6 +1080,7 @@ func New(cfg *config.Config) (*Client, error) {
 		privateKey: privateKey,
 		nymClient:  nymClient,
 		ethClient:  ethClient,
+		haltedCh:   make(chan struct{}),
 	}
 
 	clientLog.Noticef("Created %v client", cfg.Client.Identifier)
