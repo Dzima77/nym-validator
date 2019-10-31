@@ -1,22 +1,22 @@
-// THIS IS ENTIRELY FOR TESTING PURPOSES TO DEMONSTRATE THAT YOU CAN COMMUNICATE WITH THE CLIENT ON TCP SOCKET
+// THIS IS ENTIRELY FOR TESTING PURPOSES TO DEMONSTRATE THAT YOU CAN COMMUNICATE WITH THE CLIENT ON TCP SOCKET OR THE WEBSOCKET
 
 package main
 
 import (
 	"fmt"
+	"net"
+	"net/url"
+
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/websocket"
 	types "github.com/nymtech/nym-validator/client/rpc/clienttypes"
 	"github.com/nymtech/nym-validator/client/rpc/utils"
-	"net"
-	"net/url"
 )
 
 func WebSocket() {
 	provReq := &types.Request{
 		Value: &types.Request_GetProviders{
-			GetProviders: &types.RequestGetServiceProviders{
-			},
+			GetProviders: &types.RequestGetServiceProviders{},
 		},
 	}
 	provReqBytes, err := proto.Marshal(provReq)
@@ -128,8 +128,7 @@ func WebSocket() {
 func TCPSocket() {
 	provReq := &types.Request{
 		Value: &types.Request_GetProviders{
-			GetProviders: &types.RequestGetServiceProviders{
-			},
+			GetProviders: &types.RequestGetServiceProviders{},
 		},
 	}
 
