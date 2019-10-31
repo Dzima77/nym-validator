@@ -7,6 +7,6 @@
 
 This is the Nym validator, associated client code, and dummy service provider code. 
 
-It is a Go implementation of the [Coconut](https://arxiv.org/pdf/1802.07344.pdf) selective disclosure credentials scheme. Coconut supports threshold issuance on multiple public and private attributes, re-randomization and multiple unlinkable selective attribute revelations.
+It contains a Go implementation of the [Coconut](https://arxiv.org/pdf/1802.07344.pdf) selective disclosure credentials scheme. Coconut supports threshold issuance on multiple public and private attributes, re-randomization and multiple unlinkable selective attribute revelations.
 
 For more information, see the [documentation](https://nymtech.net/docs/).
