@@ -34,5 +34,5 @@ func main() {
 	info := map[string]string{
 		"socket": "Run a nym socket client",
 	}
-	optparse.Commands("nym-socket-client", "0.12.17", cmds, info, logo)
+	optparse.Commands("nym-socket-client", "0.13.0", cmds, info, logo)
 }

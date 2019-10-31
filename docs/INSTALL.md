@@ -1,5 +1,9 @@
 # Installation
 
+The below instructions are outdated. Please refer to <https://nymtech.net/docs/>
+
+## OUTDATED DOCS
+
 The installation process of the Nym validator for development purposes takes multiple steps.
 
 0. Ensure you have correctly installed and configured docker and docker-compose.
