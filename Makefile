@@ -20,6 +20,10 @@ THRESHOLD=3
 all:
 	make localnet-build
 
+build_socket_client:
+	dep ensure
+	go build -o $(GOPATH)/bin/nym-socket-client ./cmd/nym-socket-client
+
 build_local_validators:
 	@if ! [ -f build/validators/validator1/config.toml ]; then \
 		i=1; while [ "$$i" -le $(NUM_VALIDATORS) ]; do \
