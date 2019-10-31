@@ -31,6 +31,7 @@ import (
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/golang/protobuf/proto"
 	Curve "github.com/nymtech/amcl/version3/go/amcl/BLS381"
+	"github.com/nymtech/nym-validator/client/rpc/clienttypes"
 	"github.com/nymtech/nym-validator/common/comm"
 	"github.com/nymtech/nym-validator/common/comm/commands"
 	"github.com/nymtech/nym-validator/common/comm/packet"
@@ -623,4 +624,18 @@ func (c *Client) SpendCredentialGrpc(token *token.Token, credential *coconut.Sig
 	}
 
 	return nil // not implemeneted
+}
+
+// GetServiceProviders returns list of valid service providers from the directory server
+func (c *Client) GetServiceProviders() []*clienttypes.ServiceProvider {
+	// temporarily until directory server supports it, return whatever we have in the config.
+	sps := make([]*clienttypes.ServiceProvider, 0, len(c.cfg.Nym.ServiceProviders))
+	for ip, address := range c.cfg.Nym.ServiceProviders {
+		sps = append(sps, &clienttypes.ServiceProvider{
+			Name:    "<none provided>",
+			Address: address,
+			Ip:      ip,
+		})
+	}
+	return sps
 }

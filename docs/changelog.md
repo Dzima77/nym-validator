@@ -1,5 +1,13 @@
 # nym-validator Changelog
 
+## 0.13.1
+
+Added makefile directive to build the client
+
+## 0.13.0
+
+* Introduced ability for the client to listen on a socket (TCP or a Websocket) for requests for getting credential, re-randomizing credential, spending credential and getting available service providers.
+
 ## 0.12.16
 
 * Defined constant specifying length of FP12 (Gt element)

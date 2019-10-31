@@ -1,0 +1,82 @@
+syntax = "proto3";
+package clienttypes;
+
+import "crypto/coconut/scheme/proto/types.proto";
+
+
+// TODO: this is really a placeholder which will change once the system is properly rewritten
+message ServiceProvider {
+    string name = 1;
+    string address = 2;
+    string Ip = 3;
+}
+
+message CredentialMaterials {
+    int64 value = 1;
+    bytes secret = 2;
+    bytes sequence = 3;
+}
+
+message Request {
+    oneof value {
+        RequestGetCredential getCredential = 2;
+        RequestSpendCredential spendCredential = 3;
+        RequestGetServiceProviders getProviders = 4;
+        RequestRerandomize rerandomize = 5;
+        RequestFlush flush = 6;
+    }
+}
+
+message RequestGetCredential {
+    int64 value = 1;
+}
+
+message RequestSpendCredential {
+    coconut.ProtoSignature credential = 1;
+    CredentialMaterials materials = 2;
+    ServiceProvider provider = 3;
+}
+
+message RequestGetServiceProviders {
+}
+
+message RequestRerandomize {
+    coconut.ProtoSignature credential = 1;
+}
+
+message RequestFlush {
+}
+
+message Response {
+    oneof value {
+        ResponseException exception = 1;
+        ResponseGetCredential getCredential = 2;
+        ResponseSpendCredential spendCredential = 3;
+        ResponseGetServiceProviders getProviders = 4;
+        ResponseRerandomize rerandomize = 5;
+        ResponseFlush flush = 6;
+    }
+}
+
+message ResponseException {
+    string error = 1;
+}
+
+message ResponseGetCredential {
+    coconut.ProtoSignature credential = 1;
+    CredentialMaterials materials = 2;
+}
+
+message ResponseSpendCredential {
+}
+
+message ResponseGetServiceProviders {
+    repeated ServiceProvider providers = 1;
+}
+
+message ResponseRerandomize {
+    coconut.ProtoSignature credential = 1;
+}
+
+message ResponseFlush {
+}
