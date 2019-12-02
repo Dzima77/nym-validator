@@ -139,6 +139,15 @@ localnet-build:
 	make build_local_redeemers
 	make build_local_faucet
 
+build_testnet_binaries:
+	dep ensure
+	go build -o build/testnet-binaries/nym-validator ./cmd/nym-validator
+	go build -o build/testnet-binaries/nym-tendermint-node ./cmd/nym-tendermint-node
+	go build -o build/testnet-binaries/nym-ethereum-watcher ./cmd/nym-ethereum-watcher
+	go build -o build/testnet-binaries/nym-verifier ./cmd/nym-verifier
+	go build -o build/testnet-binaries/nym-redeemer ./cmd/nym-redeemer-demo
+
+
 # Run a local testnet consisting currently of:
 # 4 tendermint nodes
 # 3 issuing authorities
