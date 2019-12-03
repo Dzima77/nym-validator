@@ -17,13 +17,13 @@
   # the particular node was unavailable.
   BlockchainNodeAddresses = [ ":26657" ]
 
-	# PipeAccountKeyFile defines path to file containing ECDSA private key for the pipe account contract.
-	PipeAccountKeyFile = "/home/ubuntu/nymnet/redeemer/pipeAccount.key"
+  # PipeAccountKeyFile defines path to file containing ECDSA private key for the pipe account contract.
+  PipeAccountKeyFile = "/home/ubuntu/nymnet/redeemer/pipeAccount.key"
 
-	# EthereumNodeAddress defines address of an Ethereum node to which transactions are sent.
+  # EthereumNodeAddress defines address of an Ethereum node to which transactions are sent.
   EthereumNodeAddress = "https://ropsten.infura.io/v3/131453a5470641cd9f64942eecd8add2"
 
-	# NymContract defined address of the ERC20 token Nym contract. It is expected to be provided in hex format.
+  # NymContract defined address of the ERC20 token Nym contract. It is expected to be provided in hex format.
   NymContract = "0xE80025228D5448A55B995c829B89567ECE5203d3"
 
 [Logging]
