@@ -242,11 +242,13 @@
   digest = "1:0bff3dba326e7551e9309dc5088bdd878d744f167dbb6f44d2ad1eb61b26cad5"
   name = "github.com/golang/protobuf"
   packages = [
+    "jsonpb",
     "proto",
     "protoc-gen-go/descriptor",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
+    "ptypes/struct",
     "ptypes/timestamp",
   ]
   pruneopts = ""
@@ -953,8 +955,11 @@
     "github.com/ethereum/go-ethereum/crypto",
     "github.com/ethereum/go-ethereum/ethclient",
     "github.com/ethereum/go-ethereum/event",
+    "github.com/gogo/protobuf/proto",
     "github.com/gogo/protobuf/sortkeys",
+    "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
+    "github.com/gorilla/websocket",
     "github.com/nymtech/amcl/version3/go/amcl",
     "github.com/nymtech/amcl/version3/go/amcl/BLS381",
     "github.com/spf13/viper",
