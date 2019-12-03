@@ -131,7 +131,7 @@ func New(cfg *config.Config) (*Provider, error) {
 		return nil, errors.New(errStr)
 	}
 
-	providerLog.Notice("Loaded Nym Blochain keys from the file.")
+	providerLog.Notice("Loaded Nym Blockchain keys from the file.")
 
 	// TODO: actually use the key:
 	// - request/response to obtain address (required by client) _/

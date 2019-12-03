@@ -108,6 +108,7 @@ func (p *Processor) worker() {
 
 			if res == nil || res.Data == nil {
 				p.log.Errorf("Failed to sign request at index: %v on height %v", i, height)
+				continue
 			}
 			p.log.Debugf("Signed tx %v on height %v", i, height)
 
