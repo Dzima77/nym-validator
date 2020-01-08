@@ -101,6 +101,7 @@ func ReportNodePresence(server string, marshaledKey []byte, typ string, host ...
 	if len(host) == 1 {
 		values["host"] = host[0]
 	}
+	values["version"] = "pre-alpha"
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
 		return err
