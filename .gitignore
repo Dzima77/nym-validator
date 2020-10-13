@@ -1,12 +1,4 @@
-/.vscode
-/ttp/keys*
-/build
-/ethereum/tmpPrivate
-mainaccount.key
-/awsnetdata/*/*/*/*.pem
-/awsnetdata/*/*.key
-/awsnetdata/*/*/*.key
-/awsnetdata/*/*/*/*.key
-/awsnetdata/temp*
-/vendor
-/.idea
+vue/node_modules
+vue/dist
+vue/.cache
+build
