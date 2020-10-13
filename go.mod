@@ -16,6 +16,7 @@ require (
 	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
 	github.com/jinzhu/gorm v1.9.16
 	github.com/microcosm-cc/bluemonday v1.0.2
+	github.com/nymtech/nym-directory v0.7.0
 	github.com/onsi/ginkgo v1.14.1
 	github.com/onsi/gomega v1.10.1
 	github.com/spf13/afero v1.2.2 // indirect
