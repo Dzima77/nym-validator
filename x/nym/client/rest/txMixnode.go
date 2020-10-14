@@ -11,14 +11,14 @@ import (
 )
 
 type createMixnodeRequest struct {
-	BaseReq  rest.BaseReq `json:"base_req"`
-	Creator  string       `json:"creator"`
-	PubKey   string       `json:"pubKey"`
-	Layer    int32        `json:"layer"`
-	Version  string       `json:"version"`
-	Host     string       `json:"host"`
-	Location string       `json:"location"`
-	Stake    int32        `json:"stake"`
+	BaseReq    rest.BaseReq `json:"base_req"`
+	Creator    string       `json:"creator"`
+	PubKey     string       `json:"pubKey"`
+	Layer      int32        `json:"layer"`
+	Version    string       `json:"version"`
+	Host       string       `json:"host"`
+	Location   string       `json:"location"`
+	Reputation int32        `json:"reputation"`
 }
 
 func createMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
@@ -37,7 +37,7 @@ func createMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgCreateMixnode(creator, req.PubKey, req.Layer, req.Version, req.Host, req.Location, req.Stake)
+		msg := types.NewMsgCreateMixnode(creator, req.PubKey, req.Layer, req.Version, req.Host, req.Location, req.Reputation)
 
 		err = msg.ValidateBasic()
 		if err != nil {
@@ -50,15 +50,15 @@ func createMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
 }
 
 type setMixnodeRequest struct {
-	BaseReq  rest.BaseReq `json:"base_req"`
-	ID       string       `json:"id"`
-	Creator  string       `json:"creator"`
-	PubKey   string       `json:"pubKey"`
-	Layer    int32        `json:"layer"`
-	Version  string       `json:"version"`
-	Host     string       `json:"host"`
-	Location string       `json:"location"`
-	Stake    int32        `json:"stake"`
+	BaseReq    rest.BaseReq `json:"base_req"`
+	ID         string       `json:"id"`
+	Creator    string       `json:"creator"`
+	PubKey     string       `json:"pubKey"`
+	Layer      int32        `json:"layer"`
+	Version    string       `json:"version"`
+	Host       string       `json:"host"`
+	Location   string       `json:"location"`
+	Reputation int32        `json:"reputation"`
 }
 
 func setMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
@@ -77,7 +77,7 @@ func setMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgSetMixnode(creator, req.ID, req.PubKey, req.Layer, req.Version, req.Host, req.Location, req.Stake)
+		msg := types.NewMsgSetMixnode(creator, req.ID, req.PubKey, req.Layer, req.Version, req.Host, req.Location, req.Reputation)
 
 		err = msg.ValidateBasic()
 		if err != nil {

@@ -2,8 +2,9 @@ package cli
 
 import (
 	"bufio"
-	"github.com/spf13/cobra"
 	"strconv"
+
+	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -15,7 +16,7 @@ import (
 
 func GetCmdCreateMixnode(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "create-mixnode [pubKey] [layer] [version] [host] [location] [stake]",
+		Use:   "create-mixnode [pubKey] [layer] [version] [host] [location] [reputation]",
 		Short: "Creates a new mixnode",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -41,7 +42,7 @@ func GetCmdCreateMixnode(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdSetMixnode(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "set-mixnode [id]  [pubKey] [layer] [version] [host] [location] [stake]",
+		Use:   "set-mixnode [id]  [pubKey] [layer] [version] [host] [location] [reputation]",
 		Short: "Set a new mixnode",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
