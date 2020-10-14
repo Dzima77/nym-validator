@@ -7,6 +7,7 @@ import (
 
 var _ sdk.Msg = &MsgSetGateway{}
 
+// MsgSetGateway ...
 type MsgSetGateway struct {
 	ID             string         `json:"id" yaml:"id"`
 	Creator        sdk.AccAddress `json:"creator" yaml:"creator"`
@@ -18,6 +19,7 @@ type MsgSetGateway struct {
 	Location       string         `json:"location" yaml:"location"`
 }
 
+// NewMsgSetGateway ...
 func NewMsgSetGateway(creator sdk.AccAddress, id string, identityKey string, sphinxKey string, layer int32, clientListener string, mixnetListener string, location string) MsgSetGateway {
 	return MsgSetGateway{
 		ID:             id,
@@ -31,23 +33,28 @@ func NewMsgSetGateway(creator sdk.AccAddress, id string, identityKey string, sph
 	}
 }
 
+// Route ...
 func (msg MsgSetGateway) Route() string {
 	return RouterKey
 }
 
+// Type ...
 func (msg MsgSetGateway) Type() string {
 	return "SetGateway"
 }
 
+// GetSigners ...
 func (msg MsgSetGateway) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.AccAddress(msg.Creator)}
 }
 
+// GetSignBytes ...
 func (msg MsgSetGateway) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
+// ValidateBasic ...
 func (msg MsgSetGateway) ValidateBasic() error {
 	if msg.Creator.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "creator can't be empty")

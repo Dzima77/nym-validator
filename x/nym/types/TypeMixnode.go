@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// Mixnode models a Nym mixnode, which shuffles Sphinx packets together inside itself to provide network privacy for users.
 type Mixnode struct {
 	Creator    sdk.AccAddress `json:"creator" yaml:"creator"`
 	ID         string         `json:"id" yaml:"id"`

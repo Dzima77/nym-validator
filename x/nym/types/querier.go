@@ -1,7 +1,13 @@
 package types
 
+// QueryListMixnode ...
 const QueryListMixnode = "list-mixnode"
+
+// QueryGetMixnode ...
 const QueryGetMixnode = "get-mixnode"
 
+// QueryListGateway ...
 const QueryListGateway = "list-gateway"
+
+// QueryGetGateway ...
 const QueryGetGateway = "get-gateway"

@@ -7,6 +7,7 @@ import (
 
 var _ sdk.Msg = &MsgSetMixnode{}
 
+// MsgSetMixnode ...
 type MsgSetMixnode struct {
 	ID         string         `json:"id" yaml:"id"`
 	Creator    sdk.AccAddress `json:"creator" yaml:"creator"`
@@ -18,6 +19,7 @@ type MsgSetMixnode struct {
 	Reputation int32          `json:"reputation" yaml:"reputation"`
 }
 
+// NewMsgSetMixnode constructor
 func NewMsgSetMixnode(creator sdk.AccAddress, id string, pubKey string, layer int32, version string, host string, location string, reputation int32) MsgSetMixnode {
 	return MsgSetMixnode{
 		ID:         id,
@@ -31,23 +33,28 @@ func NewMsgSetMixnode(creator sdk.AccAddress, id string, pubKey string, layer in
 	}
 }
 
+// Route ...
 func (msg MsgSetMixnode) Route() string {
 	return RouterKey
 }
 
+// Type ...
 func (msg MsgSetMixnode) Type() string {
 	return "SetMixnode"
 }
 
+// GetSigners ...
 func (msg MsgSetMixnode) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.AccAddress(msg.Creator)}
 }
 
+// GetSignBytes ...
 func (msg MsgSetMixnode) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
+// ValidateBasic ...
 func (msg MsgSetMixnode) ValidateBasic() error {
 	if msg.Creator.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "creator can't be empty")
