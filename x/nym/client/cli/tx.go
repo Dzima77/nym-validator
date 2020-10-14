@@ -23,6 +23,9 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 
 	nymTxCmd.AddCommand(flags.PostCommands(
 		// this line is used by starport scaffolding # 1
+		GetCmdCreateGateway(cdc),
+		GetCmdSetGateway(cdc),
+		GetCmdDeleteGateway(cdc),
 		GetCmdCreateMixnode(cdc),
 		GetCmdSetMixnode(cdc),
 		GetCmdDeleteMixnode(cdc),

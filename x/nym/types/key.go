@@ -17,3 +17,8 @@ const (
 const (
 	MixnodePrefix = "mixnode-"
 )
+
+const (
+	GatewayPrefix = "gateway-"
+)
+		

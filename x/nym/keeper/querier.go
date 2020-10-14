@@ -3,6 +3,8 @@ package keeper
 import (
 	// this line is used by starport scaffolding # 1
 	"github.com/nymtech/nym/validator/nym/x/nym/types"
+		
+	
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -15,6 +17,10 @@ func NewQuerier(k Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
 		// this line is used by starport scaffolding # 2
+		case types.QueryListGateway:
+			return listGateway(ctx, k)
+		case types.QueryGetGateway:
+			return getGateway(ctx, path[1:], k)
 		case types.QueryListMixnode:
 			return listMixnode(ctx, k)
 		case types.QueryGetMixnode:
