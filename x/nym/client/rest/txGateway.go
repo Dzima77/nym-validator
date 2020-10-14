@@ -4,22 +4,21 @@ import (
 	"net/http"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/nymtech/nym/validator/nym/x/nym/types"
 )
 
 type createGatewayRequest struct {
-	BaseReq rest.BaseReq `json:"base_req"`
-	Creator string `json:"creator"`
-	IdentityKey string `json:"identityKey"`
-	SphinxKey string `json:"sphinxKey"`
-	Layer int32 `json:"layer"`
-	ClientListener string `json:"clientListener"`
-	MixnetListener string `json:"mixnetListener"`
-	Location string `json:"location"`
-	
+	BaseReq        rest.BaseReq `json:"base_req"`
+	Creator        string       `json:"creator"`
+	IdentityKey    string       `json:"identityKey"`
+	SphinxKey      string       `json:"sphinxKey"`
+	Layer          int32        `json:"layer"`
+	ClientListener string       `json:"clientListener"`
+	MixnetListener string       `json:"mixnetListener"`
+	Location       string       `json:"location"`
 }
 
 func createGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {
@@ -38,7 +37,7 @@ func createGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgCreateGateway(creator,  req.IdentityKey,  req.SphinxKey,  req.Layer,  req.ClientListener,  req.MixnetListener,  req.Location, )
+		msg := types.NewMsgCreateGateway(creator, req.IdentityKey, req.SphinxKey, req.Layer, req.ClientListener, req.MixnetListener, req.Location)
 
 		err = msg.ValidateBasic()
 		if err != nil {
@@ -51,16 +50,15 @@ func createGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {
 }
 
 type setGatewayRequest struct {
-	BaseReq rest.BaseReq `json:"base_req"`
-	ID 		string `json:"id"`
-	Creator string `json:"creator"`
-	IdentityKey string `json:"identityKey"`
-	SphinxKey string `json:"sphinxKey"`
-	Layer int32 `json:"layer"`
-	ClientListener string `json:"clientListener"`
-	MixnetListener string `json:"mixnetListener"`
-	Location string `json:"location"`
-	
+	BaseReq        rest.BaseReq `json:"base_req"`
+	ID             string       `json:"id"`
+	Creator        string       `json:"creator"`
+	IdentityKey    string       `json:"identityKey"`
+	SphinxKey      string       `json:"sphinxKey"`
+	Layer          int32        `json:"layer"`
+	ClientListener string       `json:"clientListener"`
+	MixnetListener string       `json:"mixnetListener"`
+	Location       string       `json:"location"`
 }
 
 func setGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {
@@ -79,7 +77,7 @@ func setGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgSetGateway(creator, req.ID,  req.IdentityKey,  req.SphinxKey,  req.Layer,  req.ClientListener,  req.MixnetListener,  req.Location, )
+		msg := types.NewMsgSetGateway(creator, req.ID, req.IdentityKey, req.SphinxKey, req.Layer, req.ClientListener, req.MixnetListener, req.Location)
 
 		err = msg.ValidateBasic()
 		if err != nil {
@@ -93,8 +91,8 @@ func setGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {
 
 type deleteGatewayRequest struct {
 	BaseReq rest.BaseReq `json:"base_req"`
-	Creator string `json:"creator"`
-	ID 		string `json:"id"`
+	Creator string       `json:"creator"`
+	ID      string       `json:"id"`
 }
 
 func deleteGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {

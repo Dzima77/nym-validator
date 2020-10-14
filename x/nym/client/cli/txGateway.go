@@ -2,8 +2,8 @@ package cli
 
 import (
 	"bufio"
-    "strconv"
 	"github.com/spf13/cobra"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -19,13 +19,13 @@ func GetCmdCreateGateway(cdc *codec.Codec) *cobra.Command {
 		Short: "Creates a new gateway",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			argsIdentityKey := string(args[0] )
-			argsSphinxKey := string(args[1] )
-			argsLayer, _ := strconv.ParseInt(args[2] , 10, 64)
-			argsClientListener := string(args[3] )
-			argsMixnetListener := string(args[4] )
-			argsLocation := string(args[5] )
-			
+			argsIdentityKey := string(args[0])
+			argsSphinxKey := string(args[1])
+			argsLayer, _ := strconv.ParseInt(args[2], 10, 64)
+			argsClientListener := string(args[3])
+			argsMixnetListener := string(args[4])
+			argsLocation := string(args[5])
+
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
@@ -38,7 +38,6 @@ func GetCmdCreateGateway(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 }
-
 
 func GetCmdSetGateway(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
@@ -53,7 +52,7 @@ func GetCmdSetGateway(cdc *codec.Codec) *cobra.Command {
 			argsClientListener := string(args[4])
 			argsMixnetListener := string(args[5])
 			argsLocation := string(args[6])
-			
+
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))

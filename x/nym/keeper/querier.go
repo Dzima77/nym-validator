@@ -3,8 +3,6 @@ package keeper
 import (
 	// this line is used by starport scaffolding # 1
 	"github.com/nymtech/nym/validator/nym/x/nym/types"
-		
-	
 
 	abci "github.com/tendermint/tendermint/abci/types"
 

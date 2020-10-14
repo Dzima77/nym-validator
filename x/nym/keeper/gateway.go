@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/nymtech/nym/validator/nym/x/nym/types"
-    "github.com/cosmos/cosmos-sdk/codec"
 )
 
 // CreateGateway creates a gateway
@@ -83,7 +83,6 @@ func (k Keeper) GetGatewayOwner(ctx sdk.Context, key string) sdk.AccAddress {
 	}
 	return gateway.Creator
 }
-
 
 // Check if the key exists in the store
 func (k Keeper) GatewayExists(ctx sdk.Context, key string) bool {

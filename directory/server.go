@@ -79,7 +79,6 @@ func injectMeasurements(policy *bluemonday.Policy) mixmining.Config {
 	}
 }
 
-
 func injectPresence(policy *bluemonday.Policy) presence.Config {
 	cocoSan := presence.NewCoconodeSanitizer(policy)
 	mixSan := presence.NewMixnodeSanitizer(policy)

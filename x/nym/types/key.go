@@ -21,4 +21,3 @@ const (
 const (
 	GatewayPrefix = "gateway-"
 )
-		
