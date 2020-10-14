@@ -10,14 +10,14 @@ import (
 
 func handleMsgSetMixnode(ctx sdk.Context, k keeper.Keeper, msg types.MsgSetMixnode) (*sdk.Result, error) {
 	var mixnode = types.Mixnode{
-		Creator:  msg.Creator,
-		ID:       msg.ID,
-		PubKey:   msg.PubKey,
-		Layer:    msg.Layer,
-		Version:  msg.Version,
-		Host:     msg.Host,
-		Location: msg.Location,
-		Stake:    msg.Stake,
+		Creator:    msg.Creator,
+		ID:         msg.ID,
+		PubKey:     msg.PubKey,
+		Layer:      msg.Layer,
+		Version:    msg.Version,
+		Host:       msg.Host,
+		Location:   msg.Location,
+		Reputation: msg.Reputation,
 	}
 	if !msg.Creator.Equals(k.GetMixnodeOwner(ctx, msg.ID)) { // Checks if the the msg sender is the same as the current owner
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner") // If not, throw an error
