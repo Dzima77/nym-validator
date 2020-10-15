@@ -44,6 +44,8 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	nymQueryCmd.AddCommand(
 		flags.GetCommands(
 			// this line is used by starport scaffolding # 1
+			GetCmdListGateway(queryRoute, cdc),
+			GetCmdGetGateway(queryRoute, cdc),
 			GetCmdListMixnode(queryRoute, cdc),
 			GetCmdGetMixnode(queryRoute, cdc),
 		)...,
