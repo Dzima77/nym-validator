@@ -10,7 +10,6 @@
         :fields="[
           'identityKey',
           'sphinxKey',
-          'layer',
           'clientListener',
           'mixnetListener',
           'location',
