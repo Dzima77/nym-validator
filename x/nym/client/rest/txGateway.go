@@ -15,7 +15,6 @@ type createGatewayRequest struct {
 	Creator        string       `json:"creator"`
 	IdentityKey    string       `json:"identityKey"`
 	SphinxKey      string       `json:"sphinxKey"`
-	Layer          int32        `json:"layer"`
 	ClientListener string       `json:"clientListener"`
 	MixnetListener string       `json:"mixnetListener"`
 	Location       string       `json:"location"`
@@ -37,7 +36,7 @@ func createGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgCreateGateway(creator, req.IdentityKey, req.SphinxKey, req.Layer, req.ClientListener, req.MixnetListener, req.Location)
+		msg := types.NewMsgCreateGateway(creator, req.IdentityKey, req.SphinxKey, req.ClientListener, req.MixnetListener, req.Location)
 
 		err = msg.ValidateBasic()
 		if err != nil {
@@ -55,7 +54,6 @@ type setGatewayRequest struct {
 	Creator        string       `json:"creator"`
 	IdentityKey    string       `json:"identityKey"`
 	SphinxKey      string       `json:"sphinxKey"`
-	Layer          int32        `json:"layer"`
 	ClientListener string       `json:"clientListener"`
 	MixnetListener string       `json:"mixnetListener"`
 	Location       string       `json:"location"`
@@ -77,7 +75,7 @@ func setGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgSetGateway(creator, req.ID, req.IdentityKey, req.SphinxKey, req.Layer, req.ClientListener, req.MixnetListener, req.Location)
+		msg := types.NewMsgSetGateway(creator, req.ID, req.IdentityKey, req.SphinxKey, req.ClientListener, req.MixnetListener, req.Location)
 
 		err = msg.ValidateBasic()
 		if err != nil {

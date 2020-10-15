@@ -13,7 +13,6 @@ func handleMsgCreateGateway(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreat
 		ID:             msg.ID,
 		IdentityKey:    msg.IdentityKey,
 		SphinxKey:      msg.SphinxKey,
-		Layer:          msg.Layer,
 		ClientListener: msg.ClientListener,
 		MixnetListener: msg.MixnetListener,
 		Location:       msg.Location,

@@ -14,20 +14,18 @@ type MsgCreateGateway struct {
 	Creator        sdk.AccAddress `json:"creator" yaml:"creator"`
 	IdentityKey    string         `json:"identityKey" yaml:"identityKey"`
 	SphinxKey      string         `json:"sphinxKey" yaml:"sphinxKey"`
-	Layer          int32          `json:"layer" yaml:"layer"`
 	ClientListener string         `json:"clientListener" yaml:"clientListener"`
 	MixnetListener string         `json:"mixnetListener" yaml:"mixnetListener"`
 	Location       string         `json:"location" yaml:"location"`
 }
 
 // NewMsgCreateGateway ...
-func NewMsgCreateGateway(creator sdk.AccAddress, identityKey string, sphinxKey string, layer int32, clientListener string, mixnetListener string, location string) MsgCreateGateway {
+func NewMsgCreateGateway(creator sdk.AccAddress, identityKey string, sphinxKey string, clientListener string, mixnetListener string, location string) MsgCreateGateway {
 	return MsgCreateGateway{
 		ID:             uuid.New().String(),
 		Creator:        creator,
 		IdentityKey:    identityKey,
 		SphinxKey:      sphinxKey,
-		Layer:          layer,
 		ClientListener: clientListener,
 		MixnetListener: mixnetListener,
 		Location:       location,
