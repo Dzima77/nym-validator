@@ -15,11 +15,3 @@ after_success:
 
 git:
   depth: 1
-
-notifications:
-  email: 
-    recipients:
-      - dave@nymtech.net
-      - andrew@nymtech.net
-    on_success: change  # always|never|change
-    on_failure: always
