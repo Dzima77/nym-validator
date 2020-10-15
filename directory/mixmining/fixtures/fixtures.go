@@ -121,7 +121,7 @@ func GoodPersistedMixStatus() models.PersistedMixStatus {
 
 // GoodPersistedBatchMixStatus ...
 func GoodPersistedBatchMixStatus() []models.PersistedMixStatus {
-	mixStatus := GoodBatchMixStatus();
+	mixStatus := GoodBatchMixStatus()
 	persisted := make([]models.PersistedMixStatus, len(mixStatus.Status))
 	for i, status := range mixStatus.Status {
 		persisted[i] = models.PersistedMixStatus{
