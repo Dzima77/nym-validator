@@ -31,7 +31,7 @@ func GetCmdCreateGateway(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "create-gateway [identityKey] [sphinxKey] [clientListener] [mixnetListener] [location]",
 		Short: "Creates a new gateway",
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.MinimumNArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsIdentityKey := string(args[0])
 			argsSphinxKey := string(args[1])
@@ -56,7 +56,7 @@ func GetCmdSetGateway(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "set-gateway [id]  [identityKey] [sphinxKey] [clientListener] [mixnetListener] [location]",
 		Short: "Set a new gateway",
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.MinimumNArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id := args[0]
 			argsIdentityKey := string(args[1])

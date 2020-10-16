@@ -32,7 +32,7 @@ func GetCmdCreateMixnode(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "create-mixnode [pubKey] [layer] [version] [host] [location] [reputation]",
 		Short: "Creates a new mixnode",
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.MinimumNArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsPubKey := string(args[0])
 			argsLayer, _ := strconv.ParseInt(args[1], 10, 64)
@@ -58,7 +58,7 @@ func GetCmdSetMixnode(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "set-mixnode [id]  [pubKey] [layer] [version] [host] [location] [reputation]",
 		Short: "Set a new mixnode",
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.MinimumNArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id := args[0]
 			argsPubKey := string(args[1])
