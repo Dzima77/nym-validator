@@ -39,12 +39,12 @@ func GetCmdCreateMixnode(cdc *codec.Codec) *cobra.Command {
 			argsVersion := string(args[2])
 			argsHost := string(args[3])
 			argsLocation := string(args[4])
-			argsStake, _ := strconv.ParseInt(args[5], 10, 64)
+			argsReputation, _ := strconv.ParseInt(args[5], 10, 64)
 
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			msg := types.NewMsgCreateMixnode(cliCtx.GetFromAddress(), string(argsPubKey), int32(argsLayer), string(argsVersion), string(argsHost), string(argsLocation), int32(argsStake))
+			msg := types.NewMsgCreateMixnode(cliCtx.GetFromAddress(), string(argsPubKey), int32(argsLayer), string(argsVersion), string(argsHost), string(argsLocation), int32(argsReputation))
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -66,12 +66,12 @@ func GetCmdSetMixnode(cdc *codec.Codec) *cobra.Command {
 			argsVersion := string(args[3])
 			argsHost := string(args[4])
 			argsLocation := string(args[5])
-			argsStake, _ := strconv.ParseInt(args[6], 10, 64)
+			argsReputation, _ := strconv.ParseInt(args[6], 10, 64)
 
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			msg := types.NewMsgSetMixnode(cliCtx.GetFromAddress(), id, string(argsPubKey), int32(argsLayer), string(argsVersion), string(argsHost), string(argsLocation), int32(argsStake))
+			msg := types.NewMsgSetMixnode(cliCtx.GetFromAddress(), id, string(argsPubKey), int32(argsLayer), string(argsVersion), string(argsHost), string(argsLocation), int32(argsReputation))
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err
