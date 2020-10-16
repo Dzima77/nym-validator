@@ -65,6 +65,11 @@ var (
 	}
 )
 
+// TODO: since we're starting from scratch here, should we be using the amino
+// codec or rather go with protobuf since amino is slowly getting replaced?
+// As explained in here: https://docs.cosmos.network/master/core/encoding.html
+// "Note, the Amino-based types may slowly be phased-out in the future
+// so developers should take note to use the protobuf message definitions where possible."
 func MakeCodec() *codec.Codec {
 	var cdc = codec.New()
 
