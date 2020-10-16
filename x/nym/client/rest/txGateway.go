@@ -1,17 +1,3 @@
-// Copyright 2020 Nym Technologies SA
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package rest
 
 import (
@@ -24,20 +10,19 @@ import (
 	"github.com/nymtech/nym/validator/nym/x/nym/types"
 )
 
-type createMixnodeRequest struct {
-	BaseReq    rest.BaseReq `json:"base_req"`
-	Creator    string       `json:"creator"`
-	PubKey     string       `json:"pubKey"`
-	Layer      int32        `json:"layer"`
-	Version    string       `json:"version"`
-	Host       string       `json:"host"`
-	Location   string       `json:"location"`
-	Reputation int32        `json:"reputation"`
+type createGatewayRequest struct {
+	BaseReq        rest.BaseReq `json:"base_req"`
+	Creator        string       `json:"creator"`
+	IdentityKey    string       `json:"identityKey"`
+	SphinxKey      string       `json:"sphinxKey"`
+	ClientListener string       `json:"clientListener"`
+	MixnetListener string       `json:"mixnetListener"`
+	Location       string       `json:"location"`
 }
 
-func createMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func createGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req createMixnodeRequest
+		var req createGatewayRequest
 		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
 			return
@@ -51,7 +36,7 @@ func createMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgCreateMixnode(creator, req.PubKey, req.Layer, req.Version, req.Host, req.Location, req.Reputation)
+		msg := types.NewMsgCreateGateway(creator, req.IdentityKey, req.SphinxKey, req.ClientListener, req.MixnetListener, req.Location)
 
 		err = msg.ValidateBasic()
 		if err != nil {
@@ -63,21 +48,20 @@ func createMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	}
 }
 
-type setMixnodeRequest struct {
-	BaseReq    rest.BaseReq `json:"base_req"`
-	ID         string       `json:"id"`
-	Creator    string       `json:"creator"`
-	PubKey     string       `json:"pubKey"`
-	Layer      int32        `json:"layer"`
-	Version    string       `json:"version"`
-	Host       string       `json:"host"`
-	Location   string       `json:"location"`
-	Reputation int32        `json:"reputation"`
+type setGatewayRequest struct {
+	BaseReq        rest.BaseReq `json:"base_req"`
+	ID             string       `json:"id"`
+	Creator        string       `json:"creator"`
+	IdentityKey    string       `json:"identityKey"`
+	SphinxKey      string       `json:"sphinxKey"`
+	ClientListener string       `json:"clientListener"`
+	MixnetListener string       `json:"mixnetListener"`
+	Location       string       `json:"location"`
 }
 
-func setMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func setGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req setMixnodeRequest
+		var req setGatewayRequest
 		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
 			return
@@ -91,7 +75,7 @@ func setMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgSetMixnode(creator, req.ID, req.PubKey, req.Layer, req.Version, req.Host, req.Location, req.Reputation)
+		msg := types.NewMsgSetGateway(creator, req.ID, req.IdentityKey, req.SphinxKey, req.ClientListener, req.MixnetListener, req.Location)
 
 		err = msg.ValidateBasic()
 		if err != nil {
@@ -103,15 +87,15 @@ func setMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	}
 }
 
-type deleteMixnodeRequest struct {
+type deleteGatewayRequest struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 	Creator string       `json:"creator"`
 	ID      string       `json:"id"`
 }
 
-func deleteMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func deleteGatewayHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req deleteMixnodeRequest
+		var req deleteGatewayRequest
 		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
 			return
@@ -125,7 +109,7 @@ func deleteMixnodeHandler(cliCtx context.CLIContext) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgDeleteMixnode(req.ID, creator)
+		msg := types.NewMsgDeleteGateway(req.ID, creator)
 
 		err = msg.ValidateBasic()
 		if err != nil {

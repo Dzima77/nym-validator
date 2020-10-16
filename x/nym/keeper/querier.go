@@ -1,3 +1,17 @@
+// Copyright 2020 Nym Technologies SA
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package keeper
 
 import (
@@ -15,6 +29,10 @@ func NewQuerier(k Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
 		// this line is used by starport scaffolding # 2
+		case types.QueryListGateway:
+			return listGateway(ctx, k)
+		case types.QueryGetGateway:
+			return getGateway(ctx, path[1:], k)
 		case types.QueryListMixnode:
 			return listMixnode(ctx, k)
 		case types.QueryGetMixnode:
