@@ -26,7 +26,7 @@ so you can poke at the server to see what it does.
 
 `go test ./...` will run the test suite.
 
-From the top-level `validator` directory, `swag init -g directory/server.go --output directory/docs/` rebuilds the Swagger docs.
+From the top-level `nym-validator` directory, `swag init -g directory/server.go --output directory/docs/` rebuilds the Swagger docs.
 
 If you update any of the HTML assets,
 `go-assets-builder server/html/index.html -o server/html/index.go` will

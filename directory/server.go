@@ -21,7 +21,6 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/nymtech/nym/validator/nym/directory/healthcheck"
 	"github.com/nymtech/nym/validator/nym/directory/mixmining"
-	"github.com/nymtech/nym/validator/nym/directory/presence"
 	"github.com/nymtech/nym/validator/nym/directory/server/html"
 	"github.com/nymtech/nym/validator/nym/directory/server/websocket"
 
@@ -35,9 +34,8 @@ import (
 // @version 0.9.0-dev
 // @description A directory API allowing Nym nodes and clients to connect to each other.
 // @termsOfService http://swagger.io/terms/
-
 // @license.name Apache 2.0
-// @license.url https://github.com/nymtech/nym/validator/nym/directory/license
+// @license.url https://github.com/nymtech/nym-validator/license
 func New() *gin.Engine {
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
@@ -71,13 +69,9 @@ func New() *gin.Engine {
 	// Measurements: wire up dependency injection
 	measurementsCfg := injectMeasurements(policy)
 
-	// Presence: wire up dependency injection
-	presenceCfg := injectPresence(policy)
-
 	// Register all HTTP controller routes
 	healthcheck.New().RegisterRoutes(router)
 	mixmining.New(measurementsCfg).RegisterRoutes(router)
-	presence.New(presenceCfg).RegisterRoutes(router)
 
 	return router
 }
@@ -90,24 +84,5 @@ func injectMeasurements(policy *bluemonday.Policy) mixmining.Config {
 	return mixmining.Config{
 		Service:   &mixminingService,
 		Sanitizer: sanitizer,
-	}
-}
-
-func injectPresence(policy *bluemonday.Policy) presence.Config {
-	cocoSan := presence.NewCoconodeSanitizer(policy)
-	mixSan := presence.NewMixnodeSanitizer(policy)
-	mixnodeIDSan := presence.NewMixnodeIDSanitizer(policy)
-	providerSan := presence.NewMixproviderSanitizer(policy)
-	gatewaySan := presence.NewGatewaySanitizer(policy)
-	presenceDb := presence.NewDb()
-	service := presence.NewService(presenceDb)
-
-	return presence.Config{
-		CocoHostSanitizer:        &cocoSan,
-		MixHostSanitizer:         &mixSan,
-		MixNodeIDSanitizer:       &mixnodeIDSan,
-		MixProviderHostSanitizer: &providerSan,
-		GatewayHostSanitizer:     &gatewaySan,
-		Service:                  service,
 	}
 }
