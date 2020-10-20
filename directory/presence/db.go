@@ -23,6 +23,7 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"path"
 )
 
 type IDb interface {
@@ -63,11 +64,11 @@ func dbPath() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dbPath := usr.HomeDir + "/.nym/"
+	dbPath := path.Join(usr.HomeDir, ".nym")
 	if err := os.MkdirAll(dbPath, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
-	db := dbPath + "presence.db"
+	db := path.Join(dbPath, "presence.db")
 	fmt.Printf("db is: %s\n", db)
 	return db
 }
