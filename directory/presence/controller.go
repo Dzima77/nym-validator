@@ -96,7 +96,10 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Printf("register gate presence: %+v\n", presence)}
+	controller.sanitizer.Sanitize(&presence)
+	controller.service.AddGatewayRegistrationPresence(presence)
+	ctx.JSON(http.StatusOK, gin.H{"ok": true})
+}
 
 // UnregisterPresence ...
 // @Summary Unregister presence of node.
