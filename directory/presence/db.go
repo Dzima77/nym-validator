@@ -76,18 +76,21 @@ func dbPath() string {
 func (db *Db) AddMix(mix models.RegisteredMix) {
 	db.orm.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "identity_key"}},
-		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "layer", "registration_time"}), // TOOD: registration_time
+		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "layer", "registration_time"}),
 	}).Create(&mix)
 }
 
 func (db *Db) AddGateway(gateway models.RegisteredGateway) {
-	panic("implement me")
+	db.orm.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "identity_key"}},
+		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "clients_host", "registration_time"}),
+	}).Create(&gateway)
 }
 
 func (db *Db) allMixes() []models.RegisteredMix {
 	var mixes []models.RegisteredMix
 	if err := db.orm.Find(&mixes).Error; err != nil {
-		fmt.Fprintf(os.Stderr, "failed to read mixes from the database - %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "failed to read mixes from the database - %v\n", err)
 	}
 	return mixes
 }
@@ -95,7 +98,7 @@ func (db *Db) allMixes() []models.RegisteredMix {
 func (db *Db) allGateways() []models.RegisteredGateway {
 	var gateways []models.RegisteredGateway
 	if err := db.orm.Find(&gateways).Error; err != nil {
-		fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
 	}
 	return gateways
 }
