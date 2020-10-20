@@ -21,8 +21,8 @@ import (
 type IService interface {
 	AddMixRegistrationPresence(info models.MixRegistrationInfo)
 	AddGatewayRegistrationPresence(info models.GatewayRegistrationInfo)
-	UnregisterNode(id string)
-	SetReputation(id string, newRep int64)
+	UnregisterNode(id string) bool
+	SetReputation(id string, newRep int64) bool
 	GetTopology() models.Topology
 }
 
@@ -47,12 +47,12 @@ func (service *Service) AddGatewayRegistrationPresence(info models.GatewayRegist
 	service.db.AddGateway(registeredGateway)
 }
 
-func (service *Service) UnregisterNode(id string) {
-	service.db.RemoveNode(id)
+func (service *Service) UnregisterNode(id string) bool {
+	return service.db.RemoveNode(id)
 }
 
-func (service *Service) SetReputation(id string, newRep int64) {
-	service.db.SetReputation(id, newRep)
+func (service *Service) SetReputation(id string, newRep int64) bool {
+	return service.db.SetReputation(id, newRep)
 }
 
 func (service *Service) GetTopology() models.Topology {

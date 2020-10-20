@@ -23,13 +23,13 @@ import (
 
 type Config struct {
 	Sanitizer Sanitizer
-	Service IService
+	Service   IService
 }
 
 // controller is the presence controller
 type controller struct {
-	service        IService
-	sanitizer      Sanitizer
+	service   IService
+	sanitizer Sanitizer
 }
 
 type Controller interface {
@@ -38,7 +38,7 @@ type Controller interface {
 
 func New(cfg Config) Controller {
 	return &controller{
-		service: cfg.Service,
+		service:   cfg.Service,
 		sanitizer: cfg.Sanitizer,
 	}
 }
@@ -117,10 +117,12 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 func (controller *controller) UnregisterPresence(ctx *gin.Context) {
 	id := ctx.Param("id")
 	controller.sanitizer.Sanitize(&id)
-	controller.service.UnregisterNode(id)
 
-	// todo: return code based on status of request
-
+	if controller.service.UnregisterNode(id) {
+		ctx.JSON(http.StatusOK, gin.H{"ok": true})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
+	}
 	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
@@ -150,9 +152,11 @@ func (controller *controller) ChangeReputation(ctx *gin.Context) {
 		return
 	}
 
-	// todo: return code based on status of request
-	controller.service.SetReputation(id, int64(newRep))
-	ctx.JSON(http.StatusOK, gin.H{"ok": true})
+	if controller.service.SetReputation(id, int64(newRep)) {
+		ctx.JSON(http.StatusOK, gin.H{"ok": true})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
+	}
 }
 
 // GetTopology ...
@@ -162,8 +166,6 @@ func (controller *controller) ChangeReputation(ctx *gin.Context) {
 // @Produce  json
 // @Tags presence
 // @Success 200 {object} models.Topology
-// @Failure 400 {object} models.Error
-// @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
 // @Router /api/presence/topology [get]
 func (controller *controller) GetTopology(ctx *gin.Context) {
