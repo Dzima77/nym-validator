@@ -13,6 +13,48 @@ definitions:
       error:
         type: string
     type: object
+  models.GatewayRegistrationInfo:
+    properties:
+      clientsHost:
+        type: string
+      identityKey:
+        type: string
+      location:
+        type: string
+      mixHost:
+        type: string
+      sphinxKey:
+        type: string
+      version:
+        type: string
+    required:
+    - clientsHost
+    - identityKey
+    - mixHost
+    - sphinxKey
+    - version
+    type: object
+  models.MixRegistrationInfo:
+    properties:
+      identityKey:
+        type: string
+      layer:
+        type: integer
+      location:
+        type: string
+      mixHost:
+        type: string
+      sphinxKey:
+        type: string
+      version:
+        type: string
+    required:
+    - identityKey
+    - layer
+    - mixHost
+    - sphinxKey
+    - version
+    type: object
   models.MixStatus:
     properties:
       ipVersion:
@@ -25,6 +67,20 @@ definitions:
     - ipVersion
     - pubKey
     - up
+    type: object
+  models.Topology:
+    properties:
+      gateways:
+        items:
+          $ref: '#/definitions/models.GatewayRegistrationInfo'
+        type: array
+      mixNodes:
+        items:
+          $ref: '#/definitions/models.MixRegistrationInfo'
+        type: array
+    required:
+    - gateways
+    - mixNodes
     type: object
 info:
   contact: {}
@@ -40,7 +96,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns a 200 if the directory server is available. Good route to use for automated monitoring.
+      description: Returns a 200 if the directory server is available. Good route
+        to use for automated monitoring.
       operationId: healthCheck
       produces:
       - application/json
@@ -53,7 +110,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Nym network monitor sends packets through the system and checks if they make it. The network monitor then hits this method to report whether the node was up at a given time.
+      description: Nym network monitor sends packets through the system and checks
+        if they make it. The network monitor then hits this method to report whether
+        the node was up at a given time.
       operationId: addMixStatus
       parameters:
       - description: object
@@ -85,7 +144,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Nym network monitor sends packets through the system and checks if they make it. The network monitor then hits this method to report whether nodes were up at a given time.
+      description: Nym network monitor sends packets through the system and checks
+        if they make it. The network monitor then hits this method to report whether
+        nodes were up at a given time.
       operationId: batchCreateMixStatus
       parameters:
       - description: object
@@ -117,7 +178,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Provides summary uptime statistics for last 5 minutes, day, week, and month
+      description: Provides summary uptime statistics for last 5 minutes, day, week,
+        and month
       operationId: batchGetMixStatusReport
       produces:
       - application/json
@@ -178,7 +240,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Provides summary uptime statistics for last 5 minutes, day, week, and month
+      description: Provides summary uptime statistics for last 5 minutes, day, week,
+        and month
       operationId: getMixStatusReport
       parameters:
       - description: Mixnode Pubkey
@@ -205,4 +268,166 @@ paths:
       summary: Retrieves a summary report of historical mix status
       tags:
       - mixmining
+  /api/presence/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Messages sent by a node on powering down to indicate it's going
+        offline so that it should get removed from active topology.
+      operationId: unregisterPresence
+      parameters:
+      - description: Node Identity
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Unregister presence of node.
+      tags:
+      - presence
+  /api/presence/gateway:
+    post:
+      consumes:
+      - application/json
+      description: On Nym nodes startup they register their presence indicating they
+        should be alive and get added to the set of active nodes in the topology.
+      operationId: registerGatewayPresence
+      parameters:
+      - description: object
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.GatewayRegistrationInfo'
+      produces:
+      - application/json
+      responses:
+        "201": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Lets a gateway tell the directory server it's coming online
+      tags:
+      - presence
+  /api/presence/mix:
+    post:
+      consumes:
+      - application/json
+      description: On Nym nodes startup they register their presence indicating they
+        should be alive and get added to the set of active nodes in the topology.
+      operationId: registerMixPresence
+      parameters:
+      - description: object
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.MixRegistrationInfo'
+      produces:
+      - application/json
+      responses:
+        "201": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Lets a mixnode tell the directory server it's coming online
+      tags:
+      - presence
+  /api/presence/reputation/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Changes reputation of given node to some specified value
+      operationId: changeReputation
+      parameters:
+      - description: Node Identity
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New Reputation
+        in: query
+        name: reputation
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Change reputation of a node
+      tags:
+      - presence
+  /api/presence/topology:
+    get:
+      description: On Nym nodes startup they register their presence indicating they
+        should be alive. This method provides a list of nodes which have done so.
+      operationId: getTopology
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Topology'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Lists which Nym mixnodes and gateways on the network alongside their
+        reputation.
+      tags:
+      - presence
 swagger: "2.0"
