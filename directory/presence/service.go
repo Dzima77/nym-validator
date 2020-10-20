@@ -19,8 +19,8 @@ import (
 )
 
 type IService interface {
-	AddMixRegistrationPresence(info models.MixRegistrationInfo)
-	AddGatewayRegistrationPresence(info models.GatewayRegistrationInfo)
+	RegisterMix(info models.MixRegistrationInfo)
+	RegisterGateway(info models.GatewayRegistrationInfo)
 	UnregisterNode(id string) bool
 	SetReputation(id string, newRep int64) bool
 	GetTopology() models.Topology
@@ -31,7 +31,7 @@ type Service struct {
 }
 
 
-func (service *Service) AddMixRegistrationPresence(info models.MixRegistrationInfo) {
+func (service *Service) RegisterMix(info models.MixRegistrationInfo) {
 	registeredMix := models.RegisteredMix{
 		MixRegistrationInfo: info,
 	}
@@ -39,7 +39,7 @@ func (service *Service) AddMixRegistrationPresence(info models.MixRegistrationIn
 	service.db.AddMix(registeredMix)
 }
 
-func (service *Service) AddGatewayRegistrationPresence(info models.GatewayRegistrationInfo) {
+func (service *Service) RegisterGateway(info models.GatewayRegistrationInfo) {
 	registeredGateway := models.RegisteredGateway{
 		GatewayRegistrationInfo: info,
 	}
