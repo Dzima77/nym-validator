@@ -82,7 +82,7 @@ func New() *gin.Engine {
 
 func injectPresence(policy *bluemonday.Policy) presence.Config {
 	sanitizer := presence.NewSanitizer(policy)
-	db := presence.NewDb()
+	db := presence.NewDb(false)
 	presenceService := *presence.NewService(db)
 
 	return presence.Config{
