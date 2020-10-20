@@ -15,10 +15,10 @@
 package presence
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/nymtech/nym/validator/nym/directory/models"
 	"net/http"
+	"strconv"
 )
 
 type Config struct {
@@ -118,6 +118,10 @@ func (controller *controller) UnregisterPresence(ctx *gin.Context) {
 	id := ctx.Param("id")
 	controller.sanitizer.Sanitize(&id)
 	controller.service.UnregisterNode(id)
+
+	// todo: return code based on status of request
+
+	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
 // ChangeReputation ...
@@ -136,10 +140,19 @@ func (controller *controller) UnregisterPresence(ctx *gin.Context) {
 // @Router /api/presence/reputation/{id} [patch]
 func (controller *controller) ChangeReputation(ctx *gin.Context) {
 	id := ctx.Param("id")
-	newRep := ctx.Request.URL.Query().Get("reputation")
+	newRepStr := ctx.Request.URL.Query().Get("reputation")
+	controller.sanitizer.Sanitize(&id)
+	controller.sanitizer.Sanitize(&newRepStr)
 
+	newRep, err := strconv.Atoi(newRepStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-	fmt.Printf("unregister presence for: %+v to %+v\n", id, newRep)
+	// todo: return code based on status of request
+	controller.service.SetReputation(id, int64(newRep))
+	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
 // GetTopology ...

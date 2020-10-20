@@ -68,15 +68,65 @@ definitions:
     - pubKey
     - up
     type: object
+  models.RegisteredGateway:
+    properties:
+      clientsHost:
+        type: string
+      identityKey:
+        type: string
+      location:
+        type: string
+      mixHost:
+        type: string
+      registrationTime:
+        type: integer
+      reputation:
+        type: integer
+      sphinxKey:
+        type: string
+      version:
+        type: string
+    required:
+    - clientsHost
+    - identityKey
+    - mixHost
+    - sphinxKey
+    - version
+    type: object
+  models.RegisteredMix:
+    properties:
+      identityKey:
+        type: string
+      layer:
+        type: integer
+      location:
+        type: string
+      mixHost:
+        type: string
+      registrationTime:
+        type: integer
+      reputation:
+        type: integer
+      sphinxKey:
+        type: string
+      version:
+        type: string
+    required:
+    - identityKey
+    - layer
+    - mixHost
+    - sphinxKey
+    - version
+    type: object
   models.Topology:
     properties:
       gateways:
         items:
-          $ref: '#/definitions/models.GatewayRegistrationInfo'
+          $ref: '#/definitions/models.RegisteredGateway'
         type: array
       mixNodes:
         items:
-          $ref: '#/definitions/models.MixRegistrationInfo'
+          $ref: '#/definitions/models.RegisteredMix'
         type: array
     required:
     - gateways

@@ -28,8 +28,9 @@ import (
 type IDb interface {
 	AddMix(mix models.RegisteredMix)
 	AddGateway(gateway models.RegisteredGateway)
-	Topology() models.Topology
 	RemoveNode(id string)
+	SetReputation(id string, newRep int64)
+	Topology() models.Topology
 }
 
 type Db struct {
@@ -99,8 +100,8 @@ func (db *Db) allGateways() []models.RegisteredGateway {
 }
 
 func (db *Db) RemoveNode(id string) {
-	tx := db.orm.Debug().Begin()
-	res := tx.Where("identity_key = ?", id).Delete(&models.RegisteredMix{});
+	tx := db.orm.Begin()
+	res := tx.Where("identity_key = ?", id).Delete(&models.RegisteredMix{})
 
 	if res.Error != nil {
 		tx.Rollback()
@@ -111,7 +112,30 @@ func (db *Db) RemoveNode(id string) {
 		return
 	}
 
-	 res = tx.Where("identity_key = ?", id).Delete(&models.RegisteredGateway{}); if res.Error != nil {
+	res = tx.Where("identity_key = ?", id).Delete(&models.RegisteredGateway{})
+	if res.Error != nil {
+		tx.Rollback()
+		return
+	}
+
+	tx.Commit()
+}
+
+func (db *Db) SetReputation(id string, newRep int64) {
+	tx := db.orm.Debug().Begin()
+	res := tx.Model(&models.RegisteredMix{}).Where("identity_key = ?", id).Update("reputation", newRep)
+
+	if res.Error != nil {
+		tx.Rollback()
+		return
+	}
+	if res.RowsAffected > 0 {
+		tx.Commit()
+		return
+	}
+
+	res = tx.Model(&models.RegisteredGateway{}).Where("identity_key = ?", id).Update("reputation", newRep)
+	if res.Error != nil {
 		tx.Rollback()
 		return
 	}

@@ -29,12 +29,11 @@ type MixRegistrationInfo struct {
 	Layer uint `json:"layer" binding:"required"`
 }
 
-
 type RegisteredMix struct {
 	MixRegistrationInfo
 	RegistrationTime int64 `json:"registrationTime" gorm:"autoCreateTime:nano"`
+	Reputation       int64 `json:"reputation"`
 }
-
 
 type GatewayRegistrationInfo struct {
 	NodeInfo
@@ -44,6 +43,7 @@ type GatewayRegistrationInfo struct {
 type RegisteredGateway struct {
 	GatewayRegistrationInfo
 	RegistrationTime int64 `json:"registrationTime" gorm:"autoCreateTime:nano"`
+	Reputation       int64 `json:"reputation"`
 }
 
 type PresenceUnregistration struct {
