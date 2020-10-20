@@ -29,6 +29,7 @@ type IDb interface {
 	AddMix(mix models.RegisteredMix)
 	AddGateway(gateway models.RegisteredGateway)
 	Topology() models.Topology
+	RemoveNode(id string)
 }
 
 type Db struct {
@@ -97,9 +98,30 @@ func (db *Db) allGateways() []models.RegisteredGateway {
 	return gateways
 }
 
+func (db *Db) RemoveNode(id string) {
+	tx := db.orm.Debug().Begin()
+	res := tx.Where("identity_key = ?", id).Delete(&models.RegisteredMix{});
+
+	if res.Error != nil {
+		tx.Rollback()
+		return
+	}
+	if res.RowsAffected > 0 {
+		tx.Commit()
+		return
+	}
+
+	 res = tx.Where("identity_key = ?", id).Delete(&models.RegisteredGateway{}); if res.Error != nil {
+		tx.Rollback()
+		return
+	}
+
+	tx.Commit()
+}
+
 func (db *Db) Topology() models.Topology {
 	// TODO: if we keep it (and I doubt it, because it will get moved onto blockchain), this
-	// should be done as a single query rather than as two separate ones
+	// should be done as a single query rather than as two separate ones.
 	mixes := db.allMixes()
 	gateways := db.allGateways()
 

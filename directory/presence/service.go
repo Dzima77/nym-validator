@@ -21,6 +21,7 @@ import (
 type IService interface {
 	AddMixRegistrationPresence(info models.MixRegistrationInfo)
 	AddGatewayRegistrationPresence(info models.GatewayRegistrationInfo)
+	UnregisterNode(id string)
 	//RemovePresence()
 	//SetReputation()
 	GetTopology() models.Topology
@@ -29,6 +30,7 @@ type IService interface {
 type Service struct {
 	db IDb
 }
+
 
 func (service *Service) AddMixRegistrationPresence(info models.MixRegistrationInfo) {
 	registeredMix := models.RegisteredMix{
@@ -44,6 +46,10 @@ func (service *Service) AddGatewayRegistrationPresence(info models.GatewayRegist
 	}
 
 	service.db.AddGateway(registeredGateway)
+}
+
+func (service *Service) UnregisterNode(id string) {
+	service.db.RemoveNode(id)
 }
 
 func (service *Service) GetTopology() models.Topology {

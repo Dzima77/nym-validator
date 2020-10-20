@@ -116,8 +116,8 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 // @Router /api/presence/{id} [delete]
 func (controller *controller) UnregisterPresence(ctx *gin.Context) {
 	id := ctx.Param("id")
-
-	fmt.Printf("unregister presence for: %+v\n", id)
+	controller.sanitizer.Sanitize(&id)
+	controller.service.UnregisterNode(id)
 }
 
 // ChangeReputation ...
