@@ -15,17 +15,16 @@
 package server
 
 import (
-	"github.com/nymtech/nym/validator/nym/directory/presence"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/nymtech/nym/validator/nym/directory/healthcheck"
 	"github.com/nymtech/nym/validator/nym/directory/mixmining"
+	"github.com/nymtech/nym/validator/nym/directory/presence"
 	"github.com/nymtech/nym/validator/nym/directory/server/html"
 	"github.com/nymtech/nym/validator/nym/directory/server/websocket"
-
-	"github.com/gin-contrib/cors"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
