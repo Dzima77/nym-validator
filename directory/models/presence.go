@@ -46,11 +46,6 @@ type RegisteredGateway struct {
 	Reputation       int64 `json:"reputation"`
 }
 
-type PresenceUnregistration struct {
-	IdentityKey string `json:"identityKey" binding:"required" gorm:"primaryKey;unique"`
-	// ideally it would also involve a signature, but it's fine for time being
-}
-
 type Topology struct {
 	MixNodes []RegisteredMix     `json:"mixNodes" binding:"required"`
 	Gateways []RegisteredGateway `json:"gateways" binding:"required"`
