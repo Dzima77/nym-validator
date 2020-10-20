@@ -20,6 +20,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
@@ -40,8 +41,8 @@ type Db struct {
 }
 
 // NewDb constructor
-func NewDb() *Db {
-	database, err := gorm.Open(sqlite.Open(dbPath()), &gorm.Config{})
+func NewDb(isTest bool) *Db {
+	database, err := gorm.Open(sqlite.Open(dbPath(isTest)), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to orm!")
 	}
@@ -59,7 +60,15 @@ func NewDb() *Db {
 	return &d
 }
 
-func dbPath() string {
+func dbPath(isTest bool) string {
+	if isTest {
+		db, err := ioutil.TempFile("", "test_presence.db");
+		if err != nil {
+			panic(err)
+		}
+		return db.Name()
+	}
+
 	usr, err := user.Current()
 	if err != nil {
 		log.Fatal(err)
