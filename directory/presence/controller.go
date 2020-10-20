@@ -59,7 +59,7 @@ func (controller *controller) RegisterRoutes(router *gin.Engine) {
 // @Produce  json
 // @Tags presence
 // @Param   object      body   models.MixRegistrationInfo     true  "object"
-// @Success 201
+// @Success 200
 // @Failure 400 {object} models.Error
 // @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
@@ -72,7 +72,7 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 	}
 
 	controller.sanitizer.Sanitize(&presence)
-	controller.service.AddMixRegistrationPresence(presence)
+	controller.service.RegisterMix(presence)
 	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
@@ -84,7 +84,7 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 // @Produce  json
 // @Tags presence
 // @Param   object      body   models.GatewayRegistrationInfo     true  "object"
-// @Success 201
+// @Success 200
 // @Failure 400 {object} models.Error
 // @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
@@ -97,7 +97,7 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 	}
 
 	controller.sanitizer.Sanitize(&presence)
-	controller.service.AddGatewayRegistrationPresence(presence)
+	controller.service.RegisterGateway(presence)
 	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
