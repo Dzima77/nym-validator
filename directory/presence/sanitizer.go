@@ -36,10 +36,7 @@ func NewSanitizer(policy *bluemonday.Policy) Sanitizer {
 	}
 }
 
-
-func (s sanitizer) Sanitize(input interface{}) {
-	v := reflect.ValueOf(input)
-	v = reflect.Indirect(v)
+func (s sanitizer) sanitizeStruct(v reflect.Value) {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
 		kind := field.Kind()
@@ -57,10 +54,23 @@ func (s sanitizer) Sanitize(input interface{}) {
 		case reflect.Uint:
 			continue
 		default:
-			// rather than ignoring everything like Uint above, let's do each single type
-			// explicitly and separately for time being so that we wouldn't be confused
-			// why, say, a map or slice doesn't work if we introduced them
 			fmt.Fprintf(os.Stderr, "tried to sanitize unknown type %+v\n", kind)
 		}
 	}
+}
+
+func (s sanitizer) Sanitize(input interface{}) {
+	v := reflect.ValueOf(input)
+	v = reflect.Indirect(v)
+
+	inputKind := v.Kind()
+	switch inputKind {
+	case reflect.String:
+		v.SetString(s.policy.Sanitize(v.String()))
+	case reflect.Struct:
+		s.sanitizeStruct(v)
+	default:
+		fmt.Fprintf(os.Stderr, "tried to sanitize unknown type %+v\n", inputKind)
+	}
+
 }
