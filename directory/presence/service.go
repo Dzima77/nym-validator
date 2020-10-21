@@ -30,7 +30,6 @@ type Service struct {
 	db IDb
 }
 
-
 func (service *Service) RegisterMix(info models.MixRegistrationInfo) {
 	registeredMix := models.RegisteredMix{
 		MixRegistrationInfo: info,

@@ -284,7 +284,7 @@ var _ = Describe("The presence db", func() {
 
 				gate1 := fixtures.GoodRegisteredGateway()
 				gate2 := fixtures.GoodRegisteredGateway()
-				gate2.IdentityKey = "aaa"
+				gate2.IdentityKey = "bbb"
 
 				db.AddMix(mix1)
 				db.AddMix(mix2)
