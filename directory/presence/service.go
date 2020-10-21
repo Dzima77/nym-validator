@@ -18,12 +18,15 @@ import (
 	"github.com/nymtech/nym/validator/nym/directory/models"
 )
 
+const ReputationThreshold = int64(100)
+
 type IService interface {
 	RegisterMix(info models.MixRegistrationInfo)
 	RegisterGateway(info models.GatewayRegistrationInfo)
 	UnregisterNode(id string) bool
 	SetReputation(id string, newRep int64) bool
 	GetTopology() models.Topology
+	GetActiveTopology() models.Topology
 }
 
 type Service struct {
@@ -56,6 +59,10 @@ func (service *Service) SetReputation(id string, newRep int64) bool {
 
 func (service *Service) GetTopology() models.Topology {
 	return service.db.Topology()
+}
+
+func (service *Service) GetActiveTopology() models.Topology {
+	return service.db.ActiveTopology(ReputationThreshold)
 }
 
 // NewService constructor

@@ -174,6 +174,34 @@ var _ = Describe("Controller", func() {
 		})
 	})
 
+	Describe("Getting active topology", func() {
+		It("Delegates the call to the service", func() {
+			mix1 := fixtures.GoodRegisteredMix()
+			mix1.Reputation = ReputationThreshold
+
+			gate1 := fixtures.GoodRegisteredGateway()
+			gate1.Reputation = ReputationThreshold
+
+			expectedTopology := models.Topology{
+				MixNodes: []models.RegisteredMix{mix1},
+				Gateways: []models.RegisteredGateway{gate1},
+			}
+
+			router, mockService, _ := SetupRouter()
+
+			mockService.On("GetActiveTopology").Return(expectedTopology)
+
+			resp := performRequest(router, "GET", "/api/presence/topology/active", nil)
+			var response models.Topology
+			if err := json.Unmarshal([]byte(resp.Body.String()), &response); err != nil {
+				panic(err)
+			}
+
+			assert.Equal(GinkgoT(), http.StatusOK, resp.Code)
+			assert.Equal(GinkgoT(), expectedTopology, response)
+			mockService.AssertCalled(GinkgoT(), "GetActiveTopology")
+		})
+	})
 })
 
 func SetupRouter() (*gin.Engine, *mocks.IService, *mocks.Sanitizer) {

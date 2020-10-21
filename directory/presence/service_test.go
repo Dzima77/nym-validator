@@ -123,4 +123,23 @@ var _ = Describe("presence.Service", func() {
 			mockDb.AssertCalled(GinkgoT(), "Topology")
 		})
 	})
+
+	Describe("Getting active topology", func() {
+		It("Returns all mixnodes and gateways stored in database above reputation threshold", func() {
+			mix1 := fixtures.GoodRegisteredMix()
+			mix1.Reputation = ReputationThreshold
+
+			gate1 := fixtures.GoodRegisteredGateway()
+			gate1.Reputation = ReputationThreshold
+
+			expectedTopology := models.Topology{
+				MixNodes: []models.RegisteredMix{mix1},
+				Gateways: []models.RegisteredGateway{gate1},
+			}
+
+			mockDb.On("ActiveTopology", ReputationThreshold).Return(expectedTopology)
+			assert.Equal(GinkgoT(), expectedTopology, serv.GetActiveTopology())
+			mockDb.AssertCalled(GinkgoT(), "ActiveTopology", ReputationThreshold)
+		})
+	})
 })

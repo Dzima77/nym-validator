@@ -12,6 +12,20 @@ type IDb struct {
 	mock.Mock
 }
 
+// ActiveTopology provides a mock function with given fields: reputationThreshold
+func (_m *IDb) ActiveTopology(reputationThreshold int64) models.Topology {
+	ret := _m.Called(reputationThreshold)
+
+	var r0 models.Topology
+	if rf, ok := ret.Get(0).(func(int64) models.Topology); ok {
+		r0 = rf(reputationThreshold)
+	} else {
+		r0 = ret.Get(0).(models.Topology)
+	}
+
+	return r0
+}
+
 // AddGateway provides a mock function with given fields: gateway
 func (_m *IDb) AddGateway(gateway models.RegisteredGateway) {
 	_m.Called(gateway)

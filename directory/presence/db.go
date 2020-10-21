@@ -33,6 +33,7 @@ type IDb interface {
 	RemoveNode(id string) bool
 	SetReputation(id string, newRep int64) bool
 	Topology() models.Topology
+	ActiveTopology(reputationThreshold int64) models.Topology
 }
 
 type Db struct {
@@ -104,6 +105,14 @@ func (db *Db) allMixes() []models.RegisteredMix {
 	return mixes
 }
 
+func (db *Db) activeMixes(reputationThreshold int64) []models.RegisteredMix {
+	var mixes []models.RegisteredMix
+	if err := db.orm.Where("reputation >= ?", reputationThreshold).Find(&mixes).Error; err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
+	}
+	return mixes
+}
+
 func (db *Db) allGateways() []models.RegisteredGateway {
 	var gateways []models.RegisteredGateway
 	if err := db.orm.Find(&gateways).Error; err != nil {
@@ -111,6 +120,15 @@ func (db *Db) allGateways() []models.RegisteredGateway {
 	}
 	return gateways
 }
+
+func (db *Db) activeGateways(reputationThreshold int64) []models.RegisteredGateway {
+	var gateways []models.RegisteredGateway
+	if err := db.orm.Where("reputation >= ?", reputationThreshold).Find(&gateways).Error; err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
+	}
+	return gateways
+}
+
 
 func (db *Db) RemoveNode(id string) bool {
 	tx := db.orm.Begin()
@@ -164,6 +182,18 @@ func (db *Db) SetReputation(id string, newRep int64) bool {
 		return true
 	} else {
 		return false
+	}
+}
+
+func (db *Db) ActiveTopology(reputationThreshold int64) models.Topology {
+	// TODO: if we keep it (and I doubt it, because it will get moved onto blockchain), this
+	// should be done as a single query rather than as two separate ones.
+	mixes := db.activeMixes(reputationThreshold)
+	gateways := db.activeGateways(reputationThreshold)
+
+	return models.Topology{
+		MixNodes: mixes,
+		Gateways: gateways,
 	}
 }
 

@@ -49,6 +49,7 @@ func (controller *controller) RegisterRoutes(router *gin.Engine) {
 	router.DELETE("/api/presence/:id", controller.UnregisterPresence)
 	router.PATCH("/api/presence/reputation/:id", controller.ChangeReputation)
 	router.GET("/api/presence/topology", controller.GetTopology)
+	router.GET("/api/presence/topology/active", controller.GetActiveTopology)
 }
 
 // RegisterMixPresence ...
@@ -160,7 +161,7 @@ func (controller *controller) ChangeReputation(ctx *gin.Context) {
 }
 
 // GetTopology ...
-// @Summary Lists which Nym mixnodes and gateways on the network alongside their reputation.
+// @Summary Lists Nym mixnodes and gateways on the network alongside their reputation.
 // @Description On Nym nodes startup they register their presence indicating they should be alive. This method provides a list of nodes which have done so.
 // @ID getTopology
 // @Produce  json
@@ -170,4 +171,17 @@ func (controller *controller) ChangeReputation(ctx *gin.Context) {
 // @Router /api/presence/topology [get]
 func (controller *controller) GetTopology(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, controller.service.GetTopology())
+}
+
+// GetActiveTopology ...
+// @Summary Lists Nym mixnodes and gateways on the network alongside their reputation, such that the reputation is at least 100.
+// @Description On Nym nodes startup they register their presence indicating they should be alive. This method provides a list of nodes which have done so.
+// @ID getActiveTopology
+// @Produce  json
+// @Tags presence
+// @Success 200 {object} models.Topology
+// @Failure 500 {object} models.Error
+// @Router /api/presence/topology/active [get]
+func (controller *controller) GetActiveTopology(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, controller.service.GetActiveTopology())
 }

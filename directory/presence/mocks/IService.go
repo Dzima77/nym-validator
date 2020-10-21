@@ -12,6 +12,20 @@ type IService struct {
 	mock.Mock
 }
 
+// GetActiveTopology provides a mock function with given fields:
+func (_m *IService) GetActiveTopology() models.Topology {
+	ret := _m.Called()
+
+	var r0 models.Topology
+	if rf, ok := ret.Get(0).(func() models.Topology); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(models.Topology)
+	}
+
+	return r0
+}
+
 // GetTopology provides a mock function with given fields:
 func (_m *IService) GetTopology() models.Topology {
 	ret := _m.Called()

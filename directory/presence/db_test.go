@@ -298,4 +298,74 @@ var _ = Describe("The presence db", func() {
 			})
 		})
 	})
+
+	Describe("Getting active topology", func () {
+		Context("With registered nodes but below reputation threshold", func() {
+			It("Returns empty slices", func() {
+				db := NewDb(true)
+				allMix := db.allMixes()
+				assert.Len(GinkgoT(), allMix, 0)
+
+				allGate := db.allGateways()
+				assert.Len(GinkgoT(), allGate, 0)
+
+				mix1 := fixtures.GoodRegisteredMix()
+				gate1 := fixtures.GoodRegisteredGateway()
+
+				db.AddMix(mix1)
+				db.AddGateway(gate1)
+
+				db.SetReputation(mix1.IdentityKey, ReputationThreshold - 1)
+				db.SetReputation(gate1.IdentityKey, ReputationThreshold - 1)
+
+				topology := db.ActiveTopology(ReputationThreshold)
+				assert.Len(GinkgoT(), topology.MixNodes, 0)
+				assert.Len(GinkgoT(), topology.Gateways, 0)
+			})
+		})
+
+		Context("With registered nodes, some above reputation threshold", func() {
+			It("Returns only the nodes above the reputation threshold", func() {
+				db := NewDb(true)
+				allMix := db.allMixes()
+				assert.Len(GinkgoT(), allMix, 0)
+
+				allGate := db.allGateways()
+				assert.Len(GinkgoT(), allGate, 0)
+
+				mix1 := fixtures.GoodRegisteredMix()
+				mix2 := fixtures.GoodRegisteredMix()
+				mix2.IdentityKey = "aaa"
+
+				gate1 := fixtures.GoodRegisteredGateway()
+				gate2 := fixtures.GoodRegisteredGateway()
+				gate2.IdentityKey = "bbb"
+
+				db.AddMix(mix1)
+				db.AddMix(mix2)
+
+				db.AddGateway(gate1)
+				db.AddGateway(gate2)
+
+				db.SetReputation(mix1.IdentityKey, ReputationThreshold - 1)
+				db.SetReputation(gate1.IdentityKey, ReputationThreshold - 1)
+				db.SetReputation(mix2.IdentityKey, ReputationThreshold)
+				db.SetReputation(gate2.IdentityKey, ReputationThreshold)
+
+				topology := db.ActiveTopology(ReputationThreshold)
+				// this is just so the comparison is easier
+				topology.MixNodes[0].RegistrationTime = 0
+				topology.Gateways[0].RegistrationTime = 0
+
+				assert.Equal(GinkgoT(), topology.MixNodes[0].Reputation, ReputationThreshold)
+				assert.Equal(GinkgoT(), topology.Gateways[0].Reputation, ReputationThreshold)
+
+				topology.MixNodes[0].Reputation = int64(0)
+				topology.Gateways[0].Reputation = int64(0)
+
+				assert.Equal(GinkgoT(), topology.MixNodes[0], mix2)
+				assert.Equal(GinkgoT(), topology.Gateways[0], gate2)
+			})
+		})
+	})
 })

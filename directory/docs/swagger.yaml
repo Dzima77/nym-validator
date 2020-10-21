@@ -367,7 +367,7 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "200": {}
         "400":
           description: Bad Request
           schema:
@@ -400,7 +400,7 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "200": {}
         "400":
           description: Bad Request
           schema:
@@ -468,8 +468,27 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Error'
-      summary: Lists which Nym mixnodes and gateways on the network alongside their
-        reputation.
+      summary: Lists Nym mixnodes and gateways on the network alongside their reputation.
+      tags:
+      - presence
+  /api/presence/topology/active:
+    get:
+      description: On Nym nodes startup they register their presence indicating they
+        should be alive. This method provides a list of nodes which have done so.
+      operationId: getActiveTopology
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Topology'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Lists Nym mixnodes and gateways on the network alongside their reputation,
+        such that the reputation is at least 100.
       tags:
       - presence
 swagger: "2.0"
