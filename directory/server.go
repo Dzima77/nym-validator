@@ -17,14 +17,14 @@ package server
 import (
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/nymtech/nym/validator/nym/directory/healthcheck"
 	"github.com/nymtech/nym/validator/nym/directory/mixmining"
+	"github.com/nymtech/nym/validator/nym/directory/presence"
 	"github.com/nymtech/nym/validator/nym/directory/server/html"
 	"github.com/nymtech/nym/validator/nym/directory/server/websocket"
-
-	"github.com/gin-contrib/cors"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -69,11 +69,26 @@ func New() *gin.Engine {
 	// Measurements: wire up dependency injection
 	measurementsCfg := injectMeasurements(policy)
 
+	// Presence: wire up dependency injection
+	presenceCfg := injectPresence(policy)
+
 	// Register all HTTP controller routes
 	healthcheck.New().RegisterRoutes(router)
 	mixmining.New(measurementsCfg).RegisterRoutes(router)
+	presence.New(presenceCfg).RegisterRoutes(router)
 
 	return router
+}
+
+func injectPresence(policy *bluemonday.Policy) presence.Config {
+	sanitizer := presence.NewSanitizer(policy)
+	db := presence.NewDb(false)
+	presenceService := *presence.NewService(db)
+
+	return presence.Config{
+		Service:   &presenceService,
+		Sanitizer: sanitizer,
+	}
 }
 
 func injectMeasurements(policy *bluemonday.Policy) mixmining.Config {

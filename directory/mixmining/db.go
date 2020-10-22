@@ -19,6 +19,7 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"path"
 
 	"github.com/nymtech/nym/validator/nym/directory/models"
 	"gorm.io/driver/sqlite"
@@ -67,9 +68,9 @@ func dbPath() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dbPath := usr.HomeDir + "/.nym/"
+	dbPath := path.Join(usr.HomeDir, ".nym")
 	os.MkdirAll(dbPath, os.ModePerm)
-	db := dbPath + "mixmining.db"
+	db := path.Join(dbPath, "mixmining.db")
 	fmt.Printf("db is: %s\n", db)
 	return db
 }

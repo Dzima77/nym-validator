@@ -5,7 +5,6 @@ go 1.15
 require (
 	github.com/BorisBorshevsky/timemock v0.0.0-20180501151413-a469e345aaba
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
-	github.com/blang/semver/v4 v4.0.0
 	github.com/cosmos/cosmos-sdk v0.39.1
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.2
