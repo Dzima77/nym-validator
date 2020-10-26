@@ -124,7 +124,6 @@ func (controller *controller) UnregisterPresence(ctx *gin.Context) {
 	} else {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
 	}
-	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
 // ChangeReputation ...
