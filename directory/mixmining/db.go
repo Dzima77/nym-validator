@@ -16,6 +16,8 @@ package mixmining
 
 import (
 	"fmt"
+	"gorm.io/gorm/clause"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
@@ -31,15 +33,23 @@ var DB *gorm.DB
 
 // IDb holds status information
 type IDb interface {
-	Add(models.PersistedMixStatus)
-	BatchAdd(status []models.PersistedMixStatus)
-	List(pubkey string, limit int) []models.PersistedMixStatus
-	ListDateRange(pubkey string, ipVersion string, start int64, end int64) []models.PersistedMixStatus
+	AddMixStatus(models.PersistedMixStatus)
+	BatchAddMixStatus(status []models.PersistedMixStatus)
+	ListMixStatus(pubkey string, limit int) []models.PersistedMixStatus
+	ListMixStatusDateRange(pubkey string, ipVersion string, start int64, end int64) []models.PersistedMixStatus
 	LoadReport(pubkey string) models.MixStatusReport
 	LoadNonStaleReports() models.BatchMixStatusReport
 	BatchLoadReports(pubkeys []string) models.BatchMixStatusReport
 	SaveMixStatusReport(models.MixStatusReport)
 	SaveBatchMixStatusReport(models.BatchMixStatusReport)
+
+	// moved from 'presence'
+	RegisterMix(mix models.RegisteredMix)
+	RegisterGateway(gateway models.RegisteredGateway)
+	UnregisterNode(id string) bool
+	SetReputation(id string, newRep int64) bool
+	Topology() models.Topology
+	ActiveTopology(reputationThreshold int64) models.Topology
 }
 
 // Db is a hashtable that holds mixnode uptime mixmining
@@ -48,14 +58,27 @@ type Db struct {
 }
 
 // NewDb constructor
-func NewDb() *Db {
-	database, err := gorm.Open(sqlite.Open(dbPath()), &gorm.Config{})
+func NewDb(isTest bool) *Db {
+	database, err := gorm.Open(sqlite.Open(dbPath(isTest)), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to orm!")
 	}
 
-	database.AutoMigrate(&models.PersistedMixStatus{})
-	database.AutoMigrate(&models.MixStatusReport{})
+	// mix status migration
+	if err := database.AutoMigrate(&models.PersistedMixStatus{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := database.AutoMigrate(&models.MixStatusReport{}); err != nil {
+		log.Fatal(err)
+	}
+
+	// registered nodes migration
+	if err := database.AutoMigrate(&models.RegisteredMix{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := database.AutoMigrate(&models.RegisteredGateway{}); err != nil {
+		log.Fatal(err)
+	}
 
 	d := Db{
 		database,
@@ -63,30 +86,41 @@ func NewDb() *Db {
 	return &d
 }
 
-func dbPath() string {
+func dbPath(isTest bool) string {
+	if isTest {
+		db, err := ioutil.TempFile("", "test_mixmining.db")
+		if err != nil {
+			panic(err)
+		}
+		return db.Name()
+	}
+
 	usr, err := user.Current()
 	if err != nil {
 		log.Fatal(err)
 	}
 	dbPath := path.Join(usr.HomeDir, ".nym")
-	os.MkdirAll(dbPath, os.ModePerm)
+	if err := os.MkdirAll(dbPath, os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
 	db := path.Join(dbPath, "mixmining.db")
 	fmt.Printf("db is: %s\n", db)
 	return db
 }
 
+
 // Add saves a PersistedMixStatus
-func (db *Db) Add(status models.PersistedMixStatus) {
+func (db *Db) AddMixStatus(status models.PersistedMixStatus) {
 	db.orm.Create(status)
 }
 
 // BatchAdd saves multiple PersistedMixStatus
-func (db *Db) BatchAdd(status []models.PersistedMixStatus) {
+func (db *Db) BatchAddMixStatus(status []models.PersistedMixStatus) {
 	db.orm.Create(status)
 }
 
 // List returns all models.PersistedMixStatus in the orm
-func (db *Db) List(pubkey string, limit int) []models.PersistedMixStatus {
+func (db *Db) ListMixStatus(pubkey string, limit int) []models.PersistedMixStatus {
 	var statuses []models.PersistedMixStatus
 	if err := db.orm.Order("timestamp desc").Limit(limit).Where("pub_key = ?", pubkey).Find(&statuses).Error; err != nil {
 		return make([]models.PersistedMixStatus, 0)
@@ -95,7 +129,7 @@ func (db *Db) List(pubkey string, limit int) []models.PersistedMixStatus {
 }
 
 // ListDateRange lists all persisted mix statuses for a node for either IPv4 or IPv6 within the specified date range
-func (db *Db) ListDateRange(pubkey string, ipVersion string, start int64, end int64) []models.PersistedMixStatus {
+func (db *Db) ListMixStatusDateRange(pubkey string, ipVersion string, start int64, end int64) []models.PersistedMixStatus {
 	var statuses []models.PersistedMixStatus
 	if err := db.orm.Order("timestamp desc").Where("pub_key = ?", pubkey).Where("ip_version = ?", ipVersion).Where("timestamp >= ?", start).Where("timestamp <= ?", end).Find(&statuses).Error; err != nil {
 		return make([]models.PersistedMixStatus, 0)
@@ -156,3 +190,132 @@ func (db *Db) BatchLoadReports(pubkeys []string) models.BatchMixStatusReport {
 	}
 	return models.BatchMixStatusReport{Report: reports}
 }
+
+
+func (db *Db) RegisterMix(mix models.RegisteredMix) {
+	db.orm.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "identity_key"}},
+		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "layer", "registration_time"}),
+	}).Create(&mix)
+}
+
+func (db *Db) RegisterGateway(gateway models.RegisteredGateway) {
+	db.orm.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "identity_key"}},
+		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "clients_host", "registration_time"}),
+	}).Create(&gateway)
+}
+
+func (db *Db) allRegisteredMixes() []models.RegisteredMix {
+	var mixes []models.RegisteredMix
+	if err := db.orm.Find(&mixes).Error; err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to read mixes from the database - %v\n", err)
+	}
+	return mixes
+}
+
+func (db *Db) activeRegisteredMixes(reputationThreshold int64) []models.RegisteredMix {
+	var mixes []models.RegisteredMix
+	if err := db.orm.Where("reputation >= ?", reputationThreshold).Find(&mixes).Error; err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
+	}
+	return mixes
+}
+
+func (db *Db) allRegisteredGateways() []models.RegisteredGateway {
+	var gateways []models.RegisteredGateway
+	if err := db.orm.Find(&gateways).Error; err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
+	}
+	return gateways
+}
+
+func (db *Db) activeRegisteredGateways(reputationThreshold int64) []models.RegisteredGateway {
+	var gateways []models.RegisteredGateway
+	if err := db.orm.Where("reputation >= ?", reputationThreshold).Find(&gateways).Error; err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
+	}
+	return gateways
+}
+
+
+func (db *Db) UnregisterNode(id string) bool {
+	tx := db.orm.Begin()
+	res := tx.Where("identity_key = ?", id).Delete(&models.RegisteredMix{})
+
+	if res.Error != nil {
+		tx.Rollback()
+		return false
+	}
+	if res.RowsAffected > 0 {
+		tx.Commit()
+		return true
+	}
+
+	res = tx.Where("identity_key = ?", id).Delete(&models.RegisteredGateway{})
+	if res.Error != nil {
+		tx.Rollback()
+		return false
+	}
+	tx.Commit()
+
+	if res.RowsAffected > 0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (db *Db) SetReputation(id string, newRep int64) bool {
+	tx := db.orm.Begin()
+	res := tx.Model(&models.RegisteredMix{}).Where("identity_key = ?", id).Update("reputation", newRep)
+
+	if res.Error != nil {
+		tx.Rollback()
+		return false
+	}
+	if res.RowsAffected > 0 {
+		tx.Commit()
+		return true
+	}
+
+	res = tx.Model(&models.RegisteredGateway{}).Where("identity_key = ?", id).Update("reputation", newRep)
+	if res.Error != nil {
+		tx.Rollback()
+		return false
+	}
+
+	tx.Commit()
+
+	if res.RowsAffected > 0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (db *Db) Topology() models.Topology {
+	// TODO: if we keep it (and I doubt it, because it will get moved onto blockchain), this
+	// should be done as a single query rather than as two separate ones.
+	mixes := db.allRegisteredMixes()
+	gateways := db.allRegisteredGateways()
+
+	return models.Topology{
+		MixNodes: mixes,
+		Gateways: gateways,
+	}
+}
+
+
+func (db *Db) ActiveTopology(reputationThreshold int64) models.Topology {
+	// TODO: if we keep it (and I doubt it, because it will get moved onto blockchain), this
+	// should be done as a single query rather than as two separate ones.
+	mixes := db.activeRegisteredMixes(reputationThreshold)
+	gateways := db.activeRegisteredGateways(reputationThreshold)
+
+	return models.Topology{
+		MixNodes: mixes,
+		Gateways: gateways,
+	}
+}
+

@@ -21,6 +21,8 @@ import (
 	"github.com/nymtech/nym/validator/nym/directory/models"
 )
 
+const ReputationThreshold = int64(100)
+
 // Service struct
 type Service struct {
 	db IDb
@@ -29,13 +31,20 @@ type Service struct {
 // IService defines the REST service interface for mixmining.
 type IService interface {
 	CreateMixStatus(mixStatus models.MixStatus) models.PersistedMixStatus
-	List(pubkey string) []models.PersistedMixStatus
+	ListMixStatus(pubkey string) []models.PersistedMixStatus
 	SaveStatusReport(status models.PersistedMixStatus) models.MixStatusReport
 	GetStatusReport(pubkey string) models.MixStatusReport
 
 	SaveBatchStatusReport(status []models.PersistedMixStatus) models.BatchMixStatusReport
 	BatchCreateMixStatus(batchMixStatus models.BatchMixStatus) []models.PersistedMixStatus
 	BatchGetMixStatusReport() models.BatchMixStatusReport
+
+	RegisterMix(info models.MixRegistrationInfo)
+	RegisterGateway(info models.GatewayRegistrationInfo)
+	UnregisterNode(id string) bool
+	SetReputation(id string, newRep int64) bool
+	GetTopology() models.Topology
+	GetActiveTopology() models.Topology
 }
 
 // NewService constructor
@@ -51,13 +60,13 @@ func (service *Service) CreateMixStatus(mixStatus models.MixStatus) models.Persi
 		MixStatus: mixStatus,
 		Timestamp: timemock.Now().UnixNano(),
 	}
-	service.db.Add(persistedMixStatus)
+	service.db.AddMixStatus(persistedMixStatus)
 	return persistedMixStatus
 }
 
 // List lists the given number mix metrics
-func (service *Service) List(pubkey string) []models.PersistedMixStatus {
-	return service.db.List(pubkey, 1000)
+func (service *Service) ListMixStatus(pubkey string) []models.PersistedMixStatus {
+	return service.db.ListMixStatus(pubkey, 1000)
 }
 
 // GetStatusReport gets a single MixStatusReport by node public key
@@ -75,7 +84,7 @@ func (service *Service) BatchCreateMixStatus(batchMixStatus models.BatchMixStatu
 		}
 		statusList[i] = persistedMixStatus
 	}
-	service.db.BatchAdd(statusList)
+	service.db.BatchAddMixStatus(statusList)
 
 	return statusList
 }
@@ -151,7 +160,7 @@ func (service *Service) SaveStatusReport(status models.PersistedMixStatus) model
 
 // CalculateUptime calculates percentage uptime for a given node, protocol since a specific time
 func (service *Service) CalculateUptime(pubkey string, ipVersion string, since int64) int {
-	statuses := service.db.ListDateRange(pubkey, ipVersion, since, now())
+	statuses := service.db.ListMixStatusDateRange(pubkey, ipVersion, since, now())
 	numStatuses := len(statuses)
 	if numStatuses == 0 {
 		return 0
@@ -168,6 +177,39 @@ func (service *Service) CalculateUptime(pubkey string, ipVersion string, since i
 func (service *Service) calculatePercent(num int, outOf int) int {
 	return int(float32(num) / float32(outOf) * 100)
 }
+
+func (service *Service) RegisterMix(info models.MixRegistrationInfo) {
+	registeredMix := models.RegisteredMix{
+		MixRegistrationInfo: info,
+	}
+
+	service.db.RegisterMix(registeredMix)
+}
+
+func (service *Service) RegisterGateway(info models.GatewayRegistrationInfo) {
+	registeredGateway := models.RegisteredGateway{
+		GatewayRegistrationInfo: info,
+	}
+
+	service.db.RegisterGateway(registeredGateway)
+}
+
+func (service *Service) UnregisterNode(id string) bool {
+	return service.db.UnregisterNode(id)
+}
+
+func (service *Service) SetReputation(id string, newRep int64) bool {
+	return service.db.SetReputation(id, newRep)
+}
+
+func (service *Service) GetTopology() models.Topology {
+	return service.db.Topology()
+}
+
+func (service *Service) GetActiveTopology() models.Topology {
+	return service.db.ActiveTopology(ReputationThreshold)
+}
+
 
 func now() int64 {
 	return timemock.Now().UnixNano()
