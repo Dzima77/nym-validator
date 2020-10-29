@@ -15,11 +15,9 @@
 package mixmining
 
 import (
-	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"github.com/nymtech/nym/validator/nym/directory/models"
+	"net/http"
 )
 
 // Config for this controller
@@ -56,9 +54,9 @@ func (controller *controller) RegisterRoutes(router *gin.Engine) {
 	router.GET("/api/mixmining/node/:pubkey/report", controller.GetMixStatusReport)
 	router.GET("/api/mixmining/fullreport", controller.BatchGetMixStatusReport)
 
-	router.POST("/api/mixmining/mix", controller.RegisterMixPresence)
-	router.POST("/api/mixmining/gateway", controller.RegisterGatewayPresence)
-	router.DELETE("/api/mixmining/:id", controller.UnregisterPresence)
+	router.POST("/api/mixmining/register/mix", controller.RegisterMixPresence)
+	router.POST("/api/mixmining/register/gateway", controller.RegisterGatewayPresence)
+	router.DELETE("/api/mixmining/register/:id", controller.UnregisterPresence)
 	router.GET("/api/mixmining/topology", controller.GetTopology)
 	router.GET("/api/mixmining/topology/active", controller.GetActiveTopology)
 }
@@ -78,7 +76,7 @@ func (controller *controller) RegisterRoutes(router *gin.Engine) {
 // @Router /api/mixmining/node/{pubkey}/history [get]
 func (controller *controller) ListMeasurements(c *gin.Context) {
 	pubkey := c.Param("pubkey")
-	measurements := controller.service.List(pubkey)
+	measurements := controller.service.ListMixStatus(pubkey)
 	c.JSON(http.StatusOK, measurements)
 }
 
@@ -188,13 +186,13 @@ func (controller *controller) BatchGetMixStatusReport(c *gin.Context) {
 // @ID registerMixPresence
 // @Accept  json
 // @Produce  json
-// @Tags presence
+// @Tags mixmining
 // @Param   object      body   models.MixRegistrationInfo     true  "object"
 // @Success 200
 // @Failure 400 {object} models.Error
 // @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
-// @Router /api/presence/mix [post]
+// @Router /api/mixmining/register/mix [post]
 func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 	var presence models.MixRegistrationInfo
 	if err := ctx.ShouldBindJSON(&presence); err != nil {
@@ -213,13 +211,13 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 // @ID registerGatewayPresence
 // @Accept  json
 // @Produce  json
-// @Tags presence
+// @Tags mixmining
 // @Param   object      body   models.GatewayRegistrationInfo     true  "object"
 // @Success 200
 // @Failure 400 {object} models.Error
 // @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
-// @Router /api/presence/gateway [post]
+// @Router /api/mixmining/register/gateway [post]
 func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 	var presence models.GatewayRegistrationInfo
 	if err := ctx.ShouldBindJSON(&presence); err != nil {
@@ -238,13 +236,13 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 // @ID unregisterPresence
 // @Accept  json
 // @Produce  json
-// @Tags presence
+// @Tags mixmining
 // @Param id path string true "Node Identity"
 // @Success 200
 // @Failure 400 {object} models.Error
 // @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
-// @Router /api/presence/{id} [delete]
+// @Router /api/mixmining/register/{id} [delete]
 func (controller *controller) UnregisterPresence(ctx *gin.Context) {
 	id := ctx.Param("id")
 	controller.genericSanitizer.Sanitize(&id)
@@ -261,10 +259,10 @@ func (controller *controller) UnregisterPresence(ctx *gin.Context) {
 // @Description On Nym nodes startup they register their presence indicating they should be alive. This method provides a list of nodes which have done so.
 // @ID getTopology
 // @Produce  json
-// @Tags presence
+// @Tags mixmining
 // @Success 200 {object} models.Topology
 // @Failure 500 {object} models.Error
-// @Router /api/presence/topology [get]
+// @Router /api/mixmining/topology [get]
 func (controller *controller) GetTopology(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, controller.service.GetTopology())
 }
@@ -274,10 +272,10 @@ func (controller *controller) GetTopology(ctx *gin.Context) {
 // @Description On Nym nodes startup they register their presence indicating they should be alive. This method provides a list of nodes which have done so.
 // @ID getActiveTopology
 // @Produce  json
-// @Tags presence
+// @Tags mixmining
 // @Success 200 {object} models.Topology
 // @Failure 500 {object} models.Error
-// @Router /api/presence/topology/active [get]
+// @Router /api/mixmining/topology/active [get]
 func (controller *controller) GetActiveTopology(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, controller.service.GetActiveTopology())
 }
