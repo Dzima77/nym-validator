@@ -256,39 +256,6 @@ func (controller *controller) UnregisterPresence(ctx *gin.Context) {
 	}
 }
 
-// ChangeReputation ...
-// @Summary Change reputation of a node
-// @Description Changes reputation of given node to some specified value
-// @ID changeReputation
-// @Accept  json
-// @Produce  json
-// @Tags presence
-// @Param id path string true "Node Identity"
-// @Param reputation query integer true "New Reputation"
-// @Success 200
-// @Failure 400 {object} models.Error
-// @Failure 404 {object} models.Error
-// @Failure 500 {object} models.Error
-// @Router /api/presence/reputation/{id} [patch]
-func (controller *controller) ChangeReputation(ctx *gin.Context) {
-	id := ctx.Param("id")
-	newRepStr := ctx.Request.URL.Query().Get("reputation")
-	controller.genericSanitizer.Sanitize(&id)
-	controller.genericSanitizer.Sanitize(&newRepStr)
-
-	newRep, err := strconv.Atoi(newRepStr)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if controller.service.SetReputation(id, int64(newRep)) {
-		ctx.JSON(http.StatusOK, gin.H{"ok": true})
-	} else {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
-	}
-}
-
 // GetTopology ...
 // @Summary Lists Nym mixnodes and gateways on the network alongside their reputation.
 // @Description On Nym nodes startup they register their presence indicating they should be alive. This method provides a list of nodes which have done so.
