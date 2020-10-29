@@ -15,10 +15,11 @@
 package mixmining
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/nymtech/nym/validator/nym/directory/models"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/nymtech/nym/validator/nym/directory/models"
 )
 
 // Config for this controller
@@ -60,6 +61,7 @@ func (controller *controller) RegisterRoutes(router *gin.Engine) {
 	router.DELETE("/api/mixmining/register/:id", controller.UnregisterPresence)
 	router.GET("/api/mixmining/topology", controller.GetTopology)
 	router.GET("/api/mixmining/topology/active", controller.GetActiveTopology)
+	router.PATCH("/api/mixmining/reputation/:id", controller.ChangeReputation)
 }
 
 // ListMeasurements lists mixnode statuses
@@ -283,14 +285,13 @@ func (controller *controller) GetActiveTopology(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, controller.service.GetActiveTopology())
 }
 
-
 // ChangeReputation ...
 // @Summary Change reputation of a node
 // @Description Changes reputation of given node to some specified value
 // @ID changeReputation
 // @Accept  json
 // @Produce  json
-// @Tags presence
+// @Tags mixmining
 // @Param id path string true "Node Identity"
 // @Param reputation query integer true "New Reputation"
 // @Success 200
@@ -298,7 +299,7 @@ func (controller *controller) GetActiveTopology(ctx *gin.Context) {
 // @Failure 403 {object} models.Error
 // @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
-// @Router /api/presence/reputation/{id} [patch]
+// @Router /api/mixmining/reputation/{id} [patch]
 // NOTE: it's only accessible from localhost and its only purpose is to jumpstart the network quickly (so you could
 // manually set few nodes above threshold reputation rather than to wait for enough reports to come in)
 func (controller *controller) ChangeReputation(ctx *gin.Context) {

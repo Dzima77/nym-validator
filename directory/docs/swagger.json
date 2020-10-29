@@ -418,6 +418,65 @@
                 }
             }
         },
+        "/api/mixmining/reputation/{id}": {
+            "patch": {
+                "description": "Changes reputation of given node to some specified value",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mixmining"
+                ],
+                "summary": "Change reputation of a node",
+                "operationId": "changeReputation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Node Identity",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "New Reputation",
+                        "name": "reputation",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {},
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/api/mixmining/topology": {
             "get": {
                 "description": "On Nym nodes startup they register their presence indicating they should be alive. This method provides a list of nodes which have done so.",
@@ -461,65 +520,6 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Topology"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/presence/reputation/{id}": {
-            "patch": {
-                "description": "Changes reputation of given node to some specified value",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "presence"
-                ],
-                "summary": "Change reputation of a node",
-                "operationId": "changeReputation",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Node Identity",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "New Reputation",
-                        "name": "reputation",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {},
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Error"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/models.Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Error"
                         }
                     },
                     "500": {

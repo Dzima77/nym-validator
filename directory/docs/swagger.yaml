@@ -424,6 +424,46 @@ paths:
       summary: Lets a mixnode tell the directory server it's coming online
       tags:
       - mixmining
+  /api/mixmining/reputation/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Changes reputation of given node to some specified value
+      operationId: changeReputation
+      parameters:
+      - description: Node Identity
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New Reputation
+        in: query
+        name: reputation
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Change reputation of a node
+      tags:
+      - mixmining
   /api/mixmining/topology:
     get:
       description: On Nym nodes startup they register their presence indicating they
@@ -463,44 +503,4 @@ paths:
         such that the reputation is at least 100.
       tags:
       - mixmining
-  /api/presence/reputation/{id}:
-    patch:
-      consumes:
-      - application/json
-      description: Changes reputation of given node to some specified value
-      operationId: changeReputation
-      parameters:
-      - description: Node Identity
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: New Reputation
-        in: query
-        name: reputation
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200": {}
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Error'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/models.Error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Error'
-      summary: Change reputation of a node
-      tags:
-      - presence
 swagger: "2.0"
