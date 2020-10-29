@@ -165,7 +165,7 @@ var _ = Describe("mixmining.Service", func() {
 			It("should call to the Db", func() {
 				mockDb.On("ListMixStatus", persisted1.PubKey, 1000).Return(persistedList)
 
-				result := serv.List(persisted1.PubKey)
+				result := serv.ListMixStatus(persisted1.PubKey)
 
 				mockDb.AssertCalled(GinkgoT(), "ListMixStatus", persisted1.PubKey, 1000)
 				assert.Equal(GinkgoT(), persistedList[0].MixStatus.PubKey, result[0].MixStatus.PubKey)
@@ -227,6 +227,7 @@ var _ = Describe("mixmining.Service", func() {
 						LastWeekIPV6:     0,
 						LastMonthIPV6:    0,
 					}
+					mockDb.On("UpdateReputation", downer.PubKey, ReportFailureReputationDecrease).Return(true)
 					mockDb.On("SaveMixStatusReport", expectedSave)
 				})
 				It("should save the initial report, all statuses will be set to down", func() {
@@ -274,6 +275,7 @@ var _ = Describe("mixmining.Service", func() {
 						LastWeekIPV6:     0,
 						LastMonthIPV6:    0,
 					}
+					mockDb.On("UpdateReputation", upper.PubKey, ReportSuccessReputationIncrease).Return(true)
 					mockDb.On("SaveMixStatusReport", expectedSave)
 				})
 				It("should save the initial report, all statuses will be set to up", func() {
@@ -331,8 +333,12 @@ var _ = Describe("mixmining.Service", func() {
 				}
 				mockDb.On("LoadReport", downer.PubKey).Return(initialState)
 				mockDb.On("SaveMixStatusReport", expectedAfterUpdate)
+				mockDb.On("UpdateReputation", downer.PubKey, ReportFailureReputationDecrease).Return(true)
+
 				updatedStatus := serv.SaveStatusReport(downer)
 				assert.Equal(GinkgoT(), expectedAfterUpdate, updatedStatus)
+				mockDb.AssertCalled(GinkgoT(), "UpdateReputation", downer.PubKey, ReportFailureReputationDecrease)
+
 				mockDb.AssertExpectations(GinkgoT())
 			})
 		})
@@ -376,9 +382,11 @@ var _ = Describe("mixmining.Service", func() {
 
 				mockDb.On("BatchLoadReports", []string{"key1", "key1"}).Return(models.BatchMixStatusReport{Report: make([]models.MixStatusReport, 0)})
 				mockDb.On("SaveBatchMixStatusReport", expected)
+				mockDb.On("BatchUpdateReputation", map[string]int64{"key1": 2 * ReportFailureReputationDecrease})
 
 				updatedStatus := serv.SaveBatchStatusReport(batchReport)
 				assert.Equal(GinkgoT(), 1, len(updatedStatus.Report))
+				mockDb.AssertCalled(GinkgoT(), "BatchUpdateReputation", map[string]int64{"key1": 2 * ReportFailureReputationDecrease})
 				mockDb.AssertExpectations(GinkgoT())
 			})
 		})
@@ -425,7 +433,6 @@ var _ = Describe("mixmining.Service", func() {
 		})
 	})
 })
-
 
 var _ = Describe("mixmining.registration.Service", func() {
 	var mockDb *mocks.IDb

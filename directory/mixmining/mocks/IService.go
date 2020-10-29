@@ -98,8 +98,8 @@ func (_m *IService) GetTopology() models.Topology {
 	return r0
 }
 
-// List provides a mock function with given fields: pubkey
-func (_m *IService) List(pubkey string) []models.PersistedMixStatus {
+// ListMixStatus provides a mock function with given fields: pubkey
+func (_m *IService) ListMixStatus(pubkey string) []models.PersistedMixStatus {
 	ret := _m.Called(pubkey)
 
 	var r0 []models.PersistedMixStatus

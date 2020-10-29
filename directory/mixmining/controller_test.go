@@ -246,7 +246,7 @@ var _ = Describe("Controller", func() {
 
 			JSONReq, _ := json.Marshal(info)
 
-			resp := performRequest(router, "POST", "/api/mixmining/mix", JSONReq)
+			resp := performRequest(router, "POST", "/api/mixmining/register/mix", JSONReq)
 			assert.Equal(GinkgoT(), http.StatusOK, resp.Code)
 			// make sure sanitize is actually called on our request
 			mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &info)
@@ -264,7 +264,7 @@ var _ = Describe("Controller", func() {
 
 			JSONReq, _ := json.Marshal(info)
 
-			resp := performRequest(router, "POST", "/api/mixmining/gateway", JSONReq)
+			resp := performRequest(router, "POST", "/api/mixmining/register/gateway", JSONReq)
 			assert.Equal(GinkgoT(), http.StatusOK, resp.Code)
 			// make sure sanitize is actually called on our request
 			mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &info)
@@ -281,7 +281,7 @@ var _ = Describe("Controller", func() {
 				mockGenericSanitizer.On("Sanitize", &nodeIdentity)
 				mockService.On("UnregisterNode", nodeIdentity).Return(true)
 
-				resp := performRequest(router, "DELETE", "/api/mixmining/"+nodeIdentity, nil)
+				resp := performRequest(router, "DELETE", "/api/mixmining/register/"+nodeIdentity, nil)
 				assert.Equal(GinkgoT(), http.StatusOK, resp.Code)
 
 				mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &nodeIdentity)
@@ -297,7 +297,7 @@ var _ = Describe("Controller", func() {
 				mockGenericSanitizer.On("Sanitize", &nodeIdentity)
 				mockService.On("UnregisterNode", nodeIdentity).Return(false)
 
-				resp := performRequest(router, "DELETE", "/api/mixmining/"+nodeIdentity, nil)
+				resp := performRequest(router, "DELETE", "/api/mixmining/register/"+nodeIdentity, nil)
 				assert.Equal(GinkgoT(), http.StatusNotFound, resp.Code)
 
 				mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &nodeIdentity)
@@ -319,7 +319,7 @@ var _ = Describe("Controller", func() {
 
 				mockService.On("SetReputation", nodeIdentity, newRep).Return(true)
 
-				resp := performRequest(router, "PATCH", "/api/mixmining/reputation/"+nodeIdentity+"?reputation="+repStr, nil)
+				resp := performLocalHostRequest(router, "PATCH", "/api/mixmining/reputation/"+nodeIdentity+"?reputation="+repStr, nil)
 				assert.Equal(GinkgoT(), http.StatusOK, resp.Code)
 
 				mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &nodeIdentity)
@@ -340,7 +340,7 @@ var _ = Describe("Controller", func() {
 
 				mockService.On("SetReputation", nodeIdentity, newRep).Return(false)
 
-				resp := performRequest(router, "PATCH", "/api/mixmining/reputation/"+nodeIdentity+"?reputation="+repStr, nil)
+				resp := performLocalHostRequest(router, "PATCH", "/api/mixmining/reputation/"+nodeIdentity+"?reputation="+repStr, nil)
 				assert.Equal(GinkgoT(), http.StatusNotFound, resp.Code)
 
 				mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &nodeIdentity)
