@@ -179,6 +179,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
         "404":
           description: Not Found
           schema:
@@ -211,6 +215,10 @@ paths:
         "201": {}
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/models.Error'
         "404":
@@ -318,7 +326,7 @@ paths:
       summary: Retrieves a summary report of historical mix status
       tags:
       - mixmining
-  /api/presence/{id}:
+  /api/mixmining/register/{id}:
     delete:
       consumes:
       - application/json
@@ -349,8 +357,8 @@ paths:
             $ref: '#/definitions/models.Error'
       summary: Unregister presence of node.
       tags:
-      - presence
-  /api/presence/gateway:
+      - mixmining
+  /api/mixmining/register/gateway:
     post:
       consumes:
       - application/json
@@ -382,8 +390,8 @@ paths:
             $ref: '#/definitions/models.Error'
       summary: Lets a gateway tell the directory server it's coming online
       tags:
-      - presence
-  /api/presence/mix:
+      - mixmining
+  /api/mixmining/register/mix:
     post:
       consumes:
       - application/json
@@ -415,8 +423,8 @@ paths:
             $ref: '#/definitions/models.Error'
       summary: Lets a mixnode tell the directory server it's coming online
       tags:
-      - presence
-  /api/presence/reputation/{id}:
+      - mixmining
+  /api/mixmining/reputation/{id}:
     patch:
       consumes:
       - application/json
@@ -441,6 +449,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.Error'
         "404":
           description: Not Found
           schema:
@@ -451,8 +463,8 @@ paths:
             $ref: '#/definitions/models.Error'
       summary: Change reputation of a node
       tags:
-      - presence
-  /api/presence/topology:
+      - mixmining
+  /api/mixmining/topology:
     get:
       description: On Nym nodes startup they register their presence indicating they
         should be alive. This method provides a list of nodes which have done so.
@@ -470,8 +482,8 @@ paths:
             $ref: '#/definitions/models.Error'
       summary: Lists Nym mixnodes and gateways on the network alongside their reputation.
       tags:
-      - presence
-  /api/presence/topology/active:
+      - mixmining
+  /api/mixmining/topology/active:
     get:
       description: On Nym nodes startup they register their presence indicating they
         should be alive. This method provides a list of nodes which have done so.
@@ -490,5 +502,5 @@ paths:
       summary: Lists Nym mixnodes and gateways on the network alongside their reputation,
         such that the reputation is at least 100.
       tags:
-      - presence
+      - mixmining
 swagger: "2.0"

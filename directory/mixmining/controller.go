@@ -16,6 +16,7 @@ package mixmining
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nymtech/nym/validator/nym/directory/models"
@@ -23,16 +24,18 @@ import (
 
 // Config for this controller
 type Config struct {
-	BatchSanitizer BatchSanitizer
-	Sanitizer      Sanitizer
-	Service        IService
+	BatchSanitizer   BatchSanitizer   // batch mix reports
+	GenericSanitizer GenericSanitizer // originally introduced for what was in mix registration
+	Sanitizer        Sanitizer        // mix reports
+	Service          IService
 }
 
 // controller is the mixmining controller
 type controller struct {
-	service        IService
-	sanitizer      Sanitizer
-	batchSanitizer BatchSanitizer
+	service          IService
+	sanitizer        Sanitizer
+	genericSanitizer GenericSanitizer
+	batchSanitizer   BatchSanitizer
 }
 
 // Controller ...
@@ -43,7 +46,7 @@ type Controller interface {
 
 // New returns a new mixmining.Controller
 func New(cfg Config) Controller {
-	return &controller{cfg.Service, cfg.Sanitizer, cfg.BatchSanitizer}
+	return &controller{cfg.Service, cfg.Sanitizer, cfg.GenericSanitizer, cfg.BatchSanitizer}
 }
 
 func (controller *controller) RegisterRoutes(router *gin.Engine) {
@@ -52,6 +55,13 @@ func (controller *controller) RegisterRoutes(router *gin.Engine) {
 	router.GET("/api/mixmining/node/:pubkey/history", controller.ListMeasurements)
 	router.GET("/api/mixmining/node/:pubkey/report", controller.GetMixStatusReport)
 	router.GET("/api/mixmining/fullreport", controller.BatchGetMixStatusReport)
+
+	router.POST("/api/mixmining/register/mix", controller.RegisterMixPresence)
+	router.POST("/api/mixmining/register/gateway", controller.RegisterGatewayPresence)
+	router.DELETE("/api/mixmining/register/:id", controller.UnregisterPresence)
+	router.GET("/api/mixmining/topology", controller.GetTopology)
+	router.GET("/api/mixmining/topology/active", controller.GetActiveTopology)
+	router.PATCH("/api/mixmining/reputation/:id", controller.ChangeReputation)
 }
 
 // ListMeasurements lists mixnode statuses
@@ -69,7 +79,7 @@ func (controller *controller) RegisterRoutes(router *gin.Engine) {
 // @Router /api/mixmining/node/{pubkey}/history [get]
 func (controller *controller) ListMeasurements(c *gin.Context) {
 	pubkey := c.Param("pubkey")
-	measurements := controller.service.List(pubkey)
+	measurements := controller.service.ListMixStatus(pubkey)
 	c.JSON(http.StatusOK, measurements)
 }
 
@@ -83,6 +93,7 @@ func (controller *controller) ListMeasurements(c *gin.Context) {
 // @Param   object      body   models.MixStatus     true  "object"
 // @Success 201
 // @Failure 400 {object} models.Error
+// @Failure 403 {object} models.Error
 // @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining [post]
@@ -135,6 +146,7 @@ func (controller *controller) GetMixStatusReport(c *gin.Context) {
 // @Param   object      body   models.BatchMixStatus     true  "object"
 // @Success 201
 // @Failure 400 {object} models.Error
+// @Failure 403 {object} models.Error
 // @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining/batch [post]
@@ -171,4 +183,146 @@ func (controller *controller) BatchCreateMixStatus(c *gin.Context) {
 func (controller *controller) BatchGetMixStatusReport(c *gin.Context) {
 	report := controller.service.BatchGetMixStatusReport()
 	c.JSON(http.StatusOK, report)
+}
+
+// RegisterMixPresence ...
+// @Summary Lets a mixnode tell the directory server it's coming online
+// @Description On Nym nodes startup they register their presence indicating they should be alive and get added to the set of active nodes in the topology.
+// @ID registerMixPresence
+// @Accept  json
+// @Produce  json
+// @Tags mixmining
+// @Param   object      body   models.MixRegistrationInfo     true  "object"
+// @Success 200
+// @Failure 400 {object} models.Error
+// @Failure 404 {object} models.Error
+// @Failure 500 {object} models.Error
+// @Router /api/mixmining/register/mix [post]
+func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
+	var presence models.MixRegistrationInfo
+	if err := ctx.ShouldBindJSON(&presence); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	controller.genericSanitizer.Sanitize(&presence)
+	controller.service.RegisterMix(presence)
+	ctx.JSON(http.StatusOK, gin.H{"ok": true})
+}
+
+// RegisterGatewayPresence ...
+// @Summary Lets a gateway tell the directory server it's coming online
+// @Description On Nym nodes startup they register their presence indicating they should be alive and get added to the set of active nodes in the topology.
+// @ID registerGatewayPresence
+// @Accept  json
+// @Produce  json
+// @Tags mixmining
+// @Param   object      body   models.GatewayRegistrationInfo     true  "object"
+// @Success 200
+// @Failure 400 {object} models.Error
+// @Failure 404 {object} models.Error
+// @Failure 500 {object} models.Error
+// @Router /api/mixmining/register/gateway [post]
+func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
+	var presence models.GatewayRegistrationInfo
+	if err := ctx.ShouldBindJSON(&presence); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	controller.genericSanitizer.Sanitize(&presence)
+	controller.service.RegisterGateway(presence)
+	ctx.JSON(http.StatusOK, gin.H{"ok": true})
+}
+
+// UnregisterPresence ...
+// @Summary Unregister presence of node.
+// @Description Messages sent by a node on powering down to indicate it's going offline so that it should get removed from active topology.
+// @ID unregisterPresence
+// @Accept  json
+// @Produce  json
+// @Tags mixmining
+// @Param id path string true "Node Identity"
+// @Success 200
+// @Failure 400 {object} models.Error
+// @Failure 404 {object} models.Error
+// @Failure 500 {object} models.Error
+// @Router /api/mixmining/register/{id} [delete]
+func (controller *controller) UnregisterPresence(ctx *gin.Context) {
+	id := ctx.Param("id")
+	controller.genericSanitizer.Sanitize(&id)
+
+	if controller.service.UnregisterNode(id) {
+		ctx.JSON(http.StatusOK, gin.H{"ok": true})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
+	}
+}
+
+// GetTopology ...
+// @Summary Lists Nym mixnodes and gateways on the network alongside their reputation.
+// @Description On Nym nodes startup they register their presence indicating they should be alive. This method provides a list of nodes which have done so.
+// @ID getTopology
+// @Produce  json
+// @Tags mixmining
+// @Success 200 {object} models.Topology
+// @Failure 500 {object} models.Error
+// @Router /api/mixmining/topology [get]
+func (controller *controller) GetTopology(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, controller.service.GetTopology())
+}
+
+// GetActiveTopology ...
+// @Summary Lists Nym mixnodes and gateways on the network alongside their reputation, such that the reputation is at least 100.
+// @Description On Nym nodes startup they register their presence indicating they should be alive. This method provides a list of nodes which have done so.
+// @ID getActiveTopology
+// @Produce  json
+// @Tags mixmining
+// @Success 200 {object} models.Topology
+// @Failure 500 {object} models.Error
+// @Router /api/mixmining/topology/active [get]
+func (controller *controller) GetActiveTopology(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, controller.service.GetActiveTopology())
+}
+
+// ChangeReputation ...
+// @Summary Change reputation of a node
+// @Description Changes reputation of given node to some specified value
+// @ID changeReputation
+// @Accept  json
+// @Produce  json
+// @Tags mixmining
+// @Param id path string true "Node Identity"
+// @Param reputation query integer true "New Reputation"
+// @Success 200
+// @Failure 400 {object} models.Error
+// @Failure 403 {object} models.Error
+// @Failure 404 {object} models.Error
+// @Failure 500 {object} models.Error
+// @Router /api/mixmining/reputation/{id} [patch]
+// NOTE: it's only accessible from localhost and its only purpose is to jumpstart the network quickly (so you could
+// manually set few nodes above threshold reputation rather than to wait for enough reports to come in)
+func (controller *controller) ChangeReputation(ctx *gin.Context) {
+	remoteIP := ctx.ClientIP()
+	if !(remoteIP == "127.0.0.1" || remoteIP == "::1" || ctx.Request.RemoteAddr == "127.0.0.1" || ctx.Request.RemoteAddr == "::1") {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+		return
+	}
+
+	id := ctx.Param("id")
+	newRepStr := ctx.Request.URL.Query().Get("reputation")
+	controller.genericSanitizer.Sanitize(&id)
+	controller.genericSanitizer.Sanitize(&newRepStr)
+
+	newRep, err := strconv.Atoi(newRepStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if controller.service.SetReputation(id, int64(newRep)) {
+		ctx.JSON(http.StatusOK, gin.H{"ok": true})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
+	}
 }

@@ -42,6 +42,69 @@ var _ = Describe("Sanitizer", func() {
 	})
 })
 
+var _ = Describe("GenericSanitizer", func() {
+	Describe("sanitizing inputs", func() {
+		Context("when XSS is present", func() {
+			It("sanitizes input for string", func() {
+				input := xssString()
+				policy := bluemonday.UGCPolicy()
+				sanitizer := NewGenericSanitizer(policy)
+				sanitizer.Sanitize(&input)
+				assert.Equal(GinkgoT(), goodString(), input)
+			})
+			It("sanitizes input for struct", func() {
+				type foomp struct {
+					Foomper string
+					Foo     uint
+				}
+				xssInput := foomp{
+					xssString(), 42,
+				}
+				goodInput := foomp{
+					goodString(), 42,
+				}
+				policy := bluemonday.UGCPolicy()
+				sanitizer := NewGenericSanitizer(policy)
+				sanitizer.Sanitize(&xssInput)
+				assert.Equal(GinkgoT(), goodInput, xssInput)
+			})
+			It("sanitizes input for nested struct", func() {
+				type foomp struct {
+					Foomper string
+					Foo     uint
+				}
+				type bar struct {
+					Foomp foomp
+					Baz   string
+					Bar   uint
+				}
+
+				xssInput := bar{
+					Foomp: foomp{
+						Foomper: xssString(),
+						Foo:     42,
+					},
+					Baz: xssString(),
+					Bar: 9001,
+				}
+				goodInput := bar{
+					Foomp: foomp{
+						Foomper: goodString(),
+						Foo:     42,
+					},
+					Baz: goodString(),
+					Bar: 9001,
+				}
+
+				policy := bluemonday.UGCPolicy()
+				sanitizer := NewGenericSanitizer(policy)
+				sanitizer.Sanitize(&xssInput)
+				assert.Equal(GinkgoT(), goodInput, xssInput)
+			})
+		})
+	})
+})
+
 func xssStatus() models.MixStatus {
 	boolfalse := false
 	m := models.MixStatus{
@@ -60,4 +123,12 @@ func goodMetric() models.MixStatus {
 		IPVersion: "0",
 	}
 	return m
+}
+
+func xssString() string {
+	return "foomp<script>alert('gotcha')</script>"
+}
+
+func goodString() string {
+	return "foomp"
 }

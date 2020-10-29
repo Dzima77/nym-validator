@@ -15,9 +15,68 @@
 package mixmining
 
 import (
+	"fmt"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/nymtech/nym/validator/nym/directory/models"
+	"os"
+	"reflect"
 )
+
+
+// GenericSanitizer sanitizes untrusted data of any type. It mutates its arguments in place.
+type GenericSanitizer interface {
+	Sanitize(input interface{})
+}
+
+type genericSanitizer struct {
+	policy *bluemonday.Policy
+}
+
+// NewSanitizer returns a new input sanitizer for all presence-related things
+func NewGenericSanitizer(policy *bluemonday.Policy) GenericSanitizer {
+	return genericSanitizer{
+		policy: policy,
+	}
+}
+
+func (s genericSanitizer) sanitizeStruct(v reflect.Value) {
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		kind := field.Kind()
+
+		switch kind {
+		case reflect.String:
+			if !field.CanSet() {
+				fmt.Printf("wtf can't set %v (type: %v)", field, kind)
+				continue
+			}
+			field.SetString(s.policy.Sanitize(field.String()))
+		case reflect.Struct:
+			s.Sanitize(v.Field(i).Addr().Interface())
+		case reflect.Int64:
+		case reflect.Uint:
+			continue
+		default:
+			fmt.Fprintf(os.Stderr, "tried to sanitize unknown type %+v\n", kind)
+		}
+	}
+}
+
+func (s genericSanitizer) Sanitize(input interface{}) {
+	v := reflect.ValueOf(input)
+	v = reflect.Indirect(v)
+
+	inputKind := v.Kind()
+	switch inputKind {
+	case reflect.String:
+		v.SetString(s.policy.Sanitize(v.String()))
+	case reflect.Struct:
+		s.sanitizeStruct(v)
+	default:
+		fmt.Fprintf(os.Stderr, "tried to sanitize unknown type %+v\n", inputKind)
+	}
+
+}
 
 // BatchSanitizer sanitizes untrusted batch mixmining data. It should be used in
 // controllers to wipe out any questionable input at our application's front

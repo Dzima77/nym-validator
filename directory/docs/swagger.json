@@ -64,6 +64,12 @@
                             "$ref": "#/definitions/models.Error"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -108,6 +114,12 @@
                     "201": {},
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/models.Error"
                         }
@@ -264,7 +276,7 @@
                 }
             }
         },
-        "/api/presence/gateway": {
+        "/api/mixmining/register/gateway": {
             "post": {
                 "description": "On Nym nodes startup they register their presence indicating they should be alive and get added to the set of active nodes in the topology.",
                 "consumes": [
@@ -274,7 +286,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "presence"
+                    "mixmining"
                 ],
                 "summary": "Lets a gateway tell the directory server it's coming online",
                 "operationId": "registerGatewayPresence",
@@ -312,7 +324,7 @@
                 }
             }
         },
-        "/api/presence/mix": {
+        "/api/mixmining/register/mix": {
             "post": {
                 "description": "On Nym nodes startup they register their presence indicating they should be alive and get added to the set of active nodes in the topology.",
                 "consumes": [
@@ -322,7 +334,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "presence"
+                    "mixmining"
                 ],
                 "summary": "Lets a mixnode tell the directory server it's coming online",
                 "operationId": "registerMixPresence",
@@ -360,7 +372,53 @@
                 }
             }
         },
-        "/api/presence/reputation/{id}": {
+        "/api/mixmining/register/{id}": {
+            "delete": {
+                "description": "Messages sent by a node on powering down to indicate it's going offline so that it should get removed from active topology.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mixmining"
+                ],
+                "summary": "Unregister presence of node.",
+                "operationId": "unregisterPresence",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Node Identity",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {},
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/mixmining/reputation/{id}": {
             "patch": {
                 "description": "Changes reputation of given node to some specified value",
                 "consumes": [
@@ -370,7 +428,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "presence"
+                    "mixmining"
                 ],
                 "summary": "Change reputation of a node",
                 "operationId": "changeReputation",
@@ -398,6 +456,12 @@
                             "$ref": "#/definitions/models.Error"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.Error"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -413,14 +477,14 @@
                 }
             }
         },
-        "/api/presence/topology": {
+        "/api/mixmining/topology": {
             "get": {
                 "description": "On Nym nodes startup they register their presence indicating they should be alive. This method provides a list of nodes which have done so.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "presence"
+                    "mixmining"
                 ],
                 "summary": "Lists Nym mixnodes and gateways on the network alongside their reputation.",
                 "operationId": "getTopology",
@@ -440,14 +504,14 @@
                 }
             }
         },
-        "/api/presence/topology/active": {
+        "/api/mixmining/topology/active": {
             "get": {
                 "description": "On Nym nodes startup they register their presence indicating they should be alive. This method provides a list of nodes which have done so.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "presence"
+                    "mixmining"
                 ],
                 "summary": "Lists Nym mixnodes and gateways on the network alongside their reputation, such that the reputation is at least 100.",
                 "operationId": "getActiveTopology",
@@ -456,52 +520,6 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Topology"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/presence/{id}": {
-            "delete": {
-                "description": "Messages sent by a node on powering down to indicate it's going offline so that it should get removed from active topology.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "presence"
-                ],
-                "summary": "Unregister presence of node.",
-                "operationId": "unregisterPresence",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Node Identity",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {},
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Error"
                         }
                     },
                     "500": {

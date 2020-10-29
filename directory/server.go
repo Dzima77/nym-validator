@@ -22,7 +22,6 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/nymtech/nym/validator/nym/directory/healthcheck"
 	"github.com/nymtech/nym/validator/nym/directory/mixmining"
-	"github.com/nymtech/nym/validator/nym/directory/presence"
 	"github.com/nymtech/nym/validator/nym/directory/server/html"
 	"github.com/nymtech/nym/validator/nym/directory/server/websocket"
 	swaggerFiles "github.com/swaggo/files"
@@ -69,35 +68,24 @@ func New() *gin.Engine {
 	// Measurements: wire up dependency injection
 	measurementsCfg := injectMeasurements(policy)
 
-	// Presence: wire up dependency injection
-	presenceCfg := injectPresence(policy)
-
 	// Register all HTTP controller routes
 	healthcheck.New().RegisterRoutes(router)
 	mixmining.New(measurementsCfg).RegisterRoutes(router)
-	presence.New(presenceCfg).RegisterRoutes(router)
 
 	return router
 }
 
-func injectPresence(policy *bluemonday.Policy) presence.Config {
-	sanitizer := presence.NewSanitizer(policy)
-	db := presence.NewDb(false)
-	presenceService := *presence.NewService(db)
-
-	return presence.Config{
-		Service:   &presenceService,
-		Sanitizer: sanitizer,
-	}
-}
-
 func injectMeasurements(policy *bluemonday.Policy) mixmining.Config {
 	sanitizer := mixmining.NewSanitizer(policy)
-	db := mixmining.NewDb()
+	batchSanitizer := mixmining.NewBatchSanitizer(policy)
+	genericSanitizer := mixmining.NewGenericSanitizer(policy)
+	db := mixmining.NewDb(false)
 	mixminingService := *mixmining.NewService(db)
 
 	return mixmining.Config{
 		Service:   &mixminingService,
 		Sanitizer: sanitizer,
+		GenericSanitizer: genericSanitizer,
+		BatchSanitizer: batchSanitizer,
 	}
 }

@@ -16,10 +16,11 @@ package mixmining
 
 import (
 	"github.com/BorisBorshevsky/timemock"
+	"github.com/nymtech/nym/validator/nym/directory/mixmining/fixtures"
 	"github.com/nymtech/nym/validator/nym/directory/mixmining/mocks"
 	"github.com/nymtech/nym/validator/nym/directory/models"
 	. "github.com/onsi/ginkgo"
-	"gotest.tools/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 // Some fixtures data to dry up tests a bit
@@ -152,21 +153,21 @@ var _ = Describe("mixmining.Service", func() {
 		Context("when no statuses have yet been saved", func() {
 			It("should add a PersistedMixStatus to the db and save the new report", func() {
 
-				mockDb.On("Add", persisted1)
+				mockDb.On("AddMixStatus", persisted1)
 
 				serv.CreateMixStatus(status1)
-				mockDb.AssertCalled(GinkgoT(), "Add", persisted1)
+				mockDb.AssertCalled(GinkgoT(), "AddMixStatus", persisted1)
 			})
 		})
 	})
 	Describe("Listing mix statuses", func() {
 		Context("when receiving a list request", func() {
 			It("should call to the Db", func() {
-				mockDb.On("List", persisted1.PubKey, 1000).Return(persistedList)
+				mockDb.On("ListMixStatus", persisted1.PubKey, 1000).Return(persistedList)
 
-				result := serv.List(persisted1.PubKey)
+				result := serv.ListMixStatus(persisted1.PubKey)
 
-				mockDb.AssertCalled(GinkgoT(), "List", persisted1.PubKey, 1000)
+				mockDb.AssertCalled(GinkgoT(), "ListMixStatus", persisted1.PubKey, 1000)
 				assert.Equal(GinkgoT(), persistedList[0].MixStatus.PubKey, result[0].MixStatus.PubKey)
 				assert.Equal(GinkgoT(), persistedList[1].MixStatus.PubKey, result[1].MixStatus.PubKey)
 			})
@@ -176,7 +177,7 @@ var _ = Describe("mixmining.Service", func() {
 	Describe("Calculating uptime", func() {
 		Context("when no statuses exist yet", func() {
 			It("should return 0", func() {
-				mockDb.On("ListDateRange", "key1", "4", daysAgo(30), now()).Return(emptyList)
+				mockDb.On("ListMixStatusDateRange", "key1", "4", daysAgo(30), now()).Return(emptyList)
 
 				uptime := serv.CalculateUptime(persisted1.PubKey, persisted1.IPVersion, daysAgo(30))
 				assert.Equal(GinkgoT(), 0, uptime)
@@ -185,7 +186,7 @@ var _ = Describe("mixmining.Service", func() {
 		})
 		Context("when 2 ups and 1 down exist in the given time period", func() {
 			It("should return 66", func() {
-				mockDb.On("ListDateRange", "key1", "4", daysAgo(1), now()).Return(twoUpOneDown())
+				mockDb.On("ListMixStatusDateRange", "key1", "4", daysAgo(1), now()).Return(twoUpOneDown())
 
 				uptime := serv.CalculateUptime("key1", "4", daysAgo(1))
 				expected := 66 // percent
@@ -202,11 +203,11 @@ var _ = Describe("mixmining.Service", func() {
 		Context("when 1 down status exists", func() {
 			BeforeEach(func() {
 				oneDown := []models.PersistedMixStatus{downer}
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, minutesAgo(5), now()).Return(oneDown)
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, minutesAgo(60), now()).Return(oneDown)
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, daysAgo(1), now()).Return(oneDown)
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, daysAgo(7), now()).Return(oneDown)
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, daysAgo(30), now()).Return(oneDown)
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, minutesAgo(5), now()).Return(oneDown)
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, minutesAgo(60), now()).Return(oneDown)
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, daysAgo(1), now()).Return(oneDown)
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, daysAgo(7), now()).Return(oneDown)
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, daysAgo(30), now()).Return(oneDown)
 			})
 			Context("this one *must be* a downer, so calculate using it", func() {
 				BeforeEach(func() {
@@ -226,6 +227,7 @@ var _ = Describe("mixmining.Service", func() {
 						LastWeekIPV6:     0,
 						LastMonthIPV6:    0,
 					}
+					mockDb.On("UpdateReputation", downer.PubKey, ReportFailureReputationDecrease).Return(true)
 					mockDb.On("SaveMixStatusReport", expectedSave)
 				})
 				It("should save the initial report, all statuses will be set to down", func() {
@@ -243,20 +245,20 @@ var _ = Describe("mixmining.Service", func() {
 		Context("when 1 up status exists", func() {
 			BeforeEach(func() {
 				oneUp := []models.PersistedMixStatus{upper}
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, minutesAgo(5), now()).Return(oneUp)
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, minutesAgo(60), now()).Return(oneUp)
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, daysAgo(1), now()).Return(oneUp)
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, daysAgo(7), now()).Return(oneUp)
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, daysAgo(30), now()).Return(oneUp)
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, minutesAgo(5), now()).Return(oneUp)
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, minutesAgo(60), now()).Return(oneUp)
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, daysAgo(1), now()).Return(oneUp)
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, daysAgo(7), now()).Return(oneUp)
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, daysAgo(30), now()).Return(oneUp)
 			})
 			Context("this one *must be* an upper, so calculate using it", func() {
 				BeforeEach(func() {
 					oneDown := []models.PersistedMixStatus{downer}
-					mockDb.On("ListDateRange", upper.PubKey, upper.IPVersion, minutesAgo(5), now()).Return(oneDown)
-					mockDb.On("ListDateRange", upper.PubKey, upper.IPVersion, minutesAgo(60), now()).Return(oneDown)
-					mockDb.On("ListDateRange", upper.PubKey, upper.IPVersion, daysAgo(1), now()).Return(oneDown)
-					mockDb.On("ListDateRange", upper.PubKey, upper.IPVersion, daysAgo(7), now()).Return(oneDown)
-					mockDb.On("ListDateRange", upper.PubKey, upper.IPVersion, daysAgo(30), now()).Return(oneDown)
+					mockDb.On("ListMixStatusDateRange", upper.PubKey, upper.IPVersion, minutesAgo(5), now()).Return(oneDown)
+					mockDb.On("ListMixStatusDateRange", upper.PubKey, upper.IPVersion, minutesAgo(60), now()).Return(oneDown)
+					mockDb.On("ListMixStatusDateRange", upper.PubKey, upper.IPVersion, daysAgo(1), now()).Return(oneDown)
+					mockDb.On("ListMixStatusDateRange", upper.PubKey, upper.IPVersion, daysAgo(7), now()).Return(oneDown)
+					mockDb.On("ListMixStatusDateRange", upper.PubKey, upper.IPVersion, daysAgo(30), now()).Return(oneDown)
 					mockDb.On("LoadReport", upper.PubKey).Return(models.MixStatusReport{}) // TODO: Mockery isn't happy returning an untyped nil, so I've had to sub in a blank `models.MixStatusReport{}`. It will actually return a nil.
 					expectedSave := models.MixStatusReport{
 						PubKey:           upper.PubKey,
@@ -273,6 +275,7 @@ var _ = Describe("mixmining.Service", func() {
 						LastWeekIPV6:     0,
 						LastMonthIPV6:    0,
 					}
+					mockDb.On("UpdateReputation", upper.PubKey, ReportSuccessReputationIncrease).Return(true)
 					mockDb.On("SaveMixStatusReport", expectedSave)
 				})
 				It("should save the initial report, all statuses will be set to up", func() {
@@ -290,11 +293,11 @@ var _ = Describe("mixmining.Service", func() {
 
 		Context("when 2 up statuses exist for the last 5 minutes already and we just added a down", func() {
 			BeforeEach(func() {
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, minutesAgo(5), now()).Return(twoUpOneDown())
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, minutesAgo(60), now()).Return(twoUpOneDown())
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, daysAgo(1), now()).Return(twoUpOneDown())
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, daysAgo(7), now()).Return(twoUpOneDown())
-				mockDb.On("ListDateRange", downer.PubKey, downer.IPVersion, daysAgo(30), now()).Return(twoUpOneDown())
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, minutesAgo(5), now()).Return(twoUpOneDown())
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, minutesAgo(60), now()).Return(twoUpOneDown())
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, daysAgo(1), now()).Return(twoUpOneDown())
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, daysAgo(7), now()).Return(twoUpOneDown())
+				mockDb.On("ListMixStatusDateRange", downer.PubKey, downer.IPVersion, daysAgo(30), now()).Return(twoUpOneDown())
 			})
 			It("should save the report", func() {
 				initialState := models.MixStatusReport{
@@ -330,8 +333,12 @@ var _ = Describe("mixmining.Service", func() {
 				}
 				mockDb.On("LoadReport", downer.PubKey).Return(initialState)
 				mockDb.On("SaveMixStatusReport", expectedAfterUpdate)
+				mockDb.On("UpdateReputation", downer.PubKey, ReportFailureReputationDecrease).Return(true)
+
 				updatedStatus := serv.SaveStatusReport(downer)
 				assert.Equal(GinkgoT(), expectedAfterUpdate, updatedStatus)
+				mockDb.AssertCalled(GinkgoT(), "UpdateReputation", downer.PubKey, ReportFailureReputationDecrease)
+
 				mockDb.AssertExpectations(GinkgoT())
 			})
 		})
@@ -362,22 +369,24 @@ var _ = Describe("mixmining.Service", func() {
 					}},
 				}
 
-				mockDb.On("ListDateRange", "key1", "4", minutesAgo(5), now()).Return([]models.PersistedMixStatus{})
-				mockDb.On("ListDateRange", "key1", "4", minutesAgo(60), now()).Return([]models.PersistedMixStatus{})
-				mockDb.On("ListDateRange", "key1", "4", daysAgo(1), now()).Return([]models.PersistedMixStatus{})
-				mockDb.On("ListDateRange", "key1", "4", daysAgo(7), now()).Return([]models.PersistedMixStatus{})
-				mockDb.On("ListDateRange", "key1", "4", daysAgo(30), now()).Return([]models.PersistedMixStatus{})
-				mockDb.On("ListDateRange", "key1", "6", minutesAgo(5), now()).Return([]models.PersistedMixStatus{})
-				mockDb.On("ListDateRange", "key1", "6", minutesAgo(60), now()).Return([]models.PersistedMixStatus{})
-				mockDb.On("ListDateRange", "key1", "6", daysAgo(1), now()).Return([]models.PersistedMixStatus{})
-				mockDb.On("ListDateRange", "key1", "6", daysAgo(7), now()).Return([]models.PersistedMixStatus{})
-				mockDb.On("ListDateRange", "key1", "6", daysAgo(30), now()).Return([]models.PersistedMixStatus{})
+				mockDb.On("ListMixStatusDateRange", "key1", "4", minutesAgo(5), now()).Return([]models.PersistedMixStatus{})
+				mockDb.On("ListMixStatusDateRange", "key1", "4", minutesAgo(60), now()).Return([]models.PersistedMixStatus{})
+				mockDb.On("ListMixStatusDateRange", "key1", "4", daysAgo(1), now()).Return([]models.PersistedMixStatus{})
+				mockDb.On("ListMixStatusDateRange", "key1", "4", daysAgo(7), now()).Return([]models.PersistedMixStatus{})
+				mockDb.On("ListMixStatusDateRange", "key1", "4", daysAgo(30), now()).Return([]models.PersistedMixStatus{})
+				mockDb.On("ListMixStatusDateRange", "key1", "6", minutesAgo(5), now()).Return([]models.PersistedMixStatus{})
+				mockDb.On("ListMixStatusDateRange", "key1", "6", minutesAgo(60), now()).Return([]models.PersistedMixStatus{})
+				mockDb.On("ListMixStatusDateRange", "key1", "6", daysAgo(1), now()).Return([]models.PersistedMixStatus{})
+				mockDb.On("ListMixStatusDateRange", "key1", "6", daysAgo(7), now()).Return([]models.PersistedMixStatus{})
+				mockDb.On("ListMixStatusDateRange", "key1", "6", daysAgo(30), now()).Return([]models.PersistedMixStatus{})
 
 				mockDb.On("BatchLoadReports", []string{"key1", "key1"}).Return(models.BatchMixStatusReport{Report: make([]models.MixStatusReport, 0)})
 				mockDb.On("SaveBatchMixStatusReport", expected)
+				mockDb.On("BatchUpdateReputation", map[string]int64{"key1": 2 * ReportFailureReputationDecrease})
 
 				updatedStatus := serv.SaveBatchStatusReport(batchReport)
 				assert.Equal(GinkgoT(), 1, len(updatedStatus.Report))
+				mockDb.AssertCalled(GinkgoT(), "BatchUpdateReputation", map[string]int64{"key1": 2 * ReportFailureReputationDecrease})
 				mockDb.AssertExpectations(GinkgoT())
 			})
 		})
@@ -421,6 +430,128 @@ var _ = Describe("mixmining.Service", func() {
 				report := serv.GetStatusReport("superkey")
 				assert.Equal(GinkgoT(), perfect, report)
 			})
+		})
+	})
+})
+
+var _ = Describe("mixmining.registration.Service", func() {
+	var mockDb *mocks.IDb
+	var serv *Service
+
+	BeforeEach(func() {
+		mockDb = &mocks.IDb{}
+		serv = NewService(mockDb)
+	})
+
+	Describe("Adding mix registration info", func() {
+		It("creates new registered mix with empty reputation and zero timestamp", func() {
+			info := fixtures.GoodMixRegistrationInfo()
+			registeredMix := models.RegisteredMix{
+				MixRegistrationInfo: info,
+			}
+
+			mockDb.On("RegisterMix", registeredMix)
+			serv.RegisterMix(info)
+			mockDb.AssertCalled(GinkgoT(), "RegisterMix", registeredMix)
+		})
+	})
+
+	Describe("Adding gateway registration info", func() {
+		It("creates new registered gateway with empty reputation and zero timestamp", func() {
+			info := fixtures.GoodGatewayRegistrationInfo()
+			registeredGateway := models.RegisteredGateway{
+				GatewayRegistrationInfo: info,
+			}
+
+			mockDb.On("RegisterGateway", registeredGateway)
+			serv.RegisterGateway(info)
+			mockDb.AssertCalled(GinkgoT(), "RegisterGateway", registeredGateway)
+		})
+	})
+
+	Describe("Unregistering node", func() {
+		Context("With given identity when it exists", func() {
+			It("Calls internal database with correct arguments", func() {
+				nodeID := "foomp"
+				mockDb.On("UnregisterNode", nodeID).Return(true)
+
+				assert.True(GinkgoT(), serv.UnregisterNode(nodeID))
+				mockDb.AssertCalled(GinkgoT(), "UnregisterNode", nodeID)
+			})
+		})
+
+		Context("With given identity when it doesn't exists", func() {
+			It("Calls internal database with correct arguments", func() {
+				nodeID := "foomp"
+				mockDb.On("UnregisterNode", nodeID).Return(false)
+
+				assert.False(GinkgoT(), serv.UnregisterNode(nodeID))
+				mockDb.AssertCalled(GinkgoT(), "UnregisterNode", nodeID)
+			})
+		})
+	})
+
+	Describe("Setting reputation of a node", func() {
+		Context("With given identity when it exists", func() {
+			It("Calls internal database with correct arguments", func() {
+				nodeID := "foomp"
+				newRep := int64(42)
+				mockDb.On("SetReputation", nodeID, newRep).Return(true)
+
+				assert.True(GinkgoT(), serv.SetReputation(nodeID, newRep))
+				mockDb.AssertCalled(GinkgoT(), "SetReputation", nodeID, newRep)
+			})
+		})
+
+		Context("With given identity when it doesn't exists", func() {
+			It("Calls internal database with correct arguments", func() {
+				nodeID := "foomp"
+				newRep := int64(42)
+				mockDb.On("SetReputation", nodeID, newRep).Return(false)
+
+				assert.False(GinkgoT(), serv.SetReputation(nodeID, newRep))
+				mockDb.AssertCalled(GinkgoT(), "SetReputation", nodeID, newRep)
+			})
+		})
+	})
+
+	Describe("Getting topology", func() {
+		It("Returns all mixnodes and gateways stored in database", func() {
+			mix1 := fixtures.GoodRegisteredMix()
+			mix2 := fixtures.GoodRegisteredMix()
+			mix2.IdentityKey = "aaa"
+
+			gate1 := fixtures.GoodRegisteredGateway()
+			gate2 := fixtures.GoodRegisteredGateway()
+			gate2.IdentityKey = "bbb"
+
+			expectedTopology := models.Topology{
+				MixNodes: []models.RegisteredMix{mix1, mix2},
+				Gateways: []models.RegisteredGateway{gate1, gate2},
+			}
+
+			mockDb.On("Topology").Return(expectedTopology)
+			assert.Equal(GinkgoT(), expectedTopology, serv.GetTopology())
+			mockDb.AssertCalled(GinkgoT(), "Topology")
+		})
+	})
+
+	Describe("Getting active topology", func() {
+		It("Returns all mixnodes and gateways stored in database above reputation threshold", func() {
+			mix1 := fixtures.GoodRegisteredMix()
+			mix1.Reputation = ReputationThreshold
+
+			gate1 := fixtures.GoodRegisteredGateway()
+			gate1.Reputation = ReputationThreshold
+
+			expectedTopology := models.Topology{
+				MixNodes: []models.RegisteredMix{mix1},
+				Gateways: []models.RegisteredGateway{gate1},
+			}
+
+			mockDb.On("ActiveTopology", ReputationThreshold).Return(expectedTopology)
+			assert.Equal(GinkgoT(), expectedTopology, serv.GetActiveTopology())
+			mockDb.AssertCalled(GinkgoT(), "ActiveTopology", ReputationThreshold)
 		})
 	})
 })
