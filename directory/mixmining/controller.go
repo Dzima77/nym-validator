@@ -18,6 +18,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nymtech/nym/validator/nym/directory/models"
 	"net/http"
+	"strconv"
 )
 
 // Config for this controller
@@ -90,6 +91,7 @@ func (controller *controller) ListMeasurements(c *gin.Context) {
 // @Param   object      body   models.MixStatus     true  "object"
 // @Success 201
 // @Failure 400 {object} models.Error
+// @Failure 403 {object} models.Error
 // @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining [post]
@@ -142,6 +144,7 @@ func (controller *controller) GetMixStatusReport(c *gin.Context) {
 // @Param   object      body   models.BatchMixStatus     true  "object"
 // @Success 201
 // @Failure 400 {object} models.Error
+// @Failure 403 {object} models.Error
 // @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining/batch [post]
@@ -278,4 +281,47 @@ func (controller *controller) GetTopology(ctx *gin.Context) {
 // @Router /api/mixmining/topology/active [get]
 func (controller *controller) GetActiveTopology(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, controller.service.GetActiveTopology())
+}
+
+
+// ChangeReputation ...
+// @Summary Change reputation of a node
+// @Description Changes reputation of given node to some specified value
+// @ID changeReputation
+// @Accept  json
+// @Produce  json
+// @Tags presence
+// @Param id path string true "Node Identity"
+// @Param reputation query integer true "New Reputation"
+// @Success 200
+// @Failure 400 {object} models.Error
+// @Failure 403 {object} models.Error
+// @Failure 404 {object} models.Error
+// @Failure 500 {object} models.Error
+// @Router /api/presence/reputation/{id} [patch]
+// NOTE: it's only accessible from localhost and its only purpose is to jumpstart the network quickly (so you could
+// manually set few nodes above threshold reputation rather than to wait for enough reports to come in)
+func (controller *controller) ChangeReputation(ctx *gin.Context) {
+	remoteIP := ctx.ClientIP()
+	if !(remoteIP == "127.0.0.1" || remoteIP == "::1" || ctx.Request.RemoteAddr == "127.0.0.1" || ctx.Request.RemoteAddr == "::1") {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+		return
+	}
+
+	id := ctx.Param("id")
+	newRepStr := ctx.Request.URL.Query().Get("reputation")
+	controller.genericSanitizer.Sanitize(&id)
+	controller.genericSanitizer.Sanitize(&newRepStr)
+
+	newRep, err := strconv.Atoi(newRepStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if controller.service.SetReputation(id, int64(newRep)) {
+		ctx.JSON(http.StatusOK, gin.H{"ok": true})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
+	}
 }
