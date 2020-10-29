@@ -28,9 +28,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// DB is the Gorm orm for mixmining
-var DB *gorm.DB
-
 // IDb holds status information
 type IDb interface {
 	AddMixStatus(models.PersistedMixStatus)
@@ -48,6 +45,7 @@ type IDb interface {
 	RegisterGateway(gateway models.RegisteredGateway)
 	UnregisterNode(id string) bool
 	UpdateReputation(id string, repIncrease int64) bool
+	BatchUpdateReputation(reputationChangeMap map[string]int64)
 	SetReputation(id string, newRep int64) bool
 	Topology() models.Topology
 	ActiveTopology(reputationThreshold int64) models.Topology
@@ -293,6 +291,22 @@ func (db *Db) SetReputation(id string, newRep int64) bool {
 	} else {
 		return false
 	}
+}
+
+func (db *Db) BatchUpdateReputation(reputationChangeMap map[string]int64) {
+	// this is based on the idea (which might be totally wrong) that doing
+	// it this way will only result in single io action on db
+	// I don't know enough SQL to do it as a single query
+	tx := db.orm.Begin()
+	for id, repChange := range reputationChangeMap {
+		res := tx.Model(&models.RegisteredMix{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repChange))
+		// TODO: rollback on fail here??
+		if res.RowsAffected == 0 {
+			tx.Model(&models.RegisteredGateway{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repChange))
+		}
+	}
+
+	tx.Commit()
 }
 
 func (db *Db) UpdateReputation(id string, repIncrease int64) bool {

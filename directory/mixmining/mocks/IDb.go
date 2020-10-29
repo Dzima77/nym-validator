@@ -50,6 +50,11 @@ func (_m *IDb) BatchLoadReports(pubkeys []string) models.BatchMixStatusReport {
 	return r0
 }
 
+// BatchUpdateReputation provides a mock function with given fields: reputationChangeMap
+func (_m *IDb) BatchUpdateReputation(reputationChangeMap map[string]int64) {
+	_m.Called(reputationChangeMap)
+}
+
 // ListMixStatus provides a mock function with given fields: pubkey, limit
 func (_m *IDb) ListMixStatus(pubkey string, limit int) []models.PersistedMixStatus {
 	ret := _m.Called(pubkey, limit)
@@ -165,6 +170,20 @@ func (_m *IDb) UnregisterNode(id string) bool {
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(string) bool); ok {
 		r0 = rf(id)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// UpdateReputation provides a mock function with given fields: id, repIncrease
+func (_m *IDb) UpdateReputation(id string, repIncrease int64) bool {
+	ret := _m.Called(id, repIncrease)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string, int64) bool); ok {
+		r0 = rf(id, repIncrease)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}

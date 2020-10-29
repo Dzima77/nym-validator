@@ -64,11 +64,7 @@ func (service *Service) CreateMixStatus(mixStatus models.MixStatus) models.Persi
 		Timestamp: timemock.Now().UnixNano(),
 	}
 	service.db.AddMixStatus(persistedMixStatus)
-	if *mixStatus.Up {
-		service.db.UpdateReputation(mixStatus.PubKey, ReportSuccessReputationIncrease)
-	} else {
-		service.db.UpdateReputation(mixStatus.PubKey, ReportFailureReputationDecrease)
-	}
+
 	return persistedMixStatus
 }
 
@@ -116,6 +112,7 @@ func (service *Service) SaveBatchStatusReport(status []models.PersistedMixStatus
 	// that's super crude but I don't think db results are guaranteed to come in order, plus some entries might
 	// not exist
 	reportMap := make(map[string]int)
+	reputationChangeMap := make(map[string]int64)
 	for i, report := range batchReport.Report {
 		reportMap[report.PubKey] = i
 	}
@@ -123,15 +120,26 @@ func (service *Service) SaveBatchStatusReport(status []models.PersistedMixStatus
 	for _, mixStatus := range status {
 		if reportIdx, ok := reportMap[mixStatus.PubKey]; ok {
 			service.dealWithStatusReport(&batchReport.Report[reportIdx], &mixStatus)
+			if *mixStatus.Up {
+				reputationChangeMap[mixStatus.PubKey] += ReportSuccessReputationIncrease
+			} else {
+				reputationChangeMap[mixStatus.PubKey] += ReportFailureReputationDecrease
+			}
 		} else {
 			var freshReport models.MixStatusReport
 			service.dealWithStatusReport(&freshReport, &mixStatus)
 			batchReport.Report = append(batchReport.Report, freshReport)
 			reportMap[freshReport.PubKey] = len(batchReport.Report) - 1
+			if *mixStatus.Up {
+				reputationChangeMap[mixStatus.PubKey] = ReportSuccessReputationIncrease
+			} else {
+				reputationChangeMap[mixStatus.PubKey] = ReportFailureReputationDecrease
+			}
 		}
 	}
 
 	service.db.SaveBatchMixStatusReport(batchReport)
+	service.db.BatchUpdateReputation(reputationChangeMap)
 	return batchReport
 }
 
@@ -163,6 +171,13 @@ func (service *Service) SaveStatusReport(status models.PersistedMixStatus) model
 
 	service.dealWithStatusReport(&report, &status)
 	service.db.SaveMixStatusReport(report)
+
+	if *status.Up {
+		service.db.UpdateReputation(status.PubKey, ReportSuccessReputationIncrease)
+	} else {
+		service.db.UpdateReputation(status.PubKey, ReportFailureReputationDecrease)
+	}
+
 	return report
 }
 
