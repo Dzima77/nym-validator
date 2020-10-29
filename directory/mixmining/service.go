@@ -21,6 +21,9 @@ import (
 	"github.com/nymtech/nym/validator/nym/directory/models"
 )
 
+// so if you can mix ipv4 but not ipv6, your reputation will go down but not as fast as if you didn't mix at all
+const ReportSuccessReputationIncrease = int64(2)
+const ReportFailureReputationDecrease = int64(-3)
 const ReputationThreshold = int64(100)
 
 // Service struct
@@ -61,6 +64,11 @@ func (service *Service) CreateMixStatus(mixStatus models.MixStatus) models.Persi
 		Timestamp: timemock.Now().UnixNano(),
 	}
 	service.db.AddMixStatus(persistedMixStatus)
+	if *mixStatus.Up {
+		service.db.UpdateReputation(mixStatus.PubKey, ReportSuccessReputationIncrease)
+	} else {
+		service.db.UpdateReputation(mixStatus.PubKey, ReportFailureReputationDecrease)
+	}
 	return persistedMixStatus
 }
 
@@ -209,7 +217,6 @@ func (service *Service) GetTopology() models.Topology {
 func (service *Service) GetActiveTopology() models.Topology {
 	return service.db.ActiveTopology(ReputationThreshold)
 }
-
 
 func now() int64 {
 	return timemock.Now().UnixNano()

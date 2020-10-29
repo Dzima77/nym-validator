@@ -47,6 +47,7 @@ type IDb interface {
 	RegisterMix(mix models.RegisteredMix)
 	RegisterGateway(gateway models.RegisteredGateway)
 	UnregisterNode(id string) bool
+	UpdateReputation(id string, repIncrease int64) bool
 	SetReputation(id string, newRep int64) bool
 	Topology() models.Topology
 	ActiveTopology(reputationThreshold int64) models.Topology
@@ -280,6 +281,34 @@ func (db *Db) SetReputation(id string, newRep int64) bool {
 	}
 
 	res = tx.Model(&models.RegisteredGateway{}).Where("identity_key = ?", id).Update("reputation", newRep)
+	if res.Error != nil {
+		tx.Rollback()
+		return false
+	}
+
+	tx.Commit()
+
+	if res.RowsAffected > 0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (db *Db) UpdateReputation(id string, repIncrease int64) bool {
+	tx := db.orm.Begin()
+	res := tx.Model(&models.RegisteredMix{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repIncrease))
+
+	if res.Error != nil {
+		tx.Rollback()
+		return false
+	}
+	if res.RowsAffected > 0 {
+		tx.Commit()
+		return true
+	}
+
+	res = tx.Model(&models.RegisteredGateway{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repIncrease))
 	if res.Error != nil {
 		tx.Rollback()
 		return false
