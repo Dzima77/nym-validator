@@ -23,7 +23,6 @@ import (
 	"github.com/nymtech/nym/validator/nym/directory/healthcheck"
 	"github.com/nymtech/nym/validator/nym/directory/mixmining"
 	"github.com/nymtech/nym/validator/nym/directory/server/html"
-	"github.com/nymtech/nym/validator/nym/directory/server/websocket"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -53,13 +52,6 @@ func New() *gin.Engine {
 	router.SetHTMLTemplate(t)
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "/server/html/index.html", nil)
-	})
-
-	// Set up websocket handlers
-	hub := websocket.NewHub()
-	go hub.Run()
-	router.GET("/ws", func(c *gin.Context) {
-		websocket.Serve(hub, c.Writer, c.Request)
 	})
 
 	// Sanitize controller input against XSS attacks using bluemonday.Policy
