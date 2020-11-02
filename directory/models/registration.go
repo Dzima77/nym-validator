@@ -14,6 +14,8 @@
 
 package models
 
+import "gorm.io/gorm"
+
 // NodeInfo comes from a node telling us it's alive
 type NodeInfo struct {
 	MixHost     string `json:"mixHost" binding:"required"`
@@ -33,6 +35,7 @@ type RegisteredMix struct {
 	MixRegistrationInfo
 	RegistrationTime int64 `json:"registrationTime" gorm:"autoCreateTime:nano"`
 	Reputation       int64 `json:"reputation"`
+	Deleted          gorm.DeletedAt `json:"-"`
 }
 
 type GatewayRegistrationInfo struct {
@@ -44,6 +47,7 @@ type RegisteredGateway struct {
 	GatewayRegistrationInfo
 	RegistrationTime int64 `json:"registrationTime" gorm:"autoCreateTime:nano"`
 	Reputation       int64 `json:"reputation"`
+	Deleted          gorm.DeletedAt `json:"-"`
 }
 
 type Topology struct {
