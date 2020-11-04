@@ -76,7 +76,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 // This is also the point where the very primitive integration of the old directory server wires in.
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
 	directory := directoryServer.New()
-	go autotls.Run(directory, ":8081")
+	go autotls.Run(directory, "qa-validator.nymtech.net:8081")
 	//go directory.Run(":8081")
 	rest.RegisterRoutes(ctx, rtr)
 }
