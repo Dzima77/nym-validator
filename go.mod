@@ -7,7 +7,8 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/cosmos/cosmos-sdk v0.39.1
 	github.com/gin-contrib/cors v1.3.1
-	github.com/gin-gonic/gin v1.6.2
+	github.com/gin-gonic/autotls v0.0.3
+	github.com/gin-gonic/gin v1.6.3
 	github.com/go-openapi/spec v0.19.7 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
 	github.com/golang/mock v1.4.3 // indirect

@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 
 	abci "github.com/tendermint/tendermint/abci/types"
-
+	"github.com/gin-gonic/autotls"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -76,7 +76,8 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 // This is also the point where the very primitive integration of the old directory server wires in.
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
 	directory := directoryServer.New()
-	go directory.Run(":8081")
+	go autotls.Run(directory, ":8081")
+	//go directory.Run(":8081")
 	rest.RegisterRoutes(ctx, rtr)
 }
 
