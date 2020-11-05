@@ -19,6 +19,8 @@ definitions:
         type: string
       identityKey:
         type: string
+      incentivesAddress:
+        type: string
       location:
         type: string
       mixHost:
@@ -37,6 +39,8 @@ definitions:
   models.MixRegistrationInfo:
     properties:
       identityKey:
+        type: string
+      incentivesAddress:
         type: string
       layer:
         type: integer
@@ -74,6 +78,8 @@ definitions:
         type: string
       identityKey:
         type: string
+      incentivesAddress:
+        type: string
       location:
         type: string
       mixHost:
@@ -96,6 +102,8 @@ definitions:
   models.RegisteredMix:
     properties:
       identityKey:
+        type: string
+      incentivesAddress:
         type: string
       layer:
         type: integer
