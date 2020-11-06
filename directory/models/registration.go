@@ -14,7 +14,10 @@
 
 package models
 
-import "gorm.io/gorm"
+import (
+	"github.com/cosmos/cosmos-sdk/client/rpc"
+	"gorm.io/gorm"
+)
 
 // NodeInfo comes from a node telling us it's alive
 type NodeInfo struct {
@@ -52,6 +55,7 @@ type RegisteredGateway struct {
 }
 
 type Topology struct {
-	MixNodes []RegisteredMix     `json:"mixNodes" binding:"required"`
-	Gateways []RegisteredGateway `json:"gateways" binding:"required"`
+	MixNodes   []RegisteredMix            `json:"mixNodes" binding:"required"`
+	Gateways   []RegisteredGateway        `json:"gateways" binding:"required"`
+	Validators rpc.ResultValidatorsOutput `json:"validators"`
 }
