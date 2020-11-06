@@ -571,6 +571,9 @@
                 "identityKey": {
                     "type": "string"
                 },
+                "incentivesAddress": {
+                    "type": "string"
+                },
                 "location": {
                     "type": "string"
                 },
@@ -596,6 +599,9 @@
             ],
             "properties": {
                 "identityKey": {
+                    "type": "string"
+                },
+                "incentivesAddress": {
                     "type": "string"
                 },
                 "layer": {
@@ -650,6 +656,9 @@
                 "identityKey": {
                     "type": "string"
                 },
+                "incentivesAddress": {
+                    "type": "string"
+                },
                 "location": {
                     "type": "string"
                 },
@@ -681,6 +690,9 @@
             ],
             "properties": {
                 "identityKey": {
+                    "type": "string"
+                },
+                "incentivesAddress": {
                     "type": "string"
                 },
                 "layer": {

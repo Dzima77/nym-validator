@@ -18,11 +18,12 @@ import "gorm.io/gorm"
 
 // NodeInfo comes from a node telling us it's alive
 type NodeInfo struct {
-	MixHost     string `json:"mixHost" binding:"required"`
-	IdentityKey string `json:"identityKey" binding:"required" gorm:"primaryKey;unique"`
-	SphinxKey   string `json:"sphinxKey" binding:"required"`
-	Version     string `json:"version" binding:"required"`
-	Location    string `json:"location"`
+	MixHost           string `json:"mixHost" binding:"required"`
+	IdentityKey       string `json:"identityKey" binding:"required" gorm:"primaryKey;unique"`
+	SphinxKey         string `json:"sphinxKey" binding:"required"`
+	Version           string `json:"version" binding:"required"`
+	Location          string `json:"location"`
+	IncentivesAddress string `json:"incentivesAddress"`
 	// ideally it would also involve a signature, but it's fine for time being
 }
 
@@ -33,8 +34,8 @@ type MixRegistrationInfo struct {
 
 type RegisteredMix struct {
 	MixRegistrationInfo
-	RegistrationTime int64 `json:"registrationTime" gorm:"autoCreateTime:nano"`
-	Reputation       int64 `json:"reputation"`
+	RegistrationTime int64          `json:"registrationTime" gorm:"autoCreateTime:nano"`
+	Reputation       int64          `json:"reputation"`
 	Deleted          gorm.DeletedAt `json:"-"`
 }
 
@@ -45,8 +46,8 @@ type GatewayRegistrationInfo struct {
 
 type RegisteredGateway struct {
 	GatewayRegistrationInfo
-	RegistrationTime int64 `json:"registrationTime" gorm:"autoCreateTime:nano"`
-	Reputation       int64 `json:"reputation"`
+	RegistrationTime int64          `json:"registrationTime" gorm:"autoCreateTime:nano"`
+	Reputation       int64          `json:"reputation"`
 	Deleted          gorm.DeletedAt `json:"-"`
 }
 
