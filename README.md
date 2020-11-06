@@ -11,7 +11,7 @@ To set it up, build the validator node and cli:
 ```
 git clone https://github.com/nymtech/nym-validator/
 cd nym-validator
-git checkout v0.9.0-pre2
+git checkout v0.9.0-pre3
 ./build.sh
 ```
 
@@ -22,7 +22,7 @@ These commands will produce two binaries (`nymd` and `nymcli`) in the `build` di
 Next, generate the initial chain setup:
 
 ```
-./nymd init your-node-name --chain-id nym-testnet-chain
+./nymd init your-node-name --chain-id nym-testnet
 ./nymcli keys add validator-key
 ./nymcli keys show validator-key
 ./nymd add-genesis-account $(./nymcli keys show validator-key -a) 1000000000nym,1000000000stake
@@ -41,9 +41,70 @@ At this point, you'll be running a single-node validator with a REST API on http
 
 ## Testnet setup
 
-Before joining the testnet, please ensure that you can successfully get the single-node setup (above) working. 
+Joining the testnet starts out similarly to doing the single-node setup:
 
-Once you've got that going, contact us in KeyBase and we discuss how you can participate in the next setup ceremony. 
+```
+./nymd init your-node-name --chain-id nym-testnet
+./nymcli keys add validator-key
+./nymcli keys show validator-key
+```
+
+Copy and overwrite the `genesis.json` from this repository into place at `~/.nymd/config/genesis.json`. 
+
+Then add the testnet seeds into the `persistent_peers` settings in `~/.nymd/config/config.toml`
+
+```
+persistent_peers = "b5eb919e8770dfb6c01e6e3832b7f37d829cc823@testnet-validator1.nymtech.net:26656,4f8b7653057c866c477fd5d4ff7983b8e14bf9dc@testnet-validator2.nymtech.net:26656"
+```
+
+Start the node:
+
+```
+./nymd start
+```
+
+Make sure that you have opened the port 26656 on your firewall. If you're using `ufw`, the command is:
+
+```
+ufw allow 26656/tcp
+```
+
+At this point, your node should start syncing. Wait until the blockchain is fully synced before creating your validator. 
+
+You can check your status using `./nymcli status`. Check to find the latest block height and whether it's currently catching up blocks. If you see:
+
+```
+"catching_up": false
+```
+
+Then your chain has fully synced.
+
+Ask for nym tokens in the nymtech.friends#validators channel in Keybase. Creating a validator requires that you have enough coins to stake on the validator (minimum is currently 1 million nyms). Note: we will be resetting the testnet chain before the next release, the tokens on it have no value.
+
+Once you've received some (fake) testnet nyms, you can create your validator and join the active set. 
+
+You'll need your validator node pubkey. You can get it by running the `nymd tendermint show-validator` command. The validator pubkey always starts with `nymvalconspub`. Here's an example
+
+```
+nym@localhost:~$ ./nymd tendermint show-validator
+nymvalconspub1zcjduepql2m3ufcqxf53vyklqwt53ujdz5tcrgnxs8dekuz9s02muc0z68ssvhcllg
+```
+
+
+Next, spend the coins in your account to create a validator. Enter your validator pubkey starting with `nymvalconspub` into the `--pubkey` field, and pick a moniker (self-assigned name) for your validator, like this:
+
+```
+nymcli tx staking create-validator --amount=1000001nym --pubkey=nymvalconspub1zcjduepql2m3ufcqxf53vyklqwt53ujdz5tcrgnxs8dekuz9s02muc0z68ssvhcllg  --moniker=YourName --chain-id=nym-testnet --commission-rate="0.10"  --commission-max-rate="0.20"   --commission-max-change-rate="0.01"    --min-self-delegation="1"  --from=validator-key
+```
+
+You can check if it worked using: 
+
+```
+./nymcli query staking validators
+```
+
+This shows the tokens and delegator shares. You should see multiple other validators there. If not, please ask for help in nymtech.friends#validators in KeyBase.
+
 
 ## Developing
 
