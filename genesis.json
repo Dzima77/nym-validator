@@ -1,0 +1,198 @@
+{
+  "genesis_time": "2020-11-05T18:26:26.922800144Z",
+  "chain_id": "nym-testnet",
+  "consensus_params": {
+    "block": {
+      "max_bytes": "22020096",
+      "max_gas": "-1",
+      "time_iota_ms": "1000"
+    },
+    "evidence": {
+      "max_age_num_blocks": "100000",
+      "max_age_duration": "172800000000000"
+    },
+    "validator": {
+      "pub_key_types": [
+        "ed25519"
+      ]
+    }
+  },
+  "app_hash": "",
+  "app_state": {
+    "genutil": {
+      "gentxs": [
+        {
+          "type": "cosmos-sdk/StdTx",
+          "value": {
+            "msg": [
+              {
+                "type": "cosmos-sdk/MsgCreateValidator",
+                "value": {
+                  "description": {
+                    "moniker": "testnet-validator1",
+                    "identity": "",
+                    "website": "",
+                    "security_contact": "",
+                    "details": ""
+                  },
+                  "commission": {
+                    "rate": "0.100000000000000000",
+                    "max_rate": "0.200000000000000000",
+                    "max_change_rate": "0.010000000000000000"
+                  },
+                  "min_self_delegation": "1",
+                  "delegator_address": "nym164fv3td0znre6zzl7zx46a9yua4w8j3naq0g9z",
+                  "validator_address": "nymvaloper164fv3td0znre6zzl7zx46a9yua4w8j3ncvseuu",
+                  "pubkey": "nymvalconspub1zcjduepql2m3ufcqxf53vyklqwt53ujdz5tcrgnxs8dekuz9s02muc0z68ssvhcllg",
+                  "value": {
+                    "denom": "nym",
+                    "amount": "1000000"
+                  }
+                }
+              }
+            ],
+            "fee": {
+              "amount": [],
+              "gas": "200000"
+            },
+            "signatures": [
+              {
+                "pub_key": {
+                  "type": "tendermint/PubKeySecp256k1",
+                  "value": "A1zmCjuRIWSk8YXUPGdp4gfzbdTn9oNva6yaZOd9ArOp"
+                },
+                "signature": "qsTELNQoJjOaVImoPJSI3LfMWPeY2B7ccHg1QE2s+mARRQOHKrWgtDHqJyIBBI4vrD6P7EFJyPXmaZzhbxNCww=="
+              }
+            ],
+            "memo": "b5eb919e8770dfb6c01e6e3832b7f37d829cc823@139.162.211.184:26656"
+          }
+        }
+      ]
+    },
+    "auth": {
+      "params": {
+        "max_memo_characters": "256",
+        "tx_sig_limit": "7",
+        "tx_size_cost_per_byte": "10",
+        "sig_verify_cost_ed25519": "590",
+        "sig_verify_cost_secp256k1": "1000"
+      },
+      "accounts": [
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "nym164fv3td0znre6zzl7zx46a9yua4w8j3naq0g9z",
+            "coins": [
+              {
+                "denom": "nym",
+                "amount": "1000000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        },
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "nym1u2te5zrq6y8rwdwkghgjhtr8s64ka8j672stsa",
+            "coins": [
+              {
+                "denom": "nym",
+                "amount": "1000000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        },
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "nym18f9ecmevj4n89w7flv98xahn6mfra0ytnwwaqs",
+            "coins": [
+              {
+                "denom": "nym",
+                "amount": "1000000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        },
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "nym154qk03ecq7yjsk8nyxsxgatt4xl69t2t3ejxsx",
+            "coins": [
+              {
+                "denom": "nym",
+                "amount": "1000000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        },
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "nym1h42jgxsv2c2st7aw9q307ukxu0q79ne4rg2mq4",
+            "coins": [
+              {
+                "denom": "nym",
+                "amount": "1000000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        },
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "nym1rpzey7u7m0yhau9xdqk0q25jz4lyywud6uzxnr",
+            "coins": [
+              {
+                "denom": "nym",
+                "amount": "1000000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        }
+      ]
+    },
+    "bank": {
+      "send_enabled": true
+    },
+    "staking": {
+      "params": {
+        "unbonding_time": "1814400000000000",
+        "max_validators": 100,
+        "max_entries": 7,
+        "historical_entries": 0,
+        "bond_denom": "nym"
+      },
+      "last_total_power": "0",
+      "last_validator_powers": null,
+      "validators": null,
+      "delegations": null,
+      "unbonding_delegations": null,
+      "redelegations": null,
+      "exported": false
+    },
+    "params": null,
+    "supply": {
+      "supply": []
+    },
+    "nym": {}
+  }
+}
