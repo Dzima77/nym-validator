@@ -105,6 +105,8 @@ You can check if it worked using:
 
 This shows the tokens and delegator shares. You should see multiple other validators there. If not, please ask for help in nymtech.friends#validators in KeyBase.
 
+If you want to run your validator automatically at system boot time, you can [adapt the systemd unit file](https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files) in `scripts/nym-validator.service` to your needs.
+
 
 ## Developing
 

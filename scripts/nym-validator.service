@@ -1,0 +1,19 @@
+# A systemd script for the Nym validator. 
+# Assumes the user is `nym` and the validator daemon is at `/home/nym/nymd`.
+# Change as necessary. 
+
+[Unit]
+Description=Nym Validator (0.9.0)
+
+[Service]
+User=nym
+Type=simple
+ExecStart=/home/nym/nymd start
+Restart=on-failure
+RestartSec=30
+StartLimitInterval=350
+StartLimitBurst=10
+
+[Install]
+WantedBy=multi-user.target
+
