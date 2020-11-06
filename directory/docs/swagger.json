@@ -736,6 +736,9 @@
                     "items": {
                         "$ref": "#/definitions/models.RegisteredMix"
                     }
+                },
+                "validators": {
+                    "type": "string"
                 }
             }
         }

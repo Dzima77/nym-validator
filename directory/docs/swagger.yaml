@@ -136,6 +136,8 @@ definitions:
         items:
           $ref: '#/definitions/models.RegisteredMix'
         type: array
+      validators:
+        type: string
     required:
     - gateways
     - mixNodes

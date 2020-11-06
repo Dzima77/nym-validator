@@ -15,6 +15,8 @@
 package mixmining
 
 import (
+	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"time"
 
 	"github.com/BorisBorshevsky/timemock"
@@ -28,7 +30,8 @@ const ReputationThreshold = int64(100)
 
 // Service struct
 type Service struct {
-	db IDb
+	db     IDb
+	cliCtx context.CLIContext
 }
 
 // IService defines the REST service interface for mixmining.
@@ -51,9 +54,10 @@ type IService interface {
 }
 
 // NewService constructor
-func NewService(db IDb) *Service {
+func NewService(db IDb, cliCtx context.CLIContext) *Service {
 	return &Service{
-		db: db,
+		db:     db,
+		cliCtx: cliCtx,
 	}
 }
 
@@ -226,11 +230,31 @@ func (service *Service) SetReputation(id string, newRep int64) bool {
 }
 
 func (service *Service) GetTopology() models.Topology {
-	return service.db.Topology()
+	topology := service.db.Topology()
+
+	// if there are more than 100 validators we shouldn't really be running this code anyway....
+	validators, err := rpc.GetValidators(service.cliCtx, nil, 1, 100)
+	if err != nil {
+		return topology
+	}
+
+	topology.Validators = validators
+
+	return topology
 }
 
 func (service *Service) GetActiveTopology() models.Topology {
-	return service.db.ActiveTopology(ReputationThreshold)
+	topology := service.db.ActiveTopology(ReputationThreshold)
+
+	// if there are more than 100 validators we shouldn't really be running this code anyway....
+	validators, err := rpc.GetValidators(service.cliCtx, nil, 1, 100)
+	if err != nil {
+		return topology
+	}
+
+	topology.Validators = validators
+
+	return topology
 }
 
 func now() int64 {
