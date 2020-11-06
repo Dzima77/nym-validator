@@ -244,8 +244,8 @@ func (service *Service) GetTopology() models.Topology {
 }
 
 func (service *Service) GetActiveTopology() models.Topology {
-	topology :=  service.db.ActiveTopology(ReputationThreshold)
-	
+	topology := service.db.ActiveTopology(ReputationThreshold)
+
 	// if there are more than 100 validators we shouldn't really be running this code anyway....
 	validators, err := rpc.GetValidators(service.cliCtx, nil, 1, 100)
 	if err != nil {
