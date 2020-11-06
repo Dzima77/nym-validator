@@ -12,7 +12,7 @@ To set it up, build the validator node and cli:
 git clone https://github.com/nymtech/nym-validator/
 cd nym-validator
 git checkout v0.9.0-pre4
-make install
+make build
 ```
 
 These commands will produce two binaries (`nymd` and `nymcli`) in the `build` directory. Copy both of them up to your server.
