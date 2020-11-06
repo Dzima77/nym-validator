@@ -11,7 +11,7 @@ To set it up, build the validator node and cli:
 ```
 git clone https://github.com/nymtech/nym-validator/
 cd nym-validator
-git checkout v0.9.0-pre3
+git checkout v0.9.0-pre4
 make install
 ```
 
