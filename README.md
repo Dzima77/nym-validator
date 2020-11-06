@@ -57,6 +57,12 @@ Then add the testnet seeds into the `persistent_peers` settings in `~/.nymd/conf
 persistent_peers = "b5eb919e8770dfb6c01e6e3832b7f37d829cc823@testnet-validator1.nymtech.net:26656,4f8b7653057c866c477fd5d4ff7983b8e14bf9dc@testnet-validator2.nymtech.net:26656"
 ```
 
+Reset the chain to be sure you start fresh:
+
+```
+./nymd unsafe-reset-all
+```
+
 Start the node:
 
 ```
