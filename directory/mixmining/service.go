@@ -229,16 +229,23 @@ func (service *Service) SetReputation(id string, newRep int64) bool {
 	return service.db.SetReputation(id, newRep)
 }
 
+func emptyValidators() rpc.ResultValidatorsOutput {
+	return rpc.ResultValidatorsOutput {
+		BlockHeight: 0,
+		Validators: []rpc.ValidatorOutput{},
+	}
+}
+
 func (service *Service) GetTopology() models.Topology {
 	topology := service.db.Topology()
 
 	// if there are more than 100 validators we shouldn't really be running this code anyway....
 	validators, err := rpc.GetValidators(service.cliCtx, nil, 1, 100)
 	if err != nil {
-		return topology
+		topology.Validators = emptyValidators()
+	} else {
+		topology.Validators = validators
 	}
-
-	topology.Validators = validators
 
 	return topology
 }
@@ -249,10 +256,10 @@ func (service *Service) GetActiveTopology() models.Topology {
 	// if there are more than 100 validators we shouldn't really be running this code anyway....
 	validators, err := rpc.GetValidators(service.cliCtx, nil, 1, 100)
 	if err != nil {
-		return topology
+		topology.Validators = emptyValidators()
+	} else {
+		topology.Validators = validators
 	}
-
-	topology.Validators = validators
 
 	return topology
 }

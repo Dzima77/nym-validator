@@ -527,8 +527,9 @@ var _ = Describe("mixmining.registration.Service", func() {
 			gate2.IdentityKey = "bbb"
 
 			expectedTopology := models.Topology{
-				MixNodes: []models.RegisteredMix{mix1, mix2},
-				Gateways: []models.RegisteredGateway{gate1, gate2},
+				MixNodes:   []models.RegisteredMix{mix1, mix2},
+				Gateways:   []models.RegisteredGateway{gate1, gate2},
+				Validators: emptyValidators(),
 			}
 
 			mockDb.On("Topology").Return(expectedTopology)
@@ -546,8 +547,9 @@ var _ = Describe("mixmining.registration.Service", func() {
 			gate1.Reputation = ReputationThreshold
 
 			expectedTopology := models.Topology{
-				MixNodes: []models.RegisteredMix{mix1},
-				Gateways: []models.RegisteredGateway{gate1},
+				MixNodes:   []models.RegisteredMix{mix1},
+				Gateways:   []models.RegisteredGateway{gate1},
+				Validators: emptyValidators(),
 			}
 
 			mockDb.On("ActiveTopology", ReputationThreshold).Return(expectedTopology)
