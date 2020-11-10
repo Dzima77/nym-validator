@@ -16,7 +16,6 @@ package nym
 
 import (
 	"encoding/json"
-
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 
@@ -75,7 +74,8 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 // RegisterRESTRoutes registers the REST routes for the nym module.
 // This is also the point where the very primitive integration of the old directory server wires in.
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
-	directory := directoryServer.New()
+	// TODO: can I just move context like that?
+	directory := directoryServer.New(ctx)
 	go directory.Run(":8081")
 	rest.RegisterRoutes(ctx, rtr)
 }

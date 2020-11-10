@@ -15,6 +15,7 @@
 package server
 
 import (
+	"github.com/cosmos/cosmos-sdk/client/context"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
@@ -34,7 +35,7 @@ import (
 // @termsOfService http://swagger.io/terms/
 // @license.name Apache 2.0
 // @license.url https://github.com/nymtech/nym-validator/license
-func New() *gin.Engine {
+func New(cliCtx context.CLIContext) *gin.Engine {
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
 
@@ -58,7 +59,7 @@ func New() *gin.Engine {
 	policy := bluemonday.UGCPolicy()
 
 	// Measurements: wire up dependency injection
-	measurementsCfg := injectMeasurements(policy)
+	measurementsCfg := injectMeasurements(policy, cliCtx)
 
 	// Register all HTTP controller routes
 	healthcheck.New().RegisterRoutes(router)
@@ -67,12 +68,12 @@ func New() *gin.Engine {
 	return router
 }
 
-func injectMeasurements(policy *bluemonday.Policy) mixmining.Config {
+func injectMeasurements(policy *bluemonday.Policy, cliCtx context.CLIContext) mixmining.Config {
 	sanitizer := mixmining.NewSanitizer(policy)
 	batchSanitizer := mixmining.NewBatchSanitizer(policy)
 	genericSanitizer := mixmining.NewGenericSanitizer(policy)
 	db := mixmining.NewDb(false)
-	mixminingService := *mixmining.NewService(db)
+	mixminingService := *mixmining.NewService(db, cliCtx)
 
 	return mixmining.Config{
 		Service:   &mixminingService,

@@ -16,6 +16,7 @@ package mixmining
 
 import (
 	"github.com/BorisBorshevsky/timemock"
+	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/nymtech/nym/validator/nym/directory/mixmining/fixtures"
 	"github.com/nymtech/nym/validator/nym/directory/mixmining/mocks"
 	"github.com/nymtech/nym/validator/nym/directory/models"
@@ -146,7 +147,7 @@ var _ = Describe("mixmining.Service", func() {
 
 	BeforeEach(func() {
 		mockDb = *new(mocks.IDb)
-		serv = *NewService(&mockDb)
+		serv = *NewService(&mockDb, context.NewCLIContext())
 	})
 
 	Describe("Adding a mix status and creating a new summary report for a node", func() {
@@ -198,7 +199,7 @@ var _ = Describe("mixmining.Service", func() {
 	Describe("Saving a mix status report", func() {
 		BeforeEach(func() {
 			mockDb = *new(mocks.IDb)
-			serv = *NewService(&mockDb)
+			serv = *NewService(&mockDb, context.NewCLIContext())
 		})
 		Context("when 1 down status exists", func() {
 			BeforeEach(func() {
@@ -396,7 +397,7 @@ var _ = Describe("mixmining.Service", func() {
 		Context("When no saved report exists for a pubkey", func() {
 			It("should return an empty report", func() {
 				mockDb = *new(mocks.IDb)
-				serv = *NewService(&mockDb)
+				serv = *NewService(&mockDb, context.NewCLIContext())
 
 				blank := models.MixStatusReport{}
 				mockDb.On("LoadReport", "superkey").Return(blank)
@@ -408,7 +409,7 @@ var _ = Describe("mixmining.Service", func() {
 		Context("When a saved report exists for a pubkey", func() {
 			It("should return the report", func() {
 				mockDb = *new(mocks.IDb)
-				serv = *NewService(&mockDb)
+				serv = *NewService(&mockDb, context.NewCLIContext())
 
 				perfect := models.MixStatusReport{
 					PubKey:           "superkey",
@@ -440,7 +441,7 @@ var _ = Describe("mixmining.registration.Service", func() {
 
 	BeforeEach(func() {
 		mockDb = &mocks.IDb{}
-		serv = NewService(mockDb)
+		serv = NewService(mockDb, context.NewCLIContext())
 	})
 
 	Describe("Adding mix registration info", func() {
@@ -526,8 +527,9 @@ var _ = Describe("mixmining.registration.Service", func() {
 			gate2.IdentityKey = "bbb"
 
 			expectedTopology := models.Topology{
-				MixNodes: []models.RegisteredMix{mix1, mix2},
-				Gateways: []models.RegisteredGateway{gate1, gate2},
+				MixNodes:   []models.RegisteredMix{mix1, mix2},
+				Gateways:   []models.RegisteredGateway{gate1, gate2},
+				Validators: emptyValidators(),
 			}
 
 			mockDb.On("Topology").Return(expectedTopology)
@@ -545,8 +547,9 @@ var _ = Describe("mixmining.registration.Service", func() {
 			gate1.Reputation = ReputationThreshold
 
 			expectedTopology := models.Topology{
-				MixNodes: []models.RegisteredMix{mix1},
-				Gateways: []models.RegisteredGateway{gate1},
+				MixNodes:   []models.RegisteredMix{mix1},
+				Gateways:   []models.RegisteredGateway{gate1},
+				Validators: emptyValidators(),
 			}
 
 			mockDb.On("ActiveTopology", ReputationThreshold).Return(expectedTopology)
