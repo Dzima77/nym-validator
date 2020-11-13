@@ -24,8 +24,8 @@ import (
 )
 
 // so if you can mix ipv4 but not ipv6, your reputation will go down but not as fast as if you didn't mix at all
-const ReportSuccessReputationIncrease = int64(2)
-const ReportFailureReputationDecrease = int64(-3)
+const ReportSuccessReputationIncrease = int64(3)
+const ReportFailureReputationDecrease = int64(-2)
 const ReputationThreshold = int64(100)
 
 // Service struct
