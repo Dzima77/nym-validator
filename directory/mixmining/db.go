@@ -194,14 +194,14 @@ func (db *Db) BatchLoadReports(pubkeys []string) models.BatchMixStatusReport {
 func (db *Db) RegisterMix(mix models.RegisteredMix) {
 	db.orm.Unscoped().Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "identity_key"}},
-		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "layer", "registration_time", "deleted"}),
+		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "layer", "registration_time", "deleted", "incentives_address"}),
 	}).Create(&mix)
 }
 
 func (db *Db) RegisterGateway(gateway models.RegisteredGateway) {
 	db.orm.Unscoped().Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "identity_key"}},
-		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "clients_host", "registration_time", "deleted"}),
+		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "clients_host", "registration_time", "deleted", "incentives_address"}),
 	}).Create(&gateway)
 }
 
