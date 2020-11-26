@@ -16,12 +16,13 @@ package mixmining
 
 import (
 	"fmt"
-	"gorm.io/gorm/clause"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
 	"path"
+
+	"gorm.io/gorm/clause"
 
 	"github.com/nymtech/nym/validator/nym/directory/models"
 	"gorm.io/driver/sqlite"
@@ -107,7 +108,6 @@ func dbPath(isTest bool) string {
 	return db
 }
 
-
 // Add saves a PersistedMixStatus
 func (db *Db) AddMixStatus(status models.PersistedMixStatus) {
 	db.orm.Create(status)
@@ -190,7 +190,6 @@ func (db *Db) BatchLoadReports(pubkeys []string) models.BatchMixStatusReport {
 	return models.BatchMixStatusReport{Report: reports}
 }
 
-
 func (db *Db) RegisterMix(mix models.RegisteredMix) {
 	db.orm.Unscoped().Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "identity_key"}},
@@ -215,7 +214,7 @@ func (db *Db) allRegisteredMixes() []models.RegisteredMix {
 
 func (db *Db) activeRegisteredMixes(reputationThreshold int64) []models.RegisteredMix {
 	var mixes []models.RegisteredMix
-	if err := db.orm.Where("reputation >= ? AND version = 0.9.2", reputationThreshold).Find(&mixes).Error; err != nil {
+	if err := db.orm.Where("reputation >= ? AND version = ?", reputationThreshold, "0.9.2").Find(&mixes).Error; err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "failed to read mixes from the database - %v\n", err)
 	}
 	return mixes
@@ -231,12 +230,11 @@ func (db *Db) allRegisteredGateways() []models.RegisteredGateway {
 
 func (db *Db) activeRegisteredGateways(reputationThreshold int64) []models.RegisteredGateway {
 	var gateways []models.RegisteredGateway
-	if err := db.orm.Where("reputation >= ? AND version = 0.9.2", reputationThreshold).Find(&gateways).Error; err != nil {
+	if err := db.orm.Where("reputation >= ? AND version = ?", reputationThreshold, "0.9.2").Find(&gateways).Error; err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
 	}
 	return gateways
 }
-
 
 func (db *Db) UnregisterNode(id string) bool {
 	tx := db.orm.Begin()
@@ -373,7 +371,6 @@ func (db *Db) UpdateReputation(id string, repIncrease int64) bool {
 		}
 	}
 
-
 }
 
 func (db *Db) Topology() models.Topology {
@@ -388,7 +385,6 @@ func (db *Db) Topology() models.Topology {
 	}
 }
 
-
 func (db *Db) ActiveTopology(reputationThreshold int64) models.Topology {
 	// TODO: if we keep it (and I doubt it, because it will get moved onto blockchain), this
 	// should be done as a single query rather than as two separate ones.
@@ -400,4 +396,3 @@ func (db *Db) ActiveTopology(reputationThreshold int64) models.Topology {
 		Gateways: gateways,
 	}
 }
-
