@@ -215,8 +215,8 @@ func (db *Db) allRegisteredMixes() []models.RegisteredMix {
 
 func (db *Db) activeRegisteredMixes(reputationThreshold int64) []models.RegisteredMix {
 	var mixes []models.RegisteredMix
-	if err := db.orm.Where("reputation >= ?", reputationThreshold).Find(&mixes).Error; err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
+	if err := db.orm.Where("reputation >= ? AND version = 0.9.2", reputationThreshold).Find(&mixes).Error; err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to read mixes from the database - %v\n", err)
 	}
 	return mixes
 }
@@ -231,7 +231,7 @@ func (db *Db) allRegisteredGateways() []models.RegisteredGateway {
 
 func (db *Db) activeRegisteredGateways(reputationThreshold int64) []models.RegisteredGateway {
 	var gateways []models.RegisteredGateway
-	if err := db.orm.Where("reputation >= ?", reputationThreshold).Find(&gateways).Error; err != nil {
+	if err := db.orm.Where("reputation >= ? AND version = 0.9.2", reputationThreshold).Find(&gateways).Error; err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
 	}
 	return gateways
