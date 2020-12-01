@@ -18,9 +18,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"os"
 	"os/user"
 	"path"
+	"strings"
 
 	"gorm.io/gorm/clause"
 
@@ -138,8 +140,6 @@ func (db *Db) ListMixStatusDateRange(pubkey string, ipVersion string, start int6
 
 // SaveMixStatusReport creates or updates a status summary report for a given mixnode in the database
 func (db *Db) SaveMixStatusReport(report models.MixStatusReport) {
-	fmt.Printf("\r\nAbout to save report\r\n: %+v", report)
-
 	create := db.orm.Save(report)
 	if create.Error != nil {
 		fmt.Printf("Mix status report creation error: %+v", create.Error)
@@ -394,5 +394,29 @@ func (db *Db) ActiveTopology(reputationThreshold int64) models.Topology {
 	return models.Topology{
 		MixNodes: mixes,
 		Gateways: gateways,
+	}
+}
+
+func (db *Db) IpExists(ip string) bool {
+	ip, _, err := net.SplitHostPort(ip)
+	if err != nil {
+		// I guess we got a domain name?
+		split := strings.Split(ip, ":")
+		chunks := len(split)
+		if chunks != 2 {
+			// no idea what we got here
+			// return true to disallow registration for this address
+			return true
+		}
+
+		ip = split[0]
+	}
+
+	if db.orm.Where("mix_host LIKE ?", "%" + ip + "%").Find(&models.RegisteredMix{}).RowsAffected > 0 {
+		return true
+	} else if db.orm.Where("mix_host LIKE ? OR clients_host LIKE ?", "%" + ip + "%", "%" + ip + "%").Find(&models.RegisteredGateway{}).RowsAffected > 0 {
+		return true
+	} else {
+		return false
 	}
 }
