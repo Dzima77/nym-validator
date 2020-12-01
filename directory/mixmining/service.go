@@ -51,6 +51,8 @@ type IService interface {
 	SetReputation(id string, newRep int64) bool
 	GetTopology() models.Topology
 	GetActiveTopology() models.Topology
+
+	CheckForDuplicateIP(host string) bool
 }
 
 // NewService constructor
@@ -203,6 +205,10 @@ func (service *Service) CalculateUptime(pubkey string, ipVersion string, since i
 
 func (service *Service) calculatePercent(num int, outOf int) int {
 	return int(float32(num) / float32(outOf) * 100)
+}
+
+func (service *Service) CheckForDuplicateIP(host string) bool {
+	return service.db.IpExists(host)
 }
 
 func (service *Service) RegisterMix(info models.MixRegistrationInfo) {

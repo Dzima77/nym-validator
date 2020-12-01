@@ -196,6 +196,7 @@ func (controller *controller) BatchGetMixStatusReport(c *gin.Context) {
 // @Success 200
 // @Failure 400 {object} models.Error
 // @Failure 404 {object} models.Error
+// @Failure 409 {object} models.Error
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining/register/mix [post]
 func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
@@ -206,6 +207,12 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 	}
 
 	controller.genericSanitizer.Sanitize(&presence)
+
+	if controller.service.CheckForDuplicateIP(presence.MixHost) {
+		ctx.JSON(http.StatusConflict, gin.H{"error": "node with the same ip address already exists"})
+		return
+	}
+
 	controller.service.RegisterMix(presence)
 	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
@@ -221,6 +228,7 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 // @Success 200
 // @Failure 400 {object} models.Error
 // @Failure 404 {object} models.Error
+// @Failure 409 {object} models.Error
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining/register/gateway [post]
 func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
@@ -231,6 +239,12 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 	}
 
 	controller.genericSanitizer.Sanitize(&presence)
+
+	if controller.service.CheckForDuplicateIP(presence.MixHost) {
+		ctx.JSON(http.StatusConflict, gin.H{"error": "gateway with the same ip address already exists"})
+		return
+	}
+
 	controller.service.RegisterGateway(presence)
 	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }

@@ -52,6 +52,8 @@ type IDb interface {
 	SetReputation(id string, newRep int64) bool
 	Topology() models.Topology
 	ActiveTopology(reputationThreshold int64) models.Topology
+
+	IpExists(ip string) bool
 }
 
 // Db is a hashtable that holds mixnode uptime mixmining
