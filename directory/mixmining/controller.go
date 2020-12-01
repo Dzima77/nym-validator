@@ -126,6 +126,16 @@ func (controller *controller) CreateMixStatus(c *gin.Context) {
 	sanitized := controller.sanitizer.Sanitize(status)
 	persisted := controller.service.CreateMixStatus(sanitized)
 	controller.service.SaveStatusReport(persisted)
+
+	// we don't know how number of active nodes changed - update it, but we only know that a single value
+	// changed
+	mixCount := controller.service.MixCount()
+	if mixCount != controller.mixCount {
+		controller.mixCount = mixCount
+	} else {
+		controller.gatewayCount = controller.service.GatewayCount()
+	}
+		
 	c.JSON(http.StatusCreated, gin.H{"ok": true})
 }
 
@@ -180,6 +190,11 @@ func (controller *controller) BatchCreateMixStatus(c *gin.Context) {
 
 	persisted := controller.service.BatchCreateMixStatus(sanitized)
 	controller.service.SaveBatchStatusReport(persisted)
+
+	// we don't know how number of active nodes changed - update it
+	controller.mixCount = controller.service.MixCount()
+	controller.gatewayCount = controller.service.GatewayCount()
+
 	c.JSON(http.StatusCreated, gin.H{"ok": true})
 }
 
