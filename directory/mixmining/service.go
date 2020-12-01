@@ -55,6 +55,7 @@ type IService interface {
 	CheckForDuplicateIP(host string) bool
 	MixCount() int
 	GatewayCount() int
+	GetRemovedTopology() models.Topology
 }
 
 // NewService constructor
@@ -148,6 +149,13 @@ func (service *Service) SaveBatchStatusReport(status []models.PersistedMixStatus
 
 	service.db.SaveBatchMixStatusReport(batchReport)
 	service.db.BatchUpdateReputation(reputationChangeMap)
+
+	// figure out which nodes should get removed
+	toRemove := service.batchShouldGetRemoved(&batchReport)
+	if len(toRemove) > 0 {
+		service.db.BatchMoveToRemovedSet(toRemove)
+	}
+
 	return batchReport
 }
 
@@ -182,11 +190,59 @@ func (service *Service) SaveStatusReport(status models.PersistedMixStatus) model
 
 	if *status.Up {
 		service.db.UpdateReputation(status.PubKey, ReportSuccessReputationIncrease)
+		// if the status was up, there's no way the quality has decreased
 	} else {
 		service.db.UpdateReputation(status.PubKey, ReportFailureReputationDecrease)
+		if service.shouldGetRemoved(&report) {
+			service.db.MoveToRemovedSet(report.PubKey)
+		}
 	}
 
 	return report
+}
+
+// shouldGetRemoved is called upon receiving mix status for this particular node. It determines whether the node is still
+// eligible to be part of the main topology or should moved into 'removed set'
+func (service *Service) shouldGetRemoved(report *models.MixStatusReport) bool {
+	// check if last 24h ipv4 uptime is > 50%
+	if report.LastDayIPV4 < 50 {
+		return true
+	}
+
+	// if it ever mixed any ipv6 packet, do the same check for ipv6 uptime
+	if report.LastMonthIPV6 > 0 && report.LastDayIPV6 < 50 {
+		return true
+	}
+
+	// TODO: does it make sense to also check reputation here? But if we do it, then each new node would get
+	// removed immediately before they even get a chance to build it up
+
+	return false
+}
+
+// batchShouldGetRemoved is called upon receiving batch mix status for the set of those particular nodes.
+// It determines whether the nodes are still eligible to be part of the main topology or should moved into 'removed set'
+func (service *Service) batchShouldGetRemoved(batchReport *models.BatchMixStatusReport) []string {
+	broken := make([]string, 0)
+
+	for _, report := range batchReport.Report {
+		// check if last 24h ipv4 uptime is > 50%
+		if report.LastDayIPV4 < 50 {
+			broken = append(broken, report.PubKey)
+			continue
+		}
+
+		// if it ever mixed any ipv6 packet, do the same check for ipv6 uptime
+		if report.LastMonthIPV6 > 0 && report.LastDayIPV6 < 50 {
+			broken = append(broken, report.PubKey)
+			continue
+		}
+
+		// TODO: does it make sense to also check reputation here? But if we do it, then each new node would get
+		// removed immediately before they even get a chance to build it up
+	}
+
+	return broken
 }
 
 // CalculateUptime calculates percentage uptime for a given node, protocol since a specific time
@@ -238,9 +294,9 @@ func (service *Service) SetReputation(id string, newRep int64) bool {
 }
 
 func emptyValidators() rpc.ResultValidatorsOutput {
-	return rpc.ResultValidatorsOutput {
+	return rpc.ResultValidatorsOutput{
 		BlockHeight: 0,
-		Validators: []rpc.ValidatorOutput{},
+		Validators:  []rpc.ValidatorOutput{},
 	}
 }
 
@@ -272,7 +328,6 @@ func (service *Service) GetActiveTopology() models.Topology {
 	return topology
 }
 
-
 func (service *Service) MixCount() int {
 	topology := service.db.Topology()
 	return len(topology.MixNodes)
@@ -281,6 +336,10 @@ func (service *Service) MixCount() int {
 func (service *Service) GatewayCount() int {
 	topology := service.db.Topology()
 	return len(topology.Gateways)
+}
+
+func (service *Service) GetRemovedTopology() models.Topology {
+	return service.db.RemovedTopology()
 }
 
 func now() int64 {

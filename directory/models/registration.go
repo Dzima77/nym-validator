@@ -59,3 +59,12 @@ type Topology struct {
 	Gateways   []RegisteredGateway        `json:"gateways" binding:"required"`
 	Validators rpc.ResultValidatorsOutput `json:"validators"`
 }
+
+// I don't think there's a way around it as gorm seems to make tables based on the structs provided
+type RemovedMix struct {
+	RegisteredMix
+}
+
+type RemovedGateway struct {
+	RegisteredGateway
+}

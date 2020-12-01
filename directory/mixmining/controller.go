@@ -56,6 +56,9 @@ func New(cfg Config) Controller {
 	initialMixCount := cfg.Service.MixCount()
 	initialGatewayCount := cfg.Service.GatewayCount()
 
+	// TODO: do version cleanup, i.e. make all "active" nodes go to "removed" if < 0.9.2
+
+
 	return &controller{cfg.Service, cfg.Sanitizer, cfg.GenericSanitizer, cfg.BatchSanitizer, initialMixCount, initialGatewayCount}
 }
 
@@ -72,6 +75,8 @@ func (controller *controller) RegisterRoutes(router *gin.Engine) {
 	router.GET("/api/mixmining/topology", controller.GetTopology)
 	router.GET("/api/mixmining/topology/active", controller.GetActiveTopology)
 	router.PATCH("/api/mixmining/reputation/:id", controller.ChangeReputation)
+
+	router.GET("/api/mixmining/topologyremoved", controller.GetRemovedTopology)
 }
 
 // ListMeasurements lists mixnode statuses
@@ -374,4 +379,18 @@ func (controller *controller) ChangeReputation(ctx *gin.Context) {
 	} else {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
 	}
+}
+
+// GetRemovedTopology ...
+// @Summary Lists Nym mixnodes and gateways on the network that got removed due to bad service provided.
+// @Description On Nym nodes startup they register their presence indicating they should be alive.
+// This method provides a list of nodes which have done so but failed to provide good quality service.
+// @ID getRemovedTopology
+// @Produce  json
+// @Tags mixmining
+// @Success 200 {object} models.Topology
+// @Failure 500 {object} models.Error
+// @Router /api/mixmining/topology [get]
+func (controller *controller) GetRemovedTopology(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, controller.service.GetRemovedTopology())
 }
