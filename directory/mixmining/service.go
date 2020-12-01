@@ -53,6 +53,8 @@ type IService interface {
 	GetActiveTopology() models.Topology
 
 	CheckForDuplicateIP(host string) bool
+	MixCount() int
+	GatewayCount() int
 }
 
 // NewService constructor
@@ -268,6 +270,17 @@ func (service *Service) GetActiveTopology() models.Topology {
 	}
 
 	return topology
+}
+
+
+func (service *Service) MixCount() int {
+	topology := service.db.Topology()
+	return len(topology.MixNodes)
+}
+
+func (service *Service) GatewayCount() int {
+	topology := service.db.Topology()
+	return len(topology.Gateways)
 }
 
 func now() int64 {

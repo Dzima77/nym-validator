@@ -22,6 +22,10 @@ import (
 	"github.com/nymtech/nym/validator/nym/directory/models"
 )
 
+const MaximumMixnodes = 1500
+// explicitly declared so that a similar attack could not be used for gateways this time.
+const MaximumGateways = 1000
+
 // Config for this controller
 type Config struct {
 	BatchSanitizer   BatchSanitizer   // batch mix reports
@@ -36,6 +40,9 @@ type controller struct {
 	sanitizer        Sanitizer
 	genericSanitizer GenericSanitizer
 	batchSanitizer   BatchSanitizer
+
+	mixCount int
+	gatewayCount int
 }
 
 // Controller ...
@@ -46,7 +53,10 @@ type Controller interface {
 
 // New returns a new mixmining.Controller
 func New(cfg Config) Controller {
-	return &controller{cfg.Service, cfg.Sanitizer, cfg.GenericSanitizer, cfg.BatchSanitizer}
+	initialMixCount := cfg.Service.MixCount()
+	initialGatewayCount := cfg.Service.GatewayCount()
+
+	return &controller{cfg.Service, cfg.Sanitizer, cfg.GenericSanitizer, cfg.BatchSanitizer, initialMixCount, initialGatewayCount}
 }
 
 func (controller *controller) RegisterRoutes(router *gin.Engine) {
@@ -200,6 +210,11 @@ func (controller *controller) BatchGetMixStatusReport(c *gin.Context) {
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining/register/mix [post]
 func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
+	if controller.mixCount >= MaximumMixnodes {
+		ctx.JSON(http.StatusConflict, gin.H{"error": "mixnet is already at capacity"})
+		return
+	}
+
 	var presence models.MixRegistrationInfo
 	if err := ctx.ShouldBindJSON(&presence); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -214,6 +229,8 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 	}
 
 	controller.service.RegisterMix(presence)
+	// increase count on success only
+	controller.mixCount += 1
 	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
@@ -232,6 +249,11 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining/register/gateway [post]
 func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
+	if controller.gatewayCount >= MaximumGateways {
+		ctx.JSON(http.StatusConflict, gin.H{"error": "mixnet is already at capacity"})
+		return
+	}
+
 	var presence models.GatewayRegistrationInfo
 	if err := ctx.ShouldBindJSON(&presence); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -246,6 +268,8 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 	}
 
 	controller.service.RegisterGateway(presence)
+	// increase count on success only
+	controller.gatewayCount += 1
 	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
@@ -267,6 +291,17 @@ func (controller *controller) UnregisterPresence(ctx *gin.Context) {
 	controller.genericSanitizer.Sanitize(&id)
 
 	if controller.service.UnregisterNode(id) {
+		// because `UnregisterNode` does not specify whether it was gateway or mixnode that was unregistered,
+		// update the counts directly from database
+		//
+		// if mix count decreased, it means we don't need to check gateway count
+		// and if it didn't decrease, it means gateway count must have decreased
+		mixCount := controller.service.MixCount()
+		if mixCount != controller.mixCount {
+			controller.mixCount = mixCount
+		} else {
+			controller.gatewayCount -= 1
+		}
 		ctx.JSON(http.StatusOK, gin.H{"ok": true})
 	} else {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
