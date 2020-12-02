@@ -15,12 +15,18 @@
 package mixmining
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nymtech/nym/validator/nym/directory/models"
 )
+
+const MaximumMixnodes = 1500
+// explicitly declared so that a similar attack could not be used for gateways this time.
+const MaximumGateways = 1000
+const SystemVersion = "0.9.2"
 
 // Config for this controller
 type Config struct {
@@ -36,6 +42,9 @@ type controller struct {
 	sanitizer        Sanitizer
 	genericSanitizer GenericSanitizer
 	batchSanitizer   BatchSanitizer
+
+	mixCount int
+	gatewayCount int
 }
 
 // Controller ...
@@ -46,7 +55,13 @@ type Controller interface {
 
 // New returns a new mixmining.Controller
 func New(cfg Config) Controller {
-	return &controller{cfg.Service, cfg.Sanitizer, cfg.GenericSanitizer, cfg.BatchSanitizer}
+	initialMixCount := cfg.Service.MixCount()
+	initialGatewayCount := cfg.Service.GatewayCount()
+
+	// move all non 0.9.2 nodes to "removed" set
+	cfg.Service.StartupPurge()
+
+	return &controller{cfg.Service, cfg.Sanitizer, cfg.GenericSanitizer, cfg.BatchSanitizer, initialMixCount, initialGatewayCount}
 }
 
 func (controller *controller) RegisterRoutes(router *gin.Engine) {
@@ -62,6 +77,8 @@ func (controller *controller) RegisterRoutes(router *gin.Engine) {
 	router.GET("/api/mixmining/topology", controller.GetTopology)
 	router.GET("/api/mixmining/topology/active", controller.GetActiveTopology)
 	router.PATCH("/api/mixmining/reputation/:id", controller.ChangeReputation)
+
+	router.GET("/api/mixmining/topology/removed", controller.GetRemovedTopology)
 }
 
 // ListMeasurements lists mixnode statuses
@@ -111,6 +128,11 @@ func (controller *controller) CreateMixStatus(c *gin.Context) {
 	sanitized := controller.sanitizer.Sanitize(status)
 	persisted := controller.service.CreateMixStatus(sanitized)
 	controller.service.SaveStatusReport(persisted)
+
+	// we don't know how number of active nodes changed - update it
+	controller.mixCount = controller.service.MixCount()
+	controller.gatewayCount = controller.service.GatewayCount()
+		
 	c.JSON(http.StatusCreated, gin.H{"ok": true})
 }
 
@@ -165,6 +187,11 @@ func (controller *controller) BatchCreateMixStatus(c *gin.Context) {
 
 	persisted := controller.service.BatchCreateMixStatus(sanitized)
 	controller.service.SaveBatchStatusReport(persisted)
+
+	// we don't know how number of active nodes changed - update it
+	controller.mixCount = controller.service.MixCount()
+	controller.gatewayCount = controller.service.GatewayCount()
+
 	c.JSON(http.StatusCreated, gin.H{"ok": true})
 }
 
@@ -196,9 +223,15 @@ func (controller *controller) BatchGetMixStatusReport(c *gin.Context) {
 // @Success 200
 // @Failure 400 {object} models.Error
 // @Failure 404 {object} models.Error
+// @Failure 409 {object} models.Error
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining/register/mix [post]
 func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
+	if controller.mixCount >= MaximumMixnodes {
+		ctx.JSON(http.StatusConflict, gin.H{"error": "mixnet is already at capacity"})
+		return
+	}
+
 	var presence models.MixRegistrationInfo
 	if err := ctx.ShouldBindJSON(&presence); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -206,7 +239,20 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 	}
 
 	controller.genericSanitizer.Sanitize(&presence)
+
+	if controller.service.CheckForDuplicateIP(presence.MixHost) {
+		ctx.JSON(http.StatusConflict, gin.H{"error": "node with the same ip address already exists"})
+		return
+	}
+
+	if presence.Version != SystemVersion {
+		ctx.JSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("running non %v version", SystemVersion)})
+		return
+	}
+
 	controller.service.RegisterMix(presence)
+	// increase count on success only
+	controller.mixCount += 1
 	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
@@ -221,9 +267,15 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 // @Success 200
 // @Failure 400 {object} models.Error
 // @Failure 404 {object} models.Error
+// @Failure 409 {object} models.Error
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining/register/gateway [post]
 func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
+	if controller.gatewayCount >= MaximumGateways {
+		ctx.JSON(http.StatusConflict, gin.H{"error": "mixnet is already at capacity"})
+		return
+	}
+
 	var presence models.GatewayRegistrationInfo
 	if err := ctx.ShouldBindJSON(&presence); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -231,7 +283,20 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 	}
 
 	controller.genericSanitizer.Sanitize(&presence)
+
+	if controller.service.CheckForDuplicateIP(presence.MixHost) {
+		ctx.JSON(http.StatusConflict, gin.H{"error": "gateway with the same ip address already exists"})
+		return
+	}
+
+	if presence.Version != SystemVersion {
+		ctx.JSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("running non %v version", SystemVersion)})
+		return
+	}
+
 	controller.service.RegisterGateway(presence)
+	// increase count on success only
+	controller.gatewayCount += 1
 	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
@@ -253,6 +318,9 @@ func (controller *controller) UnregisterPresence(ctx *gin.Context) {
 	controller.genericSanitizer.Sanitize(&id)
 
 	if controller.service.UnregisterNode(id) {
+		controller.mixCount = controller.service.MixCount()
+		controller.gatewayCount = controller.service.GatewayCount()
+
 		ctx.JSON(http.StatusOK, gin.H{"ok": true})
 	} else {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
@@ -325,4 +393,18 @@ func (controller *controller) ChangeReputation(ctx *gin.Context) {
 	} else {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
 	}
+}
+
+// GetRemovedTopology ...
+// @Summary Lists Nym mixnodes and gateways on the network that got removed due to bad service provided.
+// @Description On Nym nodes startup they register their presence indicating they should be alive.
+// This method provides a list of nodes which have done so but failed to provide good quality service.
+// @ID getRemovedTopology
+// @Produce  json
+// @Tags mixmining
+// @Success 200 {object} models.Topology
+// @Failure 500 {object} models.Error
+// @Router /api/mixmining/topology/removed [get]
+func (controller *controller) GetRemovedTopology(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, controller.service.GetRemovedTopology())
 }

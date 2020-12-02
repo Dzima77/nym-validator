@@ -18,9 +18,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"os"
 	"os/user"
 	"path"
+	"strings"
 
 	"gorm.io/gorm/clause"
 
@@ -50,6 +52,11 @@ type IDb interface {
 	SetReputation(id string, newRep int64) bool
 	Topology() models.Topology
 	ActiveTopology(reputationThreshold int64) models.Topology
+
+	IpExists(ip string) bool
+	RemovedTopology() models.Topology
+	MoveToRemovedSet(pubkey string)
+	BatchMoveToRemovedSet(pubkeys []string)
 }
 
 // Db is a hashtable that holds mixnode uptime mixmining
@@ -77,6 +84,14 @@ func NewDb(isTest bool) *Db {
 		log.Fatal(err)
 	}
 	if err := database.AutoMigrate(&models.RegisteredGateway{}); err != nil {
+		log.Fatal(err)
+	}
+
+	// removed nodes migration
+	if err := database.AutoMigrate(&models.RemovedMix{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := database.AutoMigrate(&models.RemovedGateway{}); err != nil {
 		log.Fatal(err)
 	}
 
@@ -138,8 +153,6 @@ func (db *Db) ListMixStatusDateRange(pubkey string, ipVersion string, start int6
 
 // SaveMixStatusReport creates or updates a status summary report for a given mixnode in the database
 func (db *Db) SaveMixStatusReport(report models.MixStatusReport) {
-	fmt.Printf("\r\nAbout to save report\r\n: %+v", report)
-
 	create := db.orm.Save(report)
 	if create.Error != nil {
 		fmt.Printf("Mix status report creation error: %+v", create.Error)
@@ -214,7 +227,7 @@ func (db *Db) allRegisteredMixes() []models.RegisteredMix {
 
 func (db *Db) activeRegisteredMixes(reputationThreshold int64) []models.RegisteredMix {
 	var mixes []models.RegisteredMix
-	if err := db.orm.Where("reputation >= ? AND version = ?", reputationThreshold, "0.9.2").Find(&mixes).Error; err != nil {
+	if err := db.orm.Where("reputation >= ?", reputationThreshold).Find(&mixes).Error; err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "failed to read mixes from the database - %v\n", err)
 	}
 	return mixes
@@ -230,7 +243,7 @@ func (db *Db) allRegisteredGateways() []models.RegisteredGateway {
 
 func (db *Db) activeRegisteredGateways(reputationThreshold int64) []models.RegisteredGateway {
 	var gateways []models.RegisteredGateway
-	if err := db.orm.Where("reputation >= ? AND version = ?", reputationThreshold, "0.9.2").Find(&gateways).Error; err != nil {
+	if err := db.orm.Where("reputation >= ?", reputationThreshold).Find(&gateways).Error; err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
 	}
 	return gateways
@@ -238,13 +251,21 @@ func (db *Db) activeRegisteredGateways(reputationThreshold int64) []models.Regis
 
 func (db *Db) UnregisterNode(id string) bool {
 	tx := db.orm.Begin()
-	res := tx.Where("identity_key = ?", id).Delete(&models.RegisteredMix{})
 
+	res := tx.Where("identity_key = ?", id).Delete(&models.RegisteredMix{})
 	if res.Error != nil {
 		tx.Rollback()
 		return false
 	}
 	if res.RowsAffected > 0 {
+		// now try the same for 'removed mix' - remember, all we do are soft deletes, and a removed mix
+		// can only exist if there used to be an entry for 'registered mix' (don't blame me, blame gorm + sql :) )
+		res = tx.Where("identity_key = ?", id).Delete(&models.RemovedMix{})
+		if res.Error != nil {
+			tx.Rollback()
+			return false
+		}
+
 		tx.Commit()
 		return true
 	}
@@ -254,13 +275,18 @@ func (db *Db) UnregisterNode(id string) bool {
 		tx.Rollback()
 		return false
 	}
-	tx.Commit()
-
 	if res.RowsAffected > 0 {
+		res = tx.Where("identity_key = ?", id).Delete(&models.RemovedGateway{})
+		if res.Error != nil {
+			tx.Rollback()
+			return false
+		}
+		
+		tx.Commit()
 		return true
-	} else {
-		return false
 	}
+
+	return false
 }
 
 func (db *Db) SetReputation(id string, newRep int64) bool {
@@ -390,6 +416,121 @@ func (db *Db) ActiveTopology(reputationThreshold int64) models.Topology {
 	// should be done as a single query rather than as two separate ones.
 	mixes := db.activeRegisteredMixes(reputationThreshold)
 	gateways := db.activeRegisteredGateways(reputationThreshold)
+
+	return models.Topology{
+		MixNodes: mixes,
+		Gateways: gateways,
+	}
+}
+
+func (db *Db) IpExists(ip string) bool {
+	ip, _, err := net.SplitHostPort(ip)
+	if err != nil {
+		// I guess we got a domain name?
+		split := strings.Split(ip, ":")
+		chunks := len(split)
+		if chunks != 2 {
+			// no idea what we got here
+			// return true to disallow registration for this address
+			return true
+		}
+
+		ip = split[0]
+	}
+
+	if db.orm.Where("mix_host LIKE ?", "%"+ip+"%").Find(&models.RegisteredMix{}).RowsAffected > 0 {
+		return true
+	} else if db.orm.Where("mix_host LIKE ? OR clients_host LIKE ?", "%"+ip+"%", "%"+ip+"%").Find(&models.RegisteredGateway{}).RowsAffected > 0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (db *Db) addRemovedMix(mix models.RemovedMix) {
+	db.orm.Unscoped().Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "identity_key"}},
+		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "layer", "registration_time", "deleted", "incentives_address"}),
+	}).Create(&mix)
+}
+
+func (db *Db) addRemovedGateway(gateway models.RemovedGateway) {
+	db.orm.Unscoped().Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "identity_key"}},
+		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "clients_host", "registration_time", "deleted", "incentives_address"}),
+	}).Create(&gateway)
+}
+
+func (db *Db) allRemovedMixes() []models.RemovedMix {
+	var mixes []models.RemovedMix
+	if err := db.orm.Find(&mixes).Error; err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to read mixes from the database - %v\n", err)
+	}
+	return mixes
+}
+
+func (db *Db) allRemovedGateways() []models.RemovedGateway {
+	var gateways []models.RemovedGateway
+	if err := db.orm.Find(&gateways).Error; err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to read gateways from the database - %v\n", err)
+	}
+	return gateways
+}
+
+func (db *Db) MoveToRemovedSet(pubkey string) {
+	mix := models.RegisteredMix{}
+	res := db.orm.Where("identity_key = ?", pubkey).Find(&mix)
+	if res.Error != nil {
+		return
+	}
+	if res.RowsAffected > 0 {
+		// add to removed set
+		db.addRemovedMix(models.RemovedMix{RegisteredMix: mix})
+		// and remove/unregister it from the 'good' set
+		db.orm.Where("identity_key = ?", pubkey).Delete(&models.RegisteredMix{})
+		return
+	}
+
+	gateway := models.RegisteredGateway{}
+	res = db.orm.Where("identity_key = ?", pubkey).Find(&gateway)
+	if res.Error != nil {
+		return
+	}
+	if res.RowsAffected > 0 {
+		// add to removed set
+		db.addRemovedGateway(models.RemovedGateway{RegisteredGateway: gateway})
+		// and remove/unregister it from the 'good' set
+		db.orm.Where("identity_key = ?", pubkey).Delete(&models.RemovedGateway{})
+		return
+	}
+}
+
+func (db *Db) BatchMoveToRemovedSet(pubkeys []string) {
+	// I honestly doubt we will ever remove a lot of nodes in a single batch report, so I think
+	// not doing it tx way is fine
+	for _, pubkey := range pubkeys {
+		db.MoveToRemovedSet(pubkey)
+	}
+
+}
+
+// DeletedTopology returns lists of all gateways and mixnodes that are now in the 'removed' set.
+// It is retrieved as `Topology` so there would be less coding on the API client side of things.
+func (db *Db) RemovedTopology() models.Topology {
+	// TODO: if we keep it (and I doubt it, because it will get moved onto blockchain), this
+	// should be done as a single query rather than as two separate ones.
+	removedMixes := db.allRemovedMixes()
+	removedGateways := db.allRemovedGateways()
+
+	mixes := make([]models.RegisteredMix, len(removedMixes))
+	for i, mix := range removedMixes {
+		mixes[i] = mix.RegisteredMix
+	}
+
+	gateways := make([]models.RegisteredGateway, len(removedGateways))
+	for i, gateway := range removedGateways {
+		gateways[i] = gateway.RegisteredGateway
+	}
 
 	return models.Topology{
 		MixNodes: mixes,

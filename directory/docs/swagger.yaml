@@ -394,6 +394,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.Error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.Error'
         "500":
           description: Internal Server Error
           schema:
@@ -425,6 +429,10 @@ paths:
             $ref: '#/definitions/models.Error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/models.Error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/models.Error'
         "500":
@@ -511,6 +519,26 @@ paths:
             $ref: '#/definitions/models.Error'
       summary: Lists Nym mixnodes and gateways on the network alongside their reputation,
         such that the reputation is at least 100.
+      tags:
+      - mixmining
+  /api/mixmining/topology/removed:
+    get:
+      description: On Nym nodes startup they register their presence indicating they
+        should be alive.
+      operationId: getRemovedTopology
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Topology'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Error'
+      summary: Lists Nym mixnodes and gateways on the network that got removed due
+        to bad service provided.
       tags:
       - mixmining
 swagger: "2.0"

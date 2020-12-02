@@ -527,4 +527,85 @@ var _ = Describe("The mixmining db", func() {
 			})
 		})
 	})
+
+	Describe("checking for duplicate ips", func() {
+		It("works for ipv4", func() {
+			ip1 := "1.2.3.4:1789"
+			ip2 := "1.2.3.4:1790"
+			db := NewDb(true)
+			mix1 := fixtures.GoodRegisteredMix()
+			mix1.MixHost = ip1
+
+			assert.False(GinkgoT(), db.IpExists(ip1))
+			assert.False(GinkgoT(), db.IpExists(ip2))
+
+			db.RegisterMix(mix1)
+
+			assert.True(GinkgoT(), db.IpExists(ip1))
+			assert.True(GinkgoT(), db.IpExists(ip2))
+		})
+
+		It("works for ipv6", func() {
+			ipv6Normal1 := "[2001:0db8:0a0b:12f0:0000:0000:0000:0001]:1789"
+			ipv6Normal2 := "[2001:0db8:0a0b:12f0:0000:0000:0000:0001]:1790"
+			ipv6Compressed1 := "[2001:db8:a0b:12f0::1]:1789"
+			ipv6Compressed2 := "[2001:db8:a0b:12f0::1]:1790"
+
+			db := NewDb(true)
+			mix1 := fixtures.GoodRegisteredMix()
+			mix1.MixHost = ipv6Normal1
+
+			mix2 := fixtures.GoodRegisteredMix()
+			// change id
+			mix2.IdentityKey = "foomp"
+			mix2.MixHost = ipv6Compressed1
+
+			assert.False(GinkgoT(), db.IpExists(ipv6Normal1))
+			assert.False(GinkgoT(), db.IpExists(ipv6Normal2))
+			assert.False(GinkgoT(), db.IpExists(ipv6Compressed1))
+			assert.False(GinkgoT(), db.IpExists(ipv6Compressed2))
+
+			db.RegisterMix(mix1)
+			db.RegisterMix(mix2)
+
+			assert.True(GinkgoT(), db.IpExists(ipv6Normal1))
+			assert.True(GinkgoT(), db.IpExists(ipv6Normal2))
+			assert.True(GinkgoT(), db.IpExists(ipv6Compressed1))
+			assert.True(GinkgoT(), db.IpExists(ipv6Compressed2))
+		})
+
+		It("works for domain name", func() {
+			name1 := "foomp.com:1789"
+			name2 := "foomp.com:1790"
+
+			db := NewDb(true)
+			mix1 := fixtures.GoodRegisteredMix()
+			mix1.MixHost = name1
+
+			assert.False(GinkgoT(), db.IpExists(name1))
+			assert.False(GinkgoT(), db.IpExists(name2))
+
+			db.RegisterMix(mix1)
+
+			assert.True(GinkgoT(), db.IpExists(name1))
+			assert.True(GinkgoT(), db.IpExists(name2))
+		})
+
+		It("works for gateways", func() {
+			ip1 := "1.2.3.4:1789"
+			ip2 := "1.2.3.4:1790"
+
+			db := NewDb(true)
+			gate1 := fixtures.GoodRegisteredGateway()
+			gate1.MixHost = ip1
+
+			assert.False(GinkgoT(), db.IpExists(ip1))
+			assert.False(GinkgoT(), db.IpExists(ip2))
+
+			db.RegisterGateway(gate1)
+
+			assert.True(GinkgoT(), db.IpExists(ip1))
+			assert.True(GinkgoT(), db.IpExists(ip2))
+		})
+	})
 })

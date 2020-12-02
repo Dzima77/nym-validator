@@ -50,9 +50,28 @@ func (_m *IDb) BatchLoadReports(pubkeys []string) models.BatchMixStatusReport {
 	return r0
 }
 
+// BatchMoveToRemovedSet provides a mock function with given fields: pubkeys
+func (_m *IDb) BatchMoveToRemovedSet(pubkeys []string) {
+	_m.Called(pubkeys)
+}
+
 // BatchUpdateReputation provides a mock function with given fields: reputationChangeMap
 func (_m *IDb) BatchUpdateReputation(reputationChangeMap map[string]int64) {
 	_m.Called(reputationChangeMap)
+}
+
+// IpExists provides a mock function with given fields: ip
+func (_m *IDb) IpExists(ip string) bool {
+	ret := _m.Called(ip)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(ip)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
 }
 
 // ListMixStatus provides a mock function with given fields: pubkey, limit
@@ -115,6 +134,11 @@ func (_m *IDb) LoadReport(pubkey string) models.MixStatusReport {
 	return r0
 }
 
+// MoveToRemovedSet provides a mock function with given fields: pubkey
+func (_m *IDb) MoveToRemovedSet(pubkey string) {
+	_m.Called(pubkey)
+}
+
 // RegisterGateway provides a mock function with given fields: gateway
 func (_m *IDb) RegisterGateway(gateway models.RegisteredGateway) {
 	_m.Called(gateway)
@@ -123,6 +147,20 @@ func (_m *IDb) RegisterGateway(gateway models.RegisteredGateway) {
 // RegisterMix provides a mock function with given fields: mix
 func (_m *IDb) RegisterMix(mix models.RegisteredMix) {
 	_m.Called(mix)
+}
+
+// RemovedTopology provides a mock function with given fields:
+func (_m *IDb) RemovedTopology() models.Topology {
+	ret := _m.Called()
+
+	var r0 models.Topology
+	if rf, ok := ret.Get(0).(func() models.Topology); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(models.Topology)
+	}
+
+	return r0
 }
 
 // SaveBatchMixStatusReport provides a mock function with given fields: _a0
