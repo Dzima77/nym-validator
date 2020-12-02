@@ -76,7 +76,7 @@ func (controller *controller) RegisterRoutes(router *gin.Engine) {
 	router.GET("/api/mixmining/topology/active", controller.GetActiveTopology)
 	router.PATCH("/api/mixmining/reputation/:id", controller.ChangeReputation)
 
-	router.GET("/api/mixmining/topologyremoved", controller.GetRemovedTopology)
+	router.GET("/api/mixmining/topology/removed", controller.GetRemovedTopology)
 }
 
 // ListMeasurements lists mixnode statuses
@@ -397,7 +397,7 @@ func (controller *controller) ChangeReputation(ctx *gin.Context) {
 // @Tags mixmining
 // @Success 200 {object} models.Topology
 // @Failure 500 {object} models.Error
-// @Router /api/mixmining/topologyremoved [get]
+// @Router /api/mixmining/topology/removed [get]
 func (controller *controller) GetRemovedTopology(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, controller.service.GetRemovedTopology())
 }
