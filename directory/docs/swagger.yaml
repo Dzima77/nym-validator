@@ -521,7 +521,7 @@ paths:
         such that the reputation is at least 100.
       tags:
       - mixmining
-  /api/mixmining/topologyremoved:
+  /api/mixmining/topology/removed:
     get:
       description: On Nym nodes startup they register their presence indicating they
         should be alive.
