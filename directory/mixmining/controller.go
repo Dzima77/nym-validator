@@ -311,17 +311,9 @@ func (controller *controller) UnregisterPresence(ctx *gin.Context) {
 	controller.genericSanitizer.Sanitize(&id)
 
 	if controller.service.UnregisterNode(id) {
-		// because `UnregisterNode` does not specify whether it was gateway or mixnode that was unregistered,
-		// update the counts directly from database
-		//
-		// if mix count decreased, it means we don't need to check gateway count
-		// and if it didn't decrease, it means gateway count must have decreased
-		mixCount := controller.service.MixCount()
-		if mixCount != controller.mixCount {
-			controller.mixCount = mixCount
-		} else {
-			controller.gatewayCount -= 1
-		}
+		controller.mixCount = controller.service.MixCount()
+		controller.gatewayCount = controller.service.GatewayCount()
+
 		ctx.JSON(http.StatusOK, gin.H{"ok": true})
 	} else {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
@@ -405,7 +397,7 @@ func (controller *controller) ChangeReputation(ctx *gin.Context) {
 // @Tags mixmining
 // @Success 200 {object} models.Topology
 // @Failure 500 {object} models.Error
-// @Router /api/mixmining/topology [get]
+// @Router /api/mixmining/topologyremoved [get]
 func (controller *controller) GetRemovedTopology(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, controller.service.GetRemovedTopology())
 }

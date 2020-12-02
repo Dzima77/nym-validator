@@ -252,15 +252,23 @@ func (db *Db) activeRegisteredGateways(reputationThreshold int64) []models.Regis
 func (db *Db) UnregisterNode(id string) bool {
 	tx := db.orm.Begin()
 
-	// 'normal' topology'
 	res := tx.Where("identity_key = ?", id).Delete(&models.RegisteredMix{})
 	if res.Error != nil {
 		tx.Rollback()
 		return false
 	}
 	if res.RowsAffected > 0 {
-		tx.Commit()
-		return true
+		// now try the same for 'removed mix' - remember, all we do are soft deletes, and a removed mix
+		// can only exist if there used to be an entry for 'registered mix' (don't blame me, blame gorm + sql :) )
+		res = tx.Where("identity_key = ?", id).Delete(&models.RemovedMix{})
+		if res.Error != nil {
+			tx.Rollback()
+			return false
+		}
+		if res.RowsAffected > 0 {
+			tx.Commit()
+			return true
+		}
 	}
 
 	res = tx.Where("identity_key = ?", id).Delete(&models.RegisteredGateway{})
@@ -269,33 +277,20 @@ func (db *Db) UnregisterNode(id string) bool {
 		return false
 	}
 	if res.RowsAffected > 0 {
+		res = tx.Where("identity_key = ?", id).Delete(&models.RemovedGateway{})
+		if res.Error != nil {
+			tx.Rollback()
+			return false
+		}
 		tx.Commit()
-		return true
+
+		if res.RowsAffected > 0 {
+			tx.Commit()
+			return true
+		}
 	}
 
-	// 'removed' topology
-	res = tx.Where("identity_key = ?", id).Delete(&models.RemovedMix{})
-	if res.Error != nil {
-		tx.Rollback()
-		return false
-	}
-	if res.RowsAffected > 0 {
-		tx.Commit()
-		return true
-	}
-
-	res = tx.Where("identity_key = ?", id).Delete(&models.RemovedGateway{})
-	if res.Error != nil {
-		tx.Rollback()
-		return false
-	}
-	tx.Commit()
-
-	if res.RowsAffected > 0 {
-		return true
-	} else {
-		return false
-	}
+	return false
 }
 
 func (db *Db) SetReputation(id string, newRep int64) bool {
