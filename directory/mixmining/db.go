@@ -265,10 +265,9 @@ func (db *Db) UnregisterNode(id string) bool {
 			tx.Rollback()
 			return false
 		}
-		if res.RowsAffected > 0 {
-			tx.Commit()
-			return true
-		}
+
+		tx.Commit()
+		return true
 	}
 
 	res = tx.Where("identity_key = ?", id).Delete(&models.RegisteredGateway{})
@@ -282,12 +281,9 @@ func (db *Db) UnregisterNode(id string) bool {
 			tx.Rollback()
 			return false
 		}
+		
 		tx.Commit()
-
-		if res.RowsAffected > 0 {
-			tx.Commit()
-			return true
-		}
+		return true
 	}
 
 	return false

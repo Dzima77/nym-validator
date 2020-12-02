@@ -42,6 +42,20 @@ func (_m *IService) BatchGetMixStatusReport() models.BatchMixStatusReport {
 	return r0
 }
 
+// CheckForDuplicateIP provides a mock function with given fields: host
+func (_m *IService) CheckForDuplicateIP(host string) bool {
+	ret := _m.Called(host)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(host)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
 // CreateMixStatus provides a mock function with given fields: mixStatus
 func (_m *IService) CreateMixStatus(mixStatus models.MixStatus) models.PersistedMixStatus {
 	ret := _m.Called(mixStatus)
@@ -56,8 +70,36 @@ func (_m *IService) CreateMixStatus(mixStatus models.MixStatus) models.Persisted
 	return r0
 }
 
+// GatewayCount provides a mock function with given fields:
+func (_m *IService) GatewayCount() int {
+	ret := _m.Called()
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func() int); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	return r0
+}
+
 // GetActiveTopology provides a mock function with given fields:
 func (_m *IService) GetActiveTopology() models.Topology {
+	ret := _m.Called()
+
+	var r0 models.Topology
+	if rf, ok := ret.Get(0).(func() models.Topology); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(models.Topology)
+	}
+
+	return r0
+}
+
+// GetRemovedTopology provides a mock function with given fields:
+func (_m *IService) GetRemovedTopology() models.Topology {
 	ret := _m.Called()
 
 	var r0 models.Topology
@@ -114,6 +156,20 @@ func (_m *IService) ListMixStatus(pubkey string) []models.PersistedMixStatus {
 	return r0
 }
 
+// MixCount provides a mock function with given fields:
+func (_m *IService) MixCount() int {
+	ret := _m.Called()
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func() int); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	return r0
+}
+
 // RegisterGateway provides a mock function with given fields: info
 func (_m *IService) RegisterGateway(info models.GatewayRegistrationInfo) {
 	_m.Called(info)
@@ -164,6 +220,11 @@ func (_m *IService) SetReputation(id string, newRep int64) bool {
 	}
 
 	return r0
+}
+
+// StartupPurge provides a mock function with given fields:
+func (_m *IService) StartupPurge() {
+	_m.Called()
 }
 
 // UnregisterNode provides a mock function with given fields: id

@@ -231,7 +231,8 @@ var _ = Describe("mixmining.Service", func() {
 					mockDb.On("UpdateReputation", downer.PubKey, ReportFailureReputationDecrease).Return(true)
 					mockDb.On("SaveMixStatusReport", expectedSave)
 				})
-				It("should save the initial report, all statuses will be set to down", func() {
+				It("should save the initial report, all statuses will be set to down. Node will also be moved to removed set", func() {
+					mockDb.On("MoveToRemovedSet", downer.PubKey)
 					result := serv.SaveStatusReport(downer)
 					assert.Equal(GinkgoT(), 0, result.Last5MinutesIPV4)
 					assert.Equal(GinkgoT(), 0, result.LastHourIPV4)
@@ -347,7 +348,7 @@ var _ = Describe("mixmining.Service", func() {
 
 	Describe("Saving batch status report", func() {
 		Context("if it contains v4 and v6 up status for same node", func() {
-			It("should combine them into single entry", func() {
+			It("should combine them into single entry. Node will also be moved to removed set", func() {
 				upv4 := persistedStatusFrom(statusDown("key1", "4"))
 				upv6 := persistedStatusFrom(statusDown("key1", "6"))
 				batchReport := []models.PersistedMixStatus{upv4, upv6}
@@ -384,7 +385,7 @@ var _ = Describe("mixmining.Service", func() {
 				mockDb.On("BatchLoadReports", []string{"key1", "key1"}).Return(models.BatchMixStatusReport{Report: make([]models.MixStatusReport, 0)})
 				mockDb.On("SaveBatchMixStatusReport", expected)
 				mockDb.On("BatchUpdateReputation", map[string]int64{"key1": 2 * ReportFailureReputationDecrease})
-
+				mockDb.On("BatchMoveToRemovedSet", []string{"key1"})
 				updatedStatus := serv.SaveBatchStatusReport(batchReport)
 				assert.Equal(GinkgoT(), 1, len(updatedStatus.Report))
 				mockDb.AssertCalled(GinkgoT(), "BatchUpdateReputation", map[string]int64{"key1": 2 * ReportFailureReputationDecrease})

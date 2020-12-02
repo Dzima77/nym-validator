@@ -243,6 +243,7 @@ var _ = Describe("Controller", func() {
 
 			mockGenericSanitizer.On("Sanitize", &info)
 			mockService.On("RegisterMix", info)
+			mockService.On("CheckForDuplicateIP", info.MixHost).Return(false)
 
 			JSONReq, _ := json.Marshal(info)
 
@@ -261,6 +262,7 @@ var _ = Describe("Controller", func() {
 
 			mockGenericSanitizer.On("Sanitize", &info)
 			mockService.On("RegisterGateway", info)
+			mockService.On("CheckForDuplicateIP", info.MixHost).Return(false)
 
 			JSONReq, _ := json.Marshal(info)
 
@@ -416,6 +418,12 @@ func SetupRouter() (*gin.Engine, *mocks.IService, *mocks.Sanitizer, *mocks.Gener
 	mockBatchSanitizer := new(mocks.BatchSanitizer)
 	mockGenericSanitizer := new(mocks.GenericSanitizer)
 	mockService := new(mocks.IService)
+
+	// on startup there will be no nodes
+	mockService.On("MixCount").Return(0)
+	mockService.On("GatewayCount").Return(0)
+	mockService.On("StartupPurge")
+
 	cfg := Config{
 		BatchSanitizer: mockBatchSanitizer,
 		GenericSanitizer: mockGenericSanitizer,
