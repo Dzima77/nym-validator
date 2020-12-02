@@ -15,6 +15,7 @@
 package mixmining
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -25,6 +26,7 @@ import (
 const MaximumMixnodes = 1500
 // explicitly declared so that a similar attack could not be used for gateways this time.
 const MaximumGateways = 1000
+const SystemVersion = "0.9.2"
 
 // Config for this controller
 type Config struct {
@@ -56,8 +58,8 @@ func New(cfg Config) Controller {
 	initialMixCount := cfg.Service.MixCount()
 	initialGatewayCount := cfg.Service.GatewayCount()
 
-	// TODO: do version cleanup, i.e. make all "active" nodes go to "removed" if < 0.9.2
-
+	// move all non 0.9.2 nodes to "removed" set
+	cfg.Service.StartupPurge()
 
 	return &controller{cfg.Service, cfg.Sanitizer, cfg.GenericSanitizer, cfg.BatchSanitizer, initialMixCount, initialGatewayCount}
 }
@@ -248,6 +250,11 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 		return
 	}
 
+	if presence.Version != SystemVersion {
+		ctx.JSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("running non %v version", SystemVersion)})
+		return
+	}
+
 	controller.service.RegisterMix(presence)
 	// increase count on success only
 	controller.mixCount += 1
@@ -284,6 +291,11 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 
 	if controller.service.CheckForDuplicateIP(presence.MixHost) {
 		ctx.JSON(http.StatusConflict, gin.H{"error": "gateway with the same ip address already exists"})
+		return
+	}
+
+	if presence.Version != SystemVersion {
+		ctx.JSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("running non %v version", SystemVersion)})
 		return
 	}
 

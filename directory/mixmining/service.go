@@ -56,6 +56,7 @@ type IService interface {
 	MixCount() int
 	GatewayCount() int
 	GetRemovedTopology() models.Topology
+	StartupPurge()
 }
 
 // NewService constructor
@@ -340,6 +341,26 @@ func (service *Service) GatewayCount() int {
 
 func (service *Service) GetRemovedTopology() models.Topology {
 	return service.db.RemovedTopology()
+}
+
+// StartupPurge moves any mixnode from the main topology into 'removed' if it is not running
+// version 0.9.2. The "50%" uptime requirement does not need to be checked here as if it's
+// not fulfilled, the node will be automatically moved to "removed set" on the first
+// run of the network monitor
+func (service *Service) StartupPurge() {
+	nodesToRemove := make([]string, 0)
+	topology := service.db.Topology()
+	for _, mix := range topology.MixNodes {
+		if mix.Version != SystemVersion {
+			nodesToRemove = append(nodesToRemove, mix.IdentityKey)
+		}
+	}
+	for _, gateway := range topology.Gateways {
+		if gateway.Version != SystemVersion {
+			nodesToRemove = append(nodesToRemove, gateway.IdentityKey)
+		}
+	}
+	service.db.BatchMoveToRemovedSet(nodesToRemove)
 }
 
 func now() int64 {
