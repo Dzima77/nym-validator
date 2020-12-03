@@ -208,6 +208,9 @@ func (db *Db) RegisterMix(mix models.RegisteredMix) {
 		Columns:   []clause.Column{{Name: "identity_key"}},
 		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "layer", "registration_time", "deleted", "incentives_address"}),
 	}).Create(&mix)
+
+	// if it was ever in "removed" set, delete it
+	db.orm.Unscoped().Where("identity_key = ?", mix.IdentityKey).Delete(&models.RemovedMix{})
 }
 
 func (db *Db) RegisterGateway(gateway models.RegisteredGateway) {
@@ -215,6 +218,9 @@ func (db *Db) RegisterGateway(gateway models.RegisteredGateway) {
 		Columns:   []clause.Column{{Name: "identity_key"}},
 		DoUpdates: clause.AssignmentColumns([]string{"mix_host", "sphinx_key", "version", "location", "clients_host", "registration_time", "deleted", "incentives_address"}),
 	}).Create(&gateway)
+
+	// if it was ever in "removed" set, delete it
+	db.orm.Unscoped().Where("identity_key = ?", gateway.IdentityKey).Delete(&models.RemovedGateway{})
 }
 
 func (db *Db) allRegisteredMixes() []models.RegisteredMix {
