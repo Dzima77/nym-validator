@@ -15,6 +15,7 @@
 package mixmining
 
 import (
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"time"
@@ -30,8 +31,9 @@ const ReputationThreshold = int64(100)
 
 // Service struct
 type Service struct {
-	db     IDb
-	cliCtx context.CLIContext
+	db         IDb
+	cliCtx     context.CLIContext
+	validators *rpc.ResultValidatorsOutput
 }
 
 // IService defines the REST service interface for mixmining.
@@ -61,9 +63,29 @@ type IService interface {
 
 // NewService constructor
 func NewService(db IDb, cliCtx context.CLIContext) *Service {
-	return &Service{
-		db:     db,
-		cliCtx: cliCtx,
+	emptyValidators := emptyValidators()
+	service := &Service{
+		db:         db,
+		cliCtx:     cliCtx,
+		validators: &emptyValidators,
+	}
+
+	// start validator updater in background
+	go updateValidators(service)
+	return service
+}
+
+func updateValidators(service *Service) {
+	ticker := time.NewTicker(time.Second * 30)
+
+	for {
+		validators, err := rpc.GetValidators(service.cliCtx, nil, 1, 100)
+		if err != nil {
+			fmt.Printf("failed to grab validators - %v\n", err)
+		} else {
+			*service.validators = validators
+		}
+		<-ticker.C
 	}
 }
 
@@ -303,28 +325,14 @@ func emptyValidators() rpc.ResultValidatorsOutput {
 
 func (service *Service) GetTopology() models.Topology {
 	topology := service.db.Topology()
-
-	// if there are more than 100 validators we shouldn't really be running this code anyway....
-	validators, err := rpc.GetValidators(service.cliCtx, nil, 1, 100)
-	if err != nil {
-		topology.Validators = emptyValidators()
-	} else {
-		topology.Validators = validators
-	}
-
+	topology.Validators = *service.validators
+	
 	return topology
 }
 
 func (service *Service) GetActiveTopology() models.Topology {
 	topology := service.db.ActiveTopology(ReputationThreshold)
-
-	// if there are more than 100 validators we shouldn't really be running this code anyway....
-	validators, err := rpc.GetValidators(service.cliCtx, nil, 1, 100)
-	if err != nil {
-		topology.Validators = emptyValidators()
-	} else {
-		topology.Validators = validators
-	}
+	topology.Validators = *service.validators
 
 	return topology
 }
