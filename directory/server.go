@@ -36,6 +36,8 @@ import (
 // @license.name Apache 2.0
 // @license.url https://github.com/nymtech/nym-validator/license
 func New(cliCtx context.CLIContext) *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)
+	
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
 
