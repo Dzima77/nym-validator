@@ -251,8 +251,8 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 	}
 
 	controller.service.RegisterMix(presence)
-	// increase count on success only
-	controller.mixCount += 1
+	controller.mixCount = controller.service.MixCount()
+
 	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
@@ -295,8 +295,8 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 	}
 
 	controller.service.RegisterGateway(presence)
-	// increase count on success only
-	controller.gatewayCount += 1
+	controller.gatewayCount = controller.service.GatewayCount()
+
 	ctx.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
