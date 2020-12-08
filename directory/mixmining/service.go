@@ -28,12 +28,20 @@ import (
 const ReportSuccessReputationIncrease = int64(3)
 const ReportFailureReputationDecrease = int64(-2)
 const ReputationThreshold = int64(100)
+const TopologyCacheTTL = time.Second * 30
 
 // Service struct
 type Service struct {
 	db         IDb
 	cliCtx     context.CLIContext
 	validators *rpc.ResultValidatorsOutput
+
+	topology            models.Topology
+	topologyRefreshed time.Time
+	activeTopology      models.Topology
+	activeTopologyRefreshed time.Time
+	removedTopology     models.Topology
+	removedTopologyRefreshed time.Time
 }
 
 // IService defines the REST service interface for mixmining.
@@ -65,9 +73,15 @@ type IService interface {
 func NewService(db IDb, cliCtx context.CLIContext) *Service {
 	emptyValidators := emptyValidators()
 	service := &Service{
-		db:         db,
-		cliCtx:     cliCtx,
-		validators: &emptyValidators,
+		db:                  db,
+		cliCtx:              cliCtx,
+		validators:          &emptyValidators,
+		topology:            db.Topology(),
+		topologyRefreshed: timemock.Now(),
+		activeTopology:      db.ActiveTopology(ReputationThreshold),
+		activeTopologyRefreshed: timemock.Now(),
+		removedTopology:     db.RemovedTopology(),
+		removedTopologyRefreshed: timemock.Now(),
 	}
 
 	// start validator updater in background
@@ -324,17 +338,31 @@ func emptyValidators() rpc.ResultValidatorsOutput {
 }
 
 func (service *Service) GetTopology() models.Topology {
-	topology := service.db.Topology()
-	topology.Validators = *service.validators
-	
-	return topology
+	now := timemock.Now()
+
+	if now.Sub(service.topologyRefreshed) > TopologyCacheTTL {
+		println("refreshing topology cache");
+		newTopology := service.db.Topology()
+		newTopology.Validators = *service.validators
+		service.topology = newTopology
+		service.topologyRefreshed = now
+	} else {
+		println("using topology cache");
+	}
+
+	return service.topology
 }
 
 func (service *Service) GetActiveTopology() models.Topology {
-	topology := service.db.ActiveTopology(ReputationThreshold)
-	topology.Validators = *service.validators
+	now := timemock.Now()
+	if now.Sub(service.activeTopologyRefreshed) > TopologyCacheTTL {
+		newTopology := service.db.ActiveTopology(ReputationThreshold)
+		newTopology.Validators = *service.validators
+		service.activeTopology = newTopology
+		service.activeTopologyRefreshed = now
+	}
 
-	return topology
+	return service.activeTopology
 }
 
 func (service *Service) MixCount() int {
@@ -348,7 +376,14 @@ func (service *Service) GatewayCount() int {
 }
 
 func (service *Service) GetRemovedTopology() models.Topology {
-	return service.db.RemovedTopology()
+	now := timemock.Now()
+	if now.Sub(service.removedTopologyRefreshed) > TopologyCacheTTL {
+		newTopology := service.db.RemovedTopology()
+		service.removedTopology = newTopology
+		service.removedTopologyRefreshed = now
+	}
+
+	return service.removedTopology
 }
 
 // StartupPurge moves any mixnode from the main topology into 'removed' if it is not running
