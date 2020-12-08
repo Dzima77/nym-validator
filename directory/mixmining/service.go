@@ -341,13 +341,10 @@ func (service *Service) GetTopology() models.Topology {
 	now := timemock.Now()
 
 	if now.Sub(service.topologyRefreshed) > TopologyCacheTTL {
-		println("refreshing topology cache")
 		newTopology := service.db.Topology()
 		newTopology.Validators = *service.validators
 		service.topology = newTopology
 		service.topologyRefreshed = now
-	} else {
-		println("using topology cache")
 	}
 
 	return service.topology
