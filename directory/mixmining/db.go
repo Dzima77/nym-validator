@@ -16,6 +16,7 @@ package mixmining
 
 import (
 	"fmt"
+	"gorm.io/gorm/clause"
 	"io/ioutil"
 	"log"
 	"net"
@@ -23,8 +24,6 @@ import (
 	"os/user"
 	"path"
 	"strings"
-
-	"gorm.io/gorm/clause"
 
 	"github.com/nymtech/nym/validator/nym/directory/models"
 	"gorm.io/driver/sqlite"
@@ -256,39 +255,29 @@ func (db *Db) activeRegisteredGateways(reputationThreshold int64) []models.Regis
 }
 
 func (db *Db) UnregisterNode(id string) bool {
-	tx := db.orm.Begin()
-
-	res := tx.Where("identity_key = ?", id).Delete(&models.RegisteredMix{})
+	res := db.orm.Where("identity_key = ?", id).Delete(&models.RegisteredMix{})
 	if res.Error != nil {
-		tx.Rollback()
 		return false
 	}
 	if res.RowsAffected > 0 {
 		// now try the same for 'removed mix' - remember, all we do are soft deletes, and a removed mix
 		// can only exist if there used to be an entry for 'registered mix' (don't blame me, blame gorm + sql :) )
-		res = tx.Where("identity_key = ?", id).Delete(&models.RemovedMix{})
+		res = db.orm.Where("identity_key = ?", id).Delete(&models.RemovedMix{})
 		if res.Error != nil {
-			tx.Rollback()
 			return false
 		}
-
-		tx.Commit()
 		return true
 	}
 
-	res = tx.Where("identity_key = ?", id).Delete(&models.RegisteredGateway{})
+	res = db.orm.Where("identity_key = ?", id).Delete(&models.RegisteredGateway{})
 	if res.Error != nil {
-		tx.Rollback()
 		return false
 	}
 	if res.RowsAffected > 0 {
-		res = tx.Where("identity_key = ?", id).Delete(&models.RemovedGateway{})
+		res = db.orm.Where("identity_key = ?", id).Delete(&models.RemovedGateway{})
 		if res.Error != nil {
-			tx.Rollback()
 			return false
 		}
-		
-		tx.Commit()
 		return true
 	}
 
@@ -296,26 +285,18 @@ func (db *Db) UnregisterNode(id string) bool {
 }
 
 func (db *Db) SetReputation(id string, newRep int64) bool {
-	tx := db.orm.Begin()
-	res := tx.Model(&models.RegisteredMix{}).Where("identity_key = ?", id).Update("reputation", newRep)
-
+	res := db.orm.Model(&models.RegisteredMix{}).Where("identity_key = ?", id).Update("reputation", newRep)
 	if res.Error != nil {
-		tx.Rollback()
 		return false
 	}
 	if res.RowsAffected > 0 {
-		tx.Commit()
 		return true
 	}
 
-	res = tx.Model(&models.RegisteredGateway{}).Where("identity_key = ?", id).Update("reputation", newRep)
+	res = db.orm.Model(&models.RegisteredGateway{}).Where("identity_key = ?", id).Update("reputation", newRep)
 	if res.Error != nil {
-		tx.Rollback()
 		return false
 	}
-
-	tx.Commit()
-
 	if res.RowsAffected > 0 {
 		return true
 	} else {
@@ -327,49 +308,39 @@ func (db *Db) BatchUpdateReputation(reputationChangeMap map[string]int64) {
 	// this is based on the idea (which might be totally wrong) that doing
 	// it this way will only result in single io action on db
 	// I don't know enough SQL to do it as a single query
-	tx := db.orm.Begin()
 	for id, repChange := range reputationChangeMap {
 		// ensuring reputation will not go negative (haha, this can probably be solved in a simpler way inside SQL, but hey, it works)
 		if repChange < 0 {
-			res := tx.Model(&models.RegisteredMix{}).Where("identity_key = ? AND reputation >= ?", id, -repChange).Update("reputation", gorm.Expr("reputation + ?", repChange))
+			res := db.orm.Model(&models.RegisteredMix{}).Where("identity_key = ? AND reputation >= ?", id, -repChange).Update("reputation", gorm.Expr("reputation + ?", repChange))
 			// TODO: rollback on fail here??
 			if res.RowsAffected == 0 {
-				tx.Model(&models.RegisteredGateway{}).Where("identity_key = ? AND reputation >= ?", id, -repChange).Update("reputation", gorm.Expr("reputation + ?", repChange))
+				db.orm.Model(&models.RegisteredGateway{}).Where("identity_key = ? AND reputation >= ?", id, -repChange).Update("reputation", gorm.Expr("reputation + ?", repChange))
 			}
 		} else {
-			res := tx.Model(&models.RegisteredMix{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repChange))
+			res := db.orm.Model(&models.RegisteredMix{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repChange))
 			// TODO: rollback on fail here??
 			if res.RowsAffected == 0 {
-				tx.Model(&models.RegisteredGateway{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repChange))
+				db.orm.Model(&models.RegisteredGateway{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repChange))
 			}
 		}
 	}
-
-	tx.Commit()
 }
 
 func (db *Db) UpdateReputation(id string, repIncrease int64) bool {
-	tx := db.orm.Begin()
 	// ensuring reputation will not go negative (haha, this can probably be solved in a simpler way inside SQL, but hey, it works)
 	if repIncrease < 0 {
-		res := tx.Model(&models.RegisteredMix{}).Where("identity_key = ? AND reputation >= ?", id, -repIncrease).Update("reputation", gorm.Expr("reputation + ?", repIncrease))
-
+		res := db.orm.Model(&models.RegisteredMix{}).Where("identity_key = ? AND reputation >= ?", id, -repIncrease).Update("reputation", gorm.Expr("reputation + ?", repIncrease))
 		if res.Error != nil {
-			tx.Rollback()
 			return false
 		}
 		if res.RowsAffected > 0 {
-			tx.Commit()
 			return true
 		}
 
-		res = tx.Model(&models.RegisteredGateway{}).Where("identity_key = ? AND reputation >= ?", id, -repIncrease).Update("reputation", gorm.Expr("reputation + ?", repIncrease))
+		res = db.orm.Model(&models.RegisteredGateway{}).Where("identity_key = ? AND reputation >= ?", id, -repIncrease).Update("reputation", gorm.Expr("reputation + ?", repIncrease))
 		if res.Error != nil {
-			tx.Rollback()
 			return false
 		}
-
-		tx.Commit()
 
 		if res.RowsAffected > 0 {
 			return true
@@ -377,24 +348,19 @@ func (db *Db) UpdateReputation(id string, repIncrease int64) bool {
 			return false
 		}
 	} else {
-		res := tx.Model(&models.RegisteredMix{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repIncrease))
+		res := db.orm.Model(&models.RegisteredMix{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repIncrease))
 
 		if res.Error != nil {
-			tx.Rollback()
 			return false
 		}
 		if res.RowsAffected > 0 {
-			tx.Commit()
 			return true
 		}
 
-		res = tx.Model(&models.RegisteredGateway{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repIncrease))
+		res = db.orm.Model(&models.RegisteredGateway{}).Where("identity_key = ?", id).Update("reputation", gorm.Expr("reputation + ?", repIncrease))
 		if res.Error != nil {
-			tx.Rollback()
 			return false
 		}
-
-		tx.Commit()
 
 		if res.RowsAffected > 0 {
 			return true
@@ -402,7 +368,6 @@ func (db *Db) UpdateReputation(id string, repIncrease int64) bool {
 			return false
 		}
 	}
-
 }
 
 func (db *Db) Topology() models.Topology {
