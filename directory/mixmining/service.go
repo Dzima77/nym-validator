@@ -36,11 +36,11 @@ type Service struct {
 	cliCtx     context.CLIContext
 	validators *rpc.ResultValidatorsOutput
 
-	topology            models.Topology
-	topologyRefreshed time.Time
-	activeTopology      models.Topology
-	activeTopologyRefreshed time.Time
-	removedTopology     models.Topology
+	topology                 models.Topology
+	topologyRefreshed        time.Time
+	activeTopology           models.Topology
+	activeTopologyRefreshed  time.Time
+	removedTopology          models.Topology
 	removedTopologyRefreshed time.Time
 }
 
@@ -73,14 +73,14 @@ type IService interface {
 func NewService(db IDb, cliCtx context.CLIContext) *Service {
 	emptyValidators := emptyValidators()
 	service := &Service{
-		db:                  db,
-		cliCtx:              cliCtx,
-		validators:          &emptyValidators,
-		topology:            db.Topology(),
-		topologyRefreshed: timemock.Now(),
-		activeTopology:      db.ActiveTopology(ReputationThreshold),
-		activeTopologyRefreshed: timemock.Now(),
-		removedTopology:     db.RemovedTopology(),
+		db:                       db,
+		cliCtx:                   cliCtx,
+		validators:               &emptyValidators,
+		topology:                 db.Topology(),
+		topologyRefreshed:        timemock.Now(),
+		activeTopology:           db.ActiveTopology(ReputationThreshold),
+		activeTopologyRefreshed:  timemock.Now(),
+		removedTopology:          db.RemovedTopology(),
 		removedTopologyRefreshed: timemock.Now(),
 	}
 
@@ -341,13 +341,13 @@ func (service *Service) GetTopology() models.Topology {
 	now := timemock.Now()
 
 	if now.Sub(service.topologyRefreshed) > TopologyCacheTTL {
-		println("refreshing topology cache");
+		println("refreshing topology cache")
 		newTopology := service.db.Topology()
 		newTopology.Validators = *service.validators
 		service.topology = newTopology
 		service.topologyRefreshed = now
 	} else {
-		println("using topology cache");
+		println("using topology cache")
 	}
 
 	return service.topology
