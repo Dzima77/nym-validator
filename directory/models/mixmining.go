@@ -45,14 +45,10 @@ type MixStatusReport struct {
 	Last5MinutesIPV4 int    `json:"last5MinutesIPV4" binding:"required"`
 	LastHourIPV4     int    `json:"lastHourIPV4" binding:"required"`
 	LastDayIPV4      int    `json:"lastDayIPV4" binding:"required"`
-	LastWeekIPV4     int    `json:"lastWeekIPV4" binding:"required"`
-	LastMonthIPV4    int    `json:"lastMonthIPV4" binding:"required"`
 	MostRecentIPV6   bool   `json:"mostRecentIPV6" binding:"required"`
 	Last5MinutesIPV6 int    `json:"last5MinutesIPV6" binding:"required"`
 	LastHourIPV6     int    `json:"lastHourIPV6" binding:"required"`
 	LastDayIPV6      int    `json:"lastDayIPV6" binding:"required"`
-	LastWeekIPV6     int    `json:"lastWeekIPV6" binding:"required"`
-	LastMonthIPV6    int    `json:"lastMonthIPV6" binding:"required"`
 }
 
 // BatchMixStatus allows to indicate whether given set of nodes is up or down, as reported by a Nym monitor node.
