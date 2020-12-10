@@ -34,7 +34,6 @@ const Last5MinutesReports = 5
 const LastHourReports = 50
 const LastDayReports = 1000
 
-
 // Service struct
 type Service struct {
 	db         IDb
@@ -121,7 +120,7 @@ func lastDayReportsUpdater(service *Service) {
 
 }
 
-func (service* Service) updateLastDayReports() models.BatchMixStatusReport {
+func (service *Service) updateLastDayReports() models.BatchMixStatusReport {
 	topology := service.GetTopology()
 
 	// right there are no reports for gateways so ignore them.
@@ -131,7 +130,7 @@ func (service* Service) updateLastDayReports() models.BatchMixStatusReport {
 	}
 
 	batchReport := service.db.BatchLoadReports(reportKeys)
-	for idx, _ := range batchReport.Report {
+	for idx := range batchReport.Report {
 		report := &batchReport.Report[idx]
 		lastDayUptime := service.CalculateUptime(report.PubKey, "4", LastDayReports)
 		if lastDayUptime == -1 {
