@@ -23,10 +23,10 @@ import (
 // so making it a pointer works. This necessitates crapification of the Up-related code, as you can't
 // do `*true` or `&true`, you need a variable to point to or dereference. This is why you'll see e.g.
 // things like `booltrue := true`, `&booltrue` in the codebase. Maybe there's a more elegant way to
-// acheive that which a bigger gopher could clean up.
+// achieve that which a bigger gopher could clean up.
 type MixStatus struct {
-	PubKey    string `json:"pubKey" binding:"required" gorm:"index"`
-	IPVersion string `json:"ipVersion" binding:"required"`
+	PubKey    string `json:"pubKey" binding:"required" gorm:"index:status_index"`
+	IPVersion string `json:"ipVersion" binding:"required" gorm:"index:status_index"`
 	Up        *bool  `json:"up" binding:"required"`
 }
 
@@ -35,7 +35,7 @@ type MixStatus struct {
 // mixnode uptime.
 type PersistedMixStatus struct {
 	MixStatus
-	Timestamp int64 `json:"timestamp" binding:"required"`
+	Timestamp int64 `json:"timestamp" binding:"required" gorm:"index:status_index,sort:desc"`
 }
 
 // MixStatusReport gives a quick view of mixnode uptime performance
