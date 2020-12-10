@@ -323,7 +323,7 @@ func (service *Service) batchShouldGetRemoved(batchReport *models.BatchMixStatus
 
 // CalculateUptime calculates percentage uptime for a given node, protocol since a specific time
 func (service *Service) CalculateUptime(pubkey string, ipVersion string, numReports int) int {
-	statuses := service.db.GetNMostRecentMixStatus(pubkey, ipVersion, numReports)
+	statuses := service.db.GetNMostRecentMixStatuses(pubkey, ipVersion, numReports)
 	numStatuses := len(statuses)
 	if numStatuses == 0 {
 		// this can only happen to the goroutine calculating uptime for last 1000 reports
