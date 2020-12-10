@@ -56,6 +56,7 @@ type IDb interface {
 	RemovedTopology() models.Topology
 	MoveToRemovedSet(pubkey string)
 	BatchMoveToRemovedSet(pubkeys []string)
+	GetNMostRecentMixStatus(pubkey string, ipVersion string, n int) []models.PersistedMixStatus
 }
 
 // Db is a hashtable that holds mixnode uptime mixmining
@@ -149,6 +150,16 @@ func (db *Db) ListMixStatusDateRange(pubkey string, ipVersion string, start int6
 	}
 	return statuses
 }
+
+// GetNMostRecentMixStatus lists `n` most recent persisted mix statuses for a node for either IPv4 or IPv6
+func (db *Db) GetNMostRecentMixStatus(pubkey string, ipVersion string, n int) []models.PersistedMixStatus {
+	var statuses []models.PersistedMixStatus
+	if err := db.orm.Order("timestamp desc").Where("pub_key = ?", pubkey).Where("ip_version = ?", ipVersion).Limit(n).Find(&statuses).Error; err != nil {
+		return make([]models.PersistedMixStatus, 0)
+	}
+	return statuses
+}
+
 
 // SaveMixStatusReport creates or updates a status summary report for a given mixnode in the database
 func (db *Db) SaveMixStatusReport(report models.MixStatusReport) {
@@ -305,9 +316,6 @@ func (db *Db) SetReputation(id string, newRep int64) bool {
 }
 
 func (db *Db) BatchUpdateReputation(reputationChangeMap map[string]int64) {
-	// this is based on the idea (which might be totally wrong) that doing
-	// it this way will only result in single io action on db
-	// I don't know enough SQL to do it as a single query
 	for id, repChange := range reputationChangeMap {
 		// ensuring reputation will not go negative (haha, this can probably be solved in a simpler way inside SQL, but hey, it works)
 		if repChange < 0 {
