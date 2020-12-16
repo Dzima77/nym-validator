@@ -57,6 +57,7 @@ type IDb interface {
 	MoveToRemovedSet(pubkey string)
 	BatchMoveToRemovedSet(pubkeys []string)
 	GetNMostRecentMixStatuses(pubkey string, ipVersion string, n int) []models.PersistedMixStatus
+	ListMixStatusSinceWithLimit(pubkey string, ipVersion string, since int64, limit int) []models.PersistedMixStatus
 }
 
 // Db is a hashtable that holds mixnode uptime mixmining
@@ -146,6 +147,17 @@ func (db *Db) ListMixStatus(pubkey string, limit int) []models.PersistedMixStatu
 func (db *Db) ListMixStatusDateRange(pubkey string, ipVersion string, start int64, end int64) []models.PersistedMixStatus {
 	var statuses []models.PersistedMixStatus
 	if err := db.orm.Order("timestamp desc").Where("pub_key = ?", pubkey).Where("ip_version = ?", ipVersion).Where("timestamp >= ?", start).Where("timestamp <= ?", end).Find(&statuses).Error; err != nil {
+		return make([]models.PersistedMixStatus, 0)
+	}
+	return statuses
+}
+
+// ListMixStatusSinceWithLimit lists all persisted mix statuses for a node for either IPv4 or IPv6 since the specified timestamp with the maximum of `limit` results
+func (db *Db) ListMixStatusSinceWithLimit(pubkey string, ipVersion string, since int64, limit int) []models.PersistedMixStatus {
+	var statuses []models.PersistedMixStatus
+	// resultant query:
+	// SELECT * FROM (SELECT * FROM persisted_mix_statuses p WHERE p.pub_key = ? AND p.ip_version = ? AND p.timestamp >= ? LIMIT > ? ) ORDER BY timestamp desc;
+	if err := db.orm.Table("(?)", db.orm.Model(&models.PersistedMixStatus{}).Where("pub_key = ?", pubkey).Where("ip_version = ?", ipVersion).Where("timestamp >= ?", since).Limit(limit)).Order("timestamp desc").Find(&statuses).Error; err != nil {
 		return make([]models.PersistedMixStatus, 0)
 	}
 	return statuses
