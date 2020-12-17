@@ -129,17 +129,18 @@ func (service *Service) updateLastDayReports() models.BatchMixStatusReport {
 		reportKeys = append(reportKeys, mix.IdentityKey)
 	}
 
+	dayAgo := timemock.Now().Add(time.Duration(-time.Hour * 24)).UnixNano()
 	batchReport := service.db.BatchLoadReports(reportKeys)
 	for idx := range batchReport.Report {
 		report := &batchReport.Report[idx]
-		lastDayUptime := service.CalculateUptime(report.PubKey, "4", LastDayReports)
+		lastDayUptime := service.CalculateUptimeSince(report.PubKey, "4", dayAgo, LastDayReports)
 		if lastDayUptime == -1 {
 			// there were no reports to calculate uptime with
 			continue
 		}
 
 		report.LastDayIPV4 = lastDayUptime
-		report.LastDayIPV6 = service.CalculateUptime(report.PubKey, "6", LastDayReports)
+		report.LastDayIPV6 = service.CalculateUptimeSince(report.PubKey, "6", dayAgo, LastDayReports)
 	}
 
 	service.db.SaveBatchMixStatusReport(batchReport)
@@ -324,6 +325,23 @@ func (service *Service) batchShouldGetRemoved(batchReport *models.BatchMixStatus
 // CalculateUptime calculates percentage uptime for a given node, protocol since a specific time
 func (service *Service) CalculateUptime(pubkey string, ipVersion string, numReports int) int {
 	statuses := service.db.GetNMostRecentMixStatuses(pubkey, ipVersion, numReports)
+	numStatuses := len(statuses)
+	if numStatuses == 0 {
+		// this can only happen to the goroutine calculating uptime for last 1000 reports
+		return -1
+	}
+	up := 0
+	for _, status := range statuses {
+		if *status.Up {
+			up = up + 1
+		}
+	}
+
+	return service.calculatePercent(up, numStatuses)
+}
+
+func (service *Service) CalculateUptimeSince(pubkey string, ipVersion string, since int64, numReports int) int {
+	statuses := service.db.ListMixStatusSinceWithLimit(pubkey, ipVersion, since, numReports)
 	numStatuses := len(statuses)
 	if numStatuses == 0 {
 		// this can only happen to the goroutine calculating uptime for last 1000 reports
