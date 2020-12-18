@@ -88,9 +88,12 @@ func NewService(db IDb, cliCtx context.CLIContext) *Service {
 		removedTopologyRefreshed: timemock.Now(),
 	}
 
-	// start validator updater in background
+	// start validator updater in background (every 30s)
 	go updateValidators(service)
+	// same with 'last day' report updater (every 10min)
 	go lastDayReportsUpdater(service)
+	// and old statuses remover (every 1h)
+	go oldStatusesPurger(service)
 
 	return service
 }
@@ -118,6 +121,17 @@ func lastDayReportsUpdater(service *Service) {
 		service.removeBrokenNodes(&batchReport)
 	}
 
+}
+
+func oldStatusesPurger(service *Service) {
+	ticker := time.NewTicker(time.Hour * 1)
+
+	for {
+		now := timemock.Now()
+		lastWeek := now.Add(- (time.Hour * 24 * 7)).UnixNano()
+		service.db.RemoveOldStatuses(lastWeek)
+		<-ticker.C
+	}
 }
 
 func (service *Service) updateLastDayReports() models.BatchMixStatusReport {

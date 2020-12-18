@@ -58,6 +58,7 @@ type IDb interface {
 	BatchMoveToRemovedSet(pubkeys []string)
 	GetNMostRecentMixStatuses(pubkey string, ipVersion string, n int) []models.PersistedMixStatus
 	ListMixStatusSinceWithLimit(pubkey string, ipVersion string, since int64, limit int) []models.PersistedMixStatus
+	RemoveOldStatuses(before int64)
 }
 
 // Db is a hashtable that holds mixnode uptime mixmining
@@ -161,6 +162,13 @@ func (db *Db) ListMixStatusSinceWithLimit(pubkey string, ipVersion string, since
 		return make([]models.PersistedMixStatus, 0)
 	}
 	return statuses
+}
+
+// RemoveOldStatuses removes all `PersistedMixStatus` that were created before the provided timestamp.
+func (db *Db) RemoveOldStatuses(before int64) {
+	if err := db.orm.Unscoped().Where("timestamp < ?", before).Delete(&models.PersistedMixStatus{}).Error; err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to remove old statuses from the database - %v\n", err)
+	}
 }
 
 // GetNMostRecentMixStatus lists `n` most recent persisted mix statuses for a node for either IPv4 or IPv6
