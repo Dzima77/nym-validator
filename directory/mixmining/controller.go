@@ -16,14 +16,15 @@ package mixmining
 
 import (
 	"fmt"
-	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"github.com/nymtech/nym/validator/nym/directory/models"
+	"net/http"
+	"strconv"
+	"sync"
 )
 
 const MaximumMixnodes = 1500
+
 // explicitly declared so that a similar attack could not be used for gateways this time.
 const MaximumGateways = 1000
 const SystemVersion = "0.9.2"
@@ -43,8 +44,14 @@ type controller struct {
 	genericSanitizer GenericSanitizer
 	batchSanitizer   BatchSanitizer
 
-	mixCount int
+	mixCount     int
 	gatewayCount int
+
+	// ensures that if two nodes register at the same time while there's only a single opening left, they won't
+	// both be accepted.
+	// note that the lock is not used when creating mix status or unregistering nodes as those can only DECREMENT
+	// mix count
+	registrationLock sync.Mutex
 }
 
 // Controller ...
@@ -61,7 +68,7 @@ func New(cfg Config) Controller {
 	// move all non 0.9.2 nodes to "removed" set
 	cfg.Service.StartupPurge()
 
-	return &controller{cfg.Service, cfg.Sanitizer, cfg.GenericSanitizer, cfg.BatchSanitizer, initialMixCount, initialGatewayCount}
+	return &controller{cfg.Service, cfg.Sanitizer, cfg.GenericSanitizer, cfg.BatchSanitizer, initialMixCount, initialGatewayCount, sync.Mutex{}}
 }
 
 func (controller *controller) RegisterRoutes(router *gin.Engine) {
@@ -132,7 +139,7 @@ func (controller *controller) CreateMixStatus(c *gin.Context) {
 	// we don't know how number of active nodes changed - update it
 	controller.mixCount = controller.service.MixCount()
 	controller.gatewayCount = controller.service.GatewayCount()
-		
+
 	c.JSON(http.StatusCreated, gin.H{"ok": true})
 }
 
@@ -247,6 +254,23 @@ func (controller *controller) RegisterMixPresence(ctx *gin.Context) {
 
 	if presence.Version != SystemVersion {
 		ctx.JSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("running non %v version", SystemVersion)})
+		return
+	}
+
+	// make sure there's still space left after all the checks
+	// (another node might have finished registration in the meantime)
+	// it is done before locking as it's a very cheap check
+	if controller.mixCount >= MaximumMixnodes {
+		ctx.JSON(http.StatusConflict, gin.H{"error": "mixnet is already at capacity"})
+		return
+	}
+
+	controller.registrationLock.Lock()
+	defer controller.registrationLock.Unlock()
+
+	// perform the same check after locking because we don't know how long it took to acquire the lock
+	if controller.mixCount >= MaximumMixnodes {
+		ctx.JSON(http.StatusConflict, gin.H{"error": "mixnet is already at capacity"})
 		return
 	}
 
