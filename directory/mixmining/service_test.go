@@ -22,6 +22,7 @@ import (
 	"github.com/nymtech/nym/validator/nym/directory/models"
 	. "github.com/onsi/ginkgo"
 	"github.com/stretchr/testify/assert"
+	"net/http"
 	"time"
 )
 
@@ -443,27 +444,75 @@ var _ = Describe("mixmining.registration.Service", func() {
 		})
 	})
 
-	//Describe("Unregistering node", func() {
-	//	Context("With given identity when it exists", func() {
-	//		It("Calls internal database with correct arguments", func() {
-	//			nodeID := "foomp"
-	//			mockDb.On("UnregisterNode", nodeID).Return(true)
-	//
-	//			assert.True(GinkgoT(), serv.UnregisterNode(nodeID))
-	//			mockDb.AssertCalled(GinkgoT(), "UnregisterNode", nodeID)
-	//		})
-	//	})
-	//
-	//	Context("With given identity when it doesn't exists", func() {
-	//		It("Calls internal database with correct arguments", func() {
-	//			nodeID := "foomp"
-	//			mockDb.On("UnregisterNode", nodeID).Return(false)
-	//
-	//			assert.False(GinkgoT(), serv.UnregisterNode(nodeID))
-	//			mockDb.AssertCalled(GinkgoT(), "UnregisterNode", nodeID)
-	//		})
-	//	})
-	//})
+	Describe("Unregistering node", func() {
+		Context("When caller ip matches", func () {
+			It("Performs unregistration for node announcing ip address", func () {
+				nodeID := "foomp"
+
+				mockDb.On("GetNodeMixHost", nodeID).Return("127.0.0.1:1234")
+				mockDb.On("UnregisterNode", nodeID).Return(true)
+
+				_, err := serv.UnregisterNode(nodeID, "127.0.0.1")
+				assert.Nil(GinkgoT(), err)
+				mockDb.AssertCalled(GinkgoT(), "UnregisterNode", nodeID)
+			})
+
+			It("Performs unregistration for node announcing hostname", func () {
+				nodeID := "foomp"
+
+				mockDb.On("GetNodeMixHost", nodeID).Return("nymtech.net:1234")
+				mockDb.On("UnregisterNode", nodeID).Return(true)
+
+				_, err := serv.UnregisterNode(nodeID, "185.19.28.43")
+				assert.Nil(GinkgoT(), err)
+				mockDb.AssertCalled(GinkgoT(), "UnregisterNode", nodeID)
+			})
+		})
+
+		Context("When caller ip is empty", func() {
+			It("returns a bad status", func() {
+				nodeID := "foomp"
+
+				status, err := serv.UnregisterNode(nodeID, "")
+				assert.NotNil(GinkgoT(), status, http.StatusBadRequest)
+				assert.NotNil(GinkgoT(), err)
+			})
+		})
+
+		Context("When node with specified id doesn't exist", func() {
+			It("returns a not found status", func() {
+				nodeID := "foomp"
+
+				mockDb.On("GetNodeMixHost", nodeID).Return("")
+
+				status, err := serv.UnregisterNode(nodeID, "1.1.1.1")
+				assert.NotNil(GinkgoT(), status, http.StatusBadRequest)
+				assert.NotNil(GinkgoT(), err)
+			})
+		})
+
+		Context("When caller ip doesn't match", func () {
+			It("Doesn't perform unregistration for node announcing ip address", func () {
+				nodeID := "foomp"
+
+				mockDb.On("GetNodeMixHost", nodeID).Return("127.0.0.1:1234")
+
+				status, err := serv.UnregisterNode(nodeID, "1.1.1.1")
+				assert.NotNil(GinkgoT(), status, http.StatusForbidden)
+				assert.NotNil(GinkgoT(), err)
+			})
+
+			It("Doesn't perform unregistration for node announcing hostname", func () {
+				nodeID := "foomp"
+
+				mockDb.On("GetNodeMixHost", nodeID).Return("nymtech.net:1234")
+
+				status, err := serv.UnregisterNode(nodeID, "1.1.1.1")
+				assert.NotNil(GinkgoT(), status, http.StatusForbidden)
+				assert.NotNil(GinkgoT(), err)
+			})
+		})
+	})
 
 	Describe("Setting reputation of a node", func() {
 		Context("With given identity when it exists", func() {

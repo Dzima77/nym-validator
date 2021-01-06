@@ -21,7 +21,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"net"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/BorisBorshevsky/timemock"
@@ -401,7 +400,6 @@ func (service *Service) RegisterGateway(info models.GatewayRegistrationInfo) {
 	service.db.RegisterGateway(registeredGateway)
 }
 
-
 func (service *Service) UnregisterNode(id string, remoteIp string) (int, error) {
 	if remoteIp == "" {
 		return http.StatusBadRequest, errors.New("unknown remote address")
@@ -416,26 +414,29 @@ func (service *Service) UnregisterNode(id string, remoteIp string) (int, error) 
 
 	ip, _, err := net.SplitHostPort(host)
 	if err != nil {
-		// I guess we got a domain name?
-		split := strings.Split(ip, ":")
-		chunks := len(split)
-		if chunks != 2 {
-			// no idea what we got here
-			return http.StatusBadRequest, errors.New("node has an invalid address")
-		}
-
-		ips, err := net.LookupIP(split[0])
-		if err != nil {
-			return http.StatusBadRequest, errors.New("node has an invalid address")
-		}
-
-		// if it was a hostname it might have multiple ip addresses - push all of them
-		for _, ip := range ips {
-			nodeAddresses = append(nodeAddresses, ip.String())
-		}
+		// not sure what to do here, this branch implies mixhost does not follow a <host>:<port> structure
+		return http.StatusBadRequest, errors.New("node has an invalid address - it cannot be split into host and port")
 	} else {
-		// most common case - it was a normal ip:port situation
-		nodeAddresses = append(nodeAddresses, ip)
+		// make sure it's an ip address and not a host
+		if net.ParseIP(ip) == nil {
+			// we failed to parse ip address meaning it's most likely a hostname
+			ips, err := net.LookupIP(ip)
+			// DNS lookup failed
+			if err != nil {
+				return http.StatusBadRequest, errors.New("node has an invalid address")
+			}
+
+			// if it was a hostname it might have multiple ip addresses - push all of them
+			for _, ip := range ips {
+				nodeAddresses = append(nodeAddresses, ip.String())
+			}
+
+			// we managed to parse ip address
+		} else {
+			// most common case - it was a normal ip:port situation
+			nodeAddresses = append(nodeAddresses, ip)
+		}
+
 	}
 
 	// finally check if any of the node's addresses correspond to the remote

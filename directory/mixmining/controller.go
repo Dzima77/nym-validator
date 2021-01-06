@@ -335,6 +335,7 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 // @Param id path string true "Node Identity"
 // @Success 200
 // @Failure 400 {object} models.Error
+// @Failure 403 {object} models.Error
 // @Failure 404 {object} models.Error
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining/register/{id} [delete]
