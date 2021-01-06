@@ -59,6 +59,7 @@ type IDb interface {
 	GetNMostRecentMixStatuses(pubkey string, ipVersion string, n int) []models.PersistedMixStatus
 	ListMixStatusSinceWithLimit(pubkey string, ipVersion string, since int64, limit int) []models.PersistedMixStatus
 	RemoveOldStatuses(before int64)
+	GetNodeMixHost(pubkey string) string
 }
 
 // Db is a hashtable that holds mixnode uptime mixmining
@@ -443,6 +444,28 @@ func (db *Db) IpExists(ip string) bool {
 	} else {
 		return false
 	}
+}
+
+func (db *Db) GetNodeMixHost(pubkey string) string {
+	var mix models.RegisteredMix
+	if err := db.orm.Unscoped().First(&mix, pubkey).Error; err != nil {
+		return ""
+	}
+
+	if mix.MixHost != "" {
+		return mix.MixHost
+	}
+
+	var gateway models.RemovedGateway
+	if err := db.orm.Unscoped().First(&gateway, pubkey).Error; err != nil {
+		return ""
+	}
+
+	if gateway.MixHost != "" {
+		return mix.MixHost
+	}
+
+	return ""
 }
 
 func (db *Db) addRemovedMix(mix models.RemovedMix) {

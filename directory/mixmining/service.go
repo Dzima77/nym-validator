@@ -15,9 +15,13 @@
 package mixmining
 
 import (
+	"errors"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
+	"net"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/BorisBorshevsky/timemock"
@@ -61,7 +65,7 @@ type IService interface {
 
 	RegisterMix(info models.MixRegistrationInfo)
 	RegisterGateway(info models.GatewayRegistrationInfo)
-	UnregisterNode(id string) bool
+	UnregisterNode(id string, remoteIp string) (int, error)
 	SetReputation(id string, newRep int64) bool
 	GetTopology() models.Topology
 	GetActiveTopology() models.Topology
@@ -395,8 +399,56 @@ func (service *Service) RegisterGateway(info models.GatewayRegistrationInfo) {
 	service.db.RegisterGateway(registeredGateway)
 }
 
-func (service *Service) UnregisterNode(id string) bool {
-	return service.db.UnregisterNode(id)
+
+func (service *Service) UnregisterNode(id string, remoteIp string) (int, error) {
+	if remoteIp == "" {
+		return http.StatusBadRequest, errors.New("unknown remote address")
+	}
+
+	host := service.db.GetNodeMixHost(id)
+	if host == "" {
+		return http.StatusNotFound, errors.New("node does not exist")
+	}
+
+	nodeAddresses := make([]string, 1)
+
+	ip, _, err := net.SplitHostPort(host)
+	if err != nil {
+		// I guess we got a domain name?
+		split := strings.Split(ip, ":")
+		chunks := len(split)
+		if chunks != 2 {
+			// no idea what we got here
+			return http.StatusBadRequest, errors.New("node has an invalid address")
+		}
+
+		ips, err := net.LookupIP(split[0])
+		if err != nil {
+			return http.StatusBadRequest, errors.New("node has an invalid address")
+		}
+
+		// if it was a hostname it might have multiple ip addresses - push all of them
+		for _, ip := range ips {
+			nodeAddresses = append(nodeAddresses, ip.String())
+		}
+	} else {
+		// most common case - it was a normal ip:port situation
+		nodeAddresses = append(nodeAddresses, ip)
+	}
+
+	// finally check if any of the node's addresses correspond to the remote
+	for _, nodeAddress := range nodeAddresses {
+		if remoteIp == nodeAddress {
+			// this shouldn't ever return false now as the node is BOUND to exist since we manage to grab its
+			// address
+			if !service.db.UnregisterNode(id) {
+				return http.StatusInternalServerError, errors.New("failed to unregister node")
+			}
+			return http.StatusOK, nil
+		}
+	}
+
+	return http.StatusForbidden, errors.New("node's mix host does not match the remote address")
 }
 
 func (service *Service) SetReputation(id string, newRep int64) bool {

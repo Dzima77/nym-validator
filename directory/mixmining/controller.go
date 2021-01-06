@@ -19,6 +19,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nymtech/nym/validator/nym/directory/models"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 )
@@ -338,16 +339,22 @@ func (controller *controller) RegisterGatewayPresence(ctx *gin.Context) {
 // @Failure 500 {object} models.Error
 // @Router /api/mixmining/register/{id} [delete]
 func (controller *controller) UnregisterPresence(ctx *gin.Context) {
+	remoteIP := ctx.ClientIP()
+
 	id := ctx.Param("id")
 	controller.genericSanitizer.Sanitize(&id)
 
-	if controller.service.UnregisterNode(id) {
+	status, err := controller.service.UnregisterNode(id, remoteIP)
+	if err != nil {
+		ctx.JSON(status, gin.H{"error": err.Error()})
+	} else {
+		// status MUST be 200, otherwise service is really messed up
+		if status != http.StatusOK {
+			fmt.Fprintf(os.Stderr, "unregistration did not return an error, but the status was not 200!\n")
+		}
 		controller.mixCount = controller.service.MixCount()
 		controller.gatewayCount = controller.service.GatewayCount()
-
-		ctx.JSON(http.StatusOK, gin.H{"ok": true})
-	} else {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "entry does not exist"})
+		ctx.JSON(status, gin.H{"ok": true})
 	}
 }
 
