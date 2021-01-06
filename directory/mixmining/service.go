@@ -21,6 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"net"
 	"net/http"
+	"sync/atomic"
 	"time"
 
 	"github.com/BorisBorshevsky/timemock"
@@ -37,6 +38,9 @@ const Last5MinutesReports = 5
 const LastHourReports = 50
 const LastDayReports = 1000
 
+const TopologyRefreshing = 1
+const TopologyNotRefreshing = 0
+
 // Service struct
 type Service struct {
 	db         IDb
@@ -49,6 +53,10 @@ type Service struct {
 	activeTopologyRefreshed  time.Time
 	removedTopology          models.Topology
 	removedTopologyRefreshed time.Time
+
+	topologyRefreshing        uint32
+	activeTopologyRefreshing  uint32
+	removedTopologyRefreshing uint32
 }
 
 // IService defines the REST service interface for mixmining.
@@ -469,10 +477,18 @@ func (service *Service) GetTopology() models.Topology {
 	now := timemock.Now()
 
 	if now.Sub(service.topologyRefreshed) > TopologyCacheTTL {
-		newTopology := service.db.Topology()
-		newTopology.Validators = *service.validators
-		service.topology = newTopology
-		service.topologyRefreshed = now
+		// if topology is not refreshing, start refreshing
+		if atomic.CompareAndSwapUint32(&service.topologyRefreshing, TopologyNotRefreshing, TopologyRefreshing) {
+			// put in defer block to ensure it's going to get called if something crashes
+			defer func() {
+				service.topologyRefreshing = TopologyNotRefreshing
+			}()
+
+			newTopology := service.db.Topology()
+			newTopology.Validators = *service.validators
+			service.topology = newTopology
+			service.topologyRefreshed = now
+		}
 	}
 
 	return service.topology
@@ -481,10 +497,18 @@ func (service *Service) GetTopology() models.Topology {
 func (service *Service) GetActiveTopology() models.Topology {
 	now := timemock.Now()
 	if now.Sub(service.activeTopologyRefreshed) > TopologyCacheTTL {
-		newTopology := service.db.ActiveTopology(ReputationThreshold)
-		newTopology.Validators = *service.validators
-		service.activeTopology = newTopology
-		service.activeTopologyRefreshed = now
+		// if topology is not refreshing, start refreshing
+		if atomic.CompareAndSwapUint32(&service.activeTopologyRefreshing, TopologyNotRefreshing, TopologyRefreshing) {
+			// put in defer block to ensure it's going to get called if something crashes
+			defer func() {
+				service.activeTopologyRefreshing = TopologyNotRefreshing
+			}()
+
+			newTopology := service.db.ActiveTopology(ReputationThreshold)
+			newTopology.Validators = *service.validators
+			service.activeTopology = newTopology
+			service.activeTopologyRefreshed = now
+		}
 	}
 
 	return service.activeTopology
@@ -503,9 +527,17 @@ func (service *Service) GatewayCount() int {
 func (service *Service) GetRemovedTopology() models.Topology {
 	now := timemock.Now()
 	if now.Sub(service.removedTopologyRefreshed) > TopologyCacheTTL {
-		newTopology := service.db.RemovedTopology()
-		service.removedTopology = newTopology
-		service.removedTopologyRefreshed = now
+		// if topology is not refreshing, start refreshing
+		if atomic.CompareAndSwapUint32(&service.removedTopologyRefreshing, TopologyNotRefreshing, TopologyRefreshing) {
+			// put in defer block to ensure it's going to get called if something crashes
+			defer func() {
+				service.removedTopologyRefreshing = TopologyNotRefreshing
+			}()
+
+			newTopology := service.db.RemovedTopology()
+			service.removedTopology = newTopology
+			service.removedTopologyRefreshed = now
+		}
 	}
 
 	return service.removedTopology
