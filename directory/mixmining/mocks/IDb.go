@@ -60,6 +60,36 @@ func (_m *IDb) BatchUpdateReputation(reputationChangeMap map[string]int64) {
 	_m.Called(reputationChangeMap)
 }
 
+// GetNMostRecentMixStatuses provides a mock function with given fields: pubkey, ipVersion, n
+func (_m *IDb) GetNMostRecentMixStatuses(pubkey string, ipVersion string, n int) []models.PersistedMixStatus {
+	ret := _m.Called(pubkey, ipVersion, n)
+
+	var r0 []models.PersistedMixStatus
+	if rf, ok := ret.Get(0).(func(string, string, int) []models.PersistedMixStatus); ok {
+		r0 = rf(pubkey, ipVersion, n)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.PersistedMixStatus)
+		}
+	}
+
+	return r0
+}
+
+// GetNodeMixHost provides a mock function with given fields: pubkey
+func (_m *IDb) GetNodeMixHost(pubkey string) string {
+	ret := _m.Called(pubkey)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(pubkey)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // IpExists provides a mock function with given fields: ip
 func (_m *IDb) IpExists(ip string) bool {
 	ret := _m.Called(ip)
@@ -97,6 +127,22 @@ func (_m *IDb) ListMixStatusDateRange(pubkey string, ipVersion string, start int
 	var r0 []models.PersistedMixStatus
 	if rf, ok := ret.Get(0).(func(string, string, int64, int64) []models.PersistedMixStatus); ok {
 		r0 = rf(pubkey, ipVersion, start, end)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.PersistedMixStatus)
+		}
+	}
+
+	return r0
+}
+
+// ListMixStatusSinceWithLimit provides a mock function with given fields: pubkey, ipVersion, since, limit
+func (_m *IDb) ListMixStatusSinceWithLimit(pubkey string, ipVersion string, since int64, limit int) []models.PersistedMixStatus {
+	ret := _m.Called(pubkey, ipVersion, since, limit)
+
+	var r0 []models.PersistedMixStatus
+	if rf, ok := ret.Get(0).(func(string, string, int64, int) []models.PersistedMixStatus); ok {
+		r0 = rf(pubkey, ipVersion, since, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.PersistedMixStatus)
@@ -147,6 +193,11 @@ func (_m *IDb) RegisterGateway(gateway models.RegisteredGateway) {
 // RegisterMix provides a mock function with given fields: mix
 func (_m *IDb) RegisterMix(mix models.RegisteredMix) {
 	_m.Called(mix)
+}
+
+// RemoveOldStatuses provides a mock function with given fields: before
+func (_m *IDb) RemoveOldStatuses(before int64) {
+	_m.Called(before)
 }
 
 // RemovedTopology provides a mock function with given fields:

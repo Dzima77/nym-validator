@@ -78,7 +78,7 @@ type IService interface {
 }
 
 // NewService constructor
-func NewService(db IDb, cliCtx context.CLIContext) *Service {
+func NewService(db IDb, cliCtx context.CLIContext, isTest bool) *Service {
 	emptyValidators := emptyValidators()
 	service := &Service{
 		db:                       db,
@@ -92,12 +92,14 @@ func NewService(db IDb, cliCtx context.CLIContext) *Service {
 		removedTopologyRefreshed: timemock.Now(),
 	}
 
-	// start validator updater in background (every 30s)
-	go updateValidators(service)
-	// same with 'last day' report updater (every 10min)
-	go lastDayReportsUpdater(service)
-	// and old statuses remover (every 1h)
-	go oldStatusesPurger(service)
+	if !isTest {
+		// start validator updater in background (every 30s)
+		go updateValidators(service)
+		// same with 'last day' report updater (every 10min)
+		go lastDayReportsUpdater(service)
+		// and old statuses remover (every 1h)
+		go oldStatusesPurger(service)
+	}
 
 	return service
 }

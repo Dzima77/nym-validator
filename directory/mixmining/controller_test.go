@@ -275,37 +275,37 @@ var _ = Describe("Controller", func() {
 	})
 
 	Describe("Unregistering node", func() {
-		Context("If node exists", func() {
-			It("Should return success", func() {
-				nodeIdentity := "foomp"
-				router, mockService, _, mockGenericSanitizer, _ := SetupRouter()
-
-				mockGenericSanitizer.On("Sanitize", &nodeIdentity)
-				mockService.On("UnregisterNode", nodeIdentity).Return(true)
-
-				resp := performRequest(router, "DELETE", "/api/mixmining/register/"+nodeIdentity, nil)
-				assert.Equal(GinkgoT(), http.StatusOK, resp.Code)
-
-				mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &nodeIdentity)
-				mockService.AssertCalled(GinkgoT(), "UnregisterNode", nodeIdentity)
-			})
-		})
-
-		Context("If node does not exist", func() {
-			It("Should return a 404", func() {
-				nodeIdentity := "foomp"
-				router, mockService, _, mockGenericSanitizer, _ := SetupRouter()
-
-				mockGenericSanitizer.On("Sanitize", &nodeIdentity)
-				mockService.On("UnregisterNode", nodeIdentity).Return(false)
-
-				resp := performRequest(router, "DELETE", "/api/mixmining/register/"+nodeIdentity, nil)
-				assert.Equal(GinkgoT(), http.StatusNotFound, resp.Code)
-
-				mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &nodeIdentity)
-				mockService.AssertCalled(GinkgoT(), "UnregisterNode", nodeIdentity)
-			})
-		})
+		//Context("If node exists", func() {
+		//	It("Should return success", func() {
+		//		nodeIdentity := "foomp"
+		//		router, mockService, _, mockGenericSanitizer, _ := SetupRouter()
+		//
+		//		mockGenericSanitizer.On("Sanitize", &nodeIdentity)
+		//		mockService.On("UnregisterNode", nodeIdentity).Return(true)
+		//
+		//		resp := performRequest(router, "DELETE", "/api/mixmining/register/"+nodeIdentity, nil)
+		//		assert.Equal(GinkgoT(), http.StatusOK, resp.Code)
+		//
+		//		mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &nodeIdentity)
+		//		mockService.AssertCalled(GinkgoT(), "UnregisterNode", nodeIdentity)
+		//	})
+		//})
+		//
+		//Context("If node does not exist", func() {
+		//	It("Should return a 404", func() {
+		//		nodeIdentity := "foomp"
+		//		router, mockService, _, mockGenericSanitizer, _ := SetupRouter()
+		//
+		//		mockGenericSanitizer.On("Sanitize", &nodeIdentity)
+		//		mockService.On("UnregisterNode", nodeIdentity).Return(false)
+		//
+		//		resp := performRequest(router, "DELETE", "/api/mixmining/register/"+nodeIdentity, nil)
+		//		assert.Equal(GinkgoT(), http.StatusNotFound, resp.Code)
+		//
+		//		mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &nodeIdentity)
+		//		mockService.AssertCalled(GinkgoT(), "UnregisterNode", nodeIdentity)
+		//	})
+		//})
 	})
 
 	Describe("Changing reputation", func() {

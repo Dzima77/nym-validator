@@ -227,16 +227,23 @@ func (_m *IService) StartupPurge() {
 	_m.Called()
 }
 
-// UnregisterNode provides a mock function with given fields: id
-func (_m *IService) UnregisterNode(id string) bool {
-	ret := _m.Called(id)
+// UnregisterNode provides a mock function with given fields: id, remoteIp
+func (_m *IService) UnregisterNode(id string, remoteIp string) (int, error) {
+	ret := _m.Called(id, remoteIp)
 
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(string) bool); ok {
-		r0 = rf(id)
+	var r0 int
+	if rf, ok := ret.Get(0).(func(string, string) int); ok {
+		r0 = rf(id, remoteIp)
 	} else {
-		r0 = ret.Get(0).(bool)
+		r0 = ret.Get(0).(int)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(id, remoteIp)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
