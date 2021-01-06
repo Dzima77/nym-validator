@@ -75,7 +75,7 @@ func injectMeasurements(policy *bluemonday.Policy, cliCtx context.CLIContext) mi
 	batchSanitizer := mixmining.NewBatchSanitizer(policy)
 	genericSanitizer := mixmining.NewGenericSanitizer(policy)
 	db := mixmining.NewDb(false)
-	mixminingService := *mixmining.NewService(db, cliCtx)
+	mixminingService := *mixmining.NewService(db, cliCtx, false)
 
 	return mixmining.Config{
 		Service:   &mixminingService,

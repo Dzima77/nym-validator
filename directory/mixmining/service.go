@@ -15,9 +15,12 @@
 package mixmining
 
 import (
+	"errors"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
+	"net"
+	"net/http"
 	"time"
 
 	"github.com/BorisBorshevsky/timemock"
@@ -61,7 +64,7 @@ type IService interface {
 
 	RegisterMix(info models.MixRegistrationInfo)
 	RegisterGateway(info models.GatewayRegistrationInfo)
-	UnregisterNode(id string) bool
+	UnregisterNode(id string, remoteIp string) (int, error)
 	SetReputation(id string, newRep int64) bool
 	GetTopology() models.Topology
 	GetActiveTopology() models.Topology
@@ -74,7 +77,7 @@ type IService interface {
 }
 
 // NewService constructor
-func NewService(db IDb, cliCtx context.CLIContext) *Service {
+func NewService(db IDb, cliCtx context.CLIContext, isTest bool) *Service {
 	emptyValidators := emptyValidators()
 	service := &Service{
 		db:                       db,
@@ -88,12 +91,14 @@ func NewService(db IDb, cliCtx context.CLIContext) *Service {
 		removedTopologyRefreshed: timemock.Now(),
 	}
 
-	// start validator updater in background (every 30s)
-	go updateValidators(service)
-	// same with 'last day' report updater (every 10min)
-	go lastDayReportsUpdater(service)
-	// and old statuses remover (every 1h)
-	go oldStatusesPurger(service)
+	if !isTest {
+		// start validator updater in background (every 30s)
+		go updateValidators(service)
+		// same with 'last day' report updater (every 10min)
+		go lastDayReportsUpdater(service)
+		// and old statuses remover (every 1h)
+		go oldStatusesPurger(service)
+	}
 
 	return service
 }
@@ -395,8 +400,58 @@ func (service *Service) RegisterGateway(info models.GatewayRegistrationInfo) {
 	service.db.RegisterGateway(registeredGateway)
 }
 
-func (service *Service) UnregisterNode(id string) bool {
-	return service.db.UnregisterNode(id)
+func (service *Service) UnregisterNode(id string, remoteIp string) (int, error) {
+	if remoteIp == "" {
+		return http.StatusBadRequest, errors.New("unknown remote address")
+	}
+
+	host := service.db.GetNodeMixHost(id)
+	if host == "" {
+		return http.StatusNotFound, errors.New("node does not exist")
+	}
+
+	nodeAddresses := make([]string, 1)
+
+	ip, _, err := net.SplitHostPort(host)
+	if err != nil {
+		// not sure what to do here, this branch implies mixhost does not follow a <host>:<port> structure
+		return http.StatusBadRequest, errors.New("node has an invalid address - it cannot be split into host and port")
+	} else {
+		// make sure it's an ip address and not a host
+		if net.ParseIP(ip) == nil {
+			// we failed to parse ip address meaning it's most likely a hostname
+			ips, err := net.LookupIP(ip)
+			// DNS lookup failed
+			if err != nil {
+				return http.StatusBadRequest, errors.New("node has an invalid address")
+			}
+
+			// if it was a hostname it might have multiple ip addresses - push all of them
+			for _, ip := range ips {
+				nodeAddresses = append(nodeAddresses, ip.String())
+			}
+
+			// we managed to parse ip address
+		} else {
+			// most common case - it was a normal ip:port situation
+			nodeAddresses = append(nodeAddresses, ip)
+		}
+
+	}
+
+	// finally check if any of the node's addresses correspond to the remote
+	for _, nodeAddress := range nodeAddresses {
+		if remoteIp == nodeAddress {
+			// this shouldn't ever return false now as the node is BOUND to exist since we manage to grab its
+			// address
+			if !service.db.UnregisterNode(id) {
+				return http.StatusInternalServerError, errors.New("failed to unregister node")
+			}
+			return http.StatusOK, nil
+		}
+	}
+
+	return http.StatusForbidden, errors.New("node's mix host does not match the remote address")
 }
 
 func (service *Service) SetReputation(id string, newRep int64) bool {

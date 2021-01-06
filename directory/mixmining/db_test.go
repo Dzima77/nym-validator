@@ -138,14 +138,10 @@ var _ = Describe("The mixmining db", func() {
 					Last5MinutesIPV4: 5,
 					LastHourIPV4:     10,
 					LastDayIPV4:      15,
-					LastWeekIPV4:     20,
-					LastMonthIPV4:    25,
 					MostRecentIPV6:   false,
 					Last5MinutesIPV6: 30,
 					LastHourIPV6:     40,
 					LastDayIPV6:      50,
-					LastWeekIPV6:     60,
-					LastMonthIPV6:    70,
 				}
 				db.SaveMixStatusReport(newReport)
 				saved := db.LoadReport(newReport.PubKey)
@@ -163,14 +159,10 @@ var _ = Describe("The mixmining db", func() {
 					Last5MinutesIPV4: 5,
 					LastHourIPV4:     10,
 					LastDayIPV4:      15,
-					LastWeekIPV4:     20,
-					LastMonthIPV4:    25,
 					MostRecentIPV6:   false,
 					Last5MinutesIPV6: 30,
 					LastHourIPV6:     40,
 					LastDayIPV6:      50,
-					LastWeekIPV6:     60,
-					LastMonthIPV6:    70,
 				}
 				db.SaveMixStatusReport(newReport)
 

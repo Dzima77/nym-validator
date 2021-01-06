@@ -17,6 +17,7 @@ package mixmining
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -281,13 +282,13 @@ var _ = Describe("Controller", func() {
 				router, mockService, _, mockGenericSanitizer, _ := SetupRouter()
 
 				mockGenericSanitizer.On("Sanitize", &nodeIdentity)
-				mockService.On("UnregisterNode", nodeIdentity).Return(true)
+				mockService.On("UnregisterNode", nodeIdentity, "127.0.0.1").Return(http.StatusOK, nil)
 
-				resp := performRequest(router, "DELETE", "/api/mixmining/register/"+nodeIdentity, nil)
+				resp := performLocalHostRequest(router, "DELETE", "/api/mixmining/register/"+nodeIdentity, nil)
 				assert.Equal(GinkgoT(), http.StatusOK, resp.Code)
 
 				mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &nodeIdentity)
-				mockService.AssertCalled(GinkgoT(), "UnregisterNode", nodeIdentity)
+				mockService.AssertCalled(GinkgoT(), "UnregisterNode", nodeIdentity, "127.0.0.1")
 			})
 		})
 
@@ -297,13 +298,13 @@ var _ = Describe("Controller", func() {
 				router, mockService, _, mockGenericSanitizer, _ := SetupRouter()
 
 				mockGenericSanitizer.On("Sanitize", &nodeIdentity)
-				mockService.On("UnregisterNode", nodeIdentity).Return(false)
+				mockService.On("UnregisterNode", nodeIdentity, "127.0.0.1").Return(http.StatusNotFound, errors.New("node does not exist"))
 
-				resp := performRequest(router, "DELETE", "/api/mixmining/register/"+nodeIdentity, nil)
+				resp := performLocalHostRequest(router, "DELETE", "/api/mixmining/register/"+nodeIdentity, nil)
 				assert.Equal(GinkgoT(), http.StatusNotFound, resp.Code)
 
 				mockGenericSanitizer.AssertCalled(GinkgoT(), "Sanitize", &nodeIdentity)
-				mockService.AssertCalled(GinkgoT(), "UnregisterNode", nodeIdentity)
+				mockService.AssertCalled(GinkgoT(), "UnregisterNode", nodeIdentity, "127.0.0.1")
 			})
 		})
 	})
@@ -439,7 +440,7 @@ func SetupRouter() (*gin.Engine, *mocks.IService, *mocks.Sanitizer, *mocks.Gener
 func performLocalHostRequest(r http.Handler, method, path string, body []byte) *httptest.ResponseRecorder {
 	buf := bytes.NewBuffer(body)
 	req, _ := http.NewRequest(method, path, buf)
-	req.RemoteAddr = "127.0.0.1"
+	req.RemoteAddr = "127.0.0.1:12345"
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w
@@ -448,7 +449,7 @@ func performLocalHostRequest(r http.Handler, method, path string, body []byte) *
 func performNonLocalRequest(r http.Handler, method, path string, body []byte) *httptest.ResponseRecorder {
 	buf := bytes.NewBuffer(body)
 	req, _ := http.NewRequest(method, path, buf)
-	req.RemoteAddr = "1.1.1.1"
+	req.RemoteAddr = "1.1.1.1:12345"
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w
