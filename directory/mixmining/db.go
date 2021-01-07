@@ -457,7 +457,7 @@ func (db *Db) GetNodeMixHost(pubkey string) string {
 		return mix.MixHost
 	}
 
-	var gateway models.RemovedGateway
+	var gateway models.RegisteredGateway
 	if err := db.orm.Unscoped().Where("identity_key = ?", pubkey).First(&gateway).Error; err != nil {
 		return ""
 	}
