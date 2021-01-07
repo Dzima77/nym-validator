@@ -463,7 +463,7 @@ func (db *Db) GetNodeMixHost(pubkey string) string {
 	}
 
 	if gateway.MixHost != "" {
-		return mix.MixHost
+		return gateway.MixHost
 	}
 
 	return ""
