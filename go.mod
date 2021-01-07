@@ -6,6 +6,8 @@ require (
 	github.com/BorisBorshevsky/timemock v0.0.0-20180501151413-a469e345aaba
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/cosmos/cosmos-sdk v0.39.1
+	github.com/didip/tollbooth v4.0.2+incompatible
+	github.com/didip/tollbooth_gin v0.0.0-20170928041415-5752492be505
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.2
 	github.com/go-openapi/spec v0.19.7 // indirect
@@ -22,6 +24,7 @@ require (
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/onsi/ginkgo v1.14.1
 	github.com/onsi/gomega v1.10.1
+	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.0

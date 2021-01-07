@@ -18,6 +18,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/didip/tollbooth"
+	"github.com/didip/tollbooth_gin"
 )
 
 // controller is the presence controller
@@ -35,7 +37,7 @@ func New() Controller {
 }
 
 func (controller *controller) RegisterRoutes(router *gin.Engine) {
-	router.GET("/api/healthcheck", controller.HealthCheck)
+	router.GET("/api/healthcheck", tollbooth_gin.LimitHandler(tollbooth.NewLimiter(1, nil)), controller.HealthCheck)
 }
 
 // HealthCheck ...
