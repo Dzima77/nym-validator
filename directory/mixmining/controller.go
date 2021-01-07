@@ -22,6 +22,8 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"github.com/didip/tollbooth"
+	"github.com/didip/tollbooth_gin"
 )
 
 const MaximumMixnodes = 1500
@@ -73,20 +75,29 @@ func New(cfg Config) Controller {
 }
 
 func (controller *controller) RegisterRoutes(router *gin.Engine) {
-	router.POST("/api/mixmining", controller.CreateMixStatus)
-	router.POST("/api/mixmining/batch", controller.BatchCreateMixStatus)
-	router.GET("/api/mixmining/node/:pubkey/history", controller.ListMeasurements)
-	router.GET("/api/mixmining/node/:pubkey/report", controller.GetMixStatusReport)
-	router.GET("/api/mixmining/fullreport", controller.BatchGetMixStatusReport)
+	// use that limiter if no other is specified (1 request per second)
+	lmt := tollbooth_gin.LimitHandler(tollbooth.NewLimiter(1, nil))
 
-	router.POST("/api/mixmining/register/mix", controller.RegisterMixPresence)
-	router.POST("/api/mixmining/register/gateway", controller.RegisterGatewayPresence)
-	router.DELETE("/api/mixmining/register/:id", controller.UnregisterPresence)
-	router.GET("/api/mixmining/topology", controller.GetTopology)
-	router.GET("/api/mixmining/topology/active", controller.GetActiveTopology)
-	router.PATCH("/api/mixmining/reputation/:id", controller.ChangeReputation)
+	// allows 2 requests per minute (meaning in a 1min you can register and unregister)
+	registrationLmt := tollbooth_gin.LimitHandler(tollbooth.NewLimiter(2.0 / 60.0, nil).SetBurst(2))
 
-	router.GET("/api/mixmining/topology/removed", controller.GetRemovedTopology)
+	// allows 1 topology request per 10s
+	topologyLmt := tollbooth_gin.LimitHandler(tollbooth.NewLimiter(1.0 / 10.0, nil).SetBurst(3))
+
+	router.POST("/api/mixmining", lmt, controller.CreateMixStatus)
+	router.POST("/api/mixmining/batch", lmt, controller.BatchCreateMixStatus)
+	router.GET("/api/mixmining/node/:pubkey/history", lmt, controller.ListMeasurements)
+	router.GET("/api/mixmining/node/:pubkey/report", lmt, controller.GetMixStatusReport)
+	router.GET("/api/mixmining/fullreport", lmt, controller.BatchGetMixStatusReport)
+
+	router.POST("/api/mixmining/register/mix", registrationLmt, controller.RegisterMixPresence)
+	router.POST("/api/mixmining/register/gateway", registrationLmt, controller.RegisterGatewayPresence)
+	router.DELETE("/api/mixmining/register/:id", registrationLmt, controller.UnregisterPresence)
+	router.GET("/api/mixmining/topology", topologyLmt,  controller.GetTopology)
+	router.GET("/api/mixmining/topology/active", topologyLmt, controller.GetActiveTopology)
+	router.PATCH("/api/mixmining/reputation/:id", lmt, controller.ChangeReputation)
+
+	router.GET("/api/mixmining/topology/removed", topologyLmt, controller.GetRemovedTopology)
 }
 
 // ListMeasurements lists mixnode statuses
