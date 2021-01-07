@@ -448,7 +448,8 @@ func (db *Db) IpExists(ip string) bool {
 
 func (db *Db) GetNodeMixHost(pubkey string) string {
 	var mix models.RegisteredMix
-	if err := db.orm.Unscoped().First(&mix, pubkey).Error; err != nil {
+
+	if err := db.orm.Unscoped().Where("identity_key = ?", pubkey).First(&mix).Error; err != nil {
 		return ""
 	}
 
@@ -457,7 +458,7 @@ func (db *Db) GetNodeMixHost(pubkey string) string {
 	}
 
 	var gateway models.RemovedGateway
-	if err := db.orm.Unscoped().First(&gateway, pubkey).Error; err != nil {
+	if err := db.orm.Unscoped().Where("identity_key = ?", pubkey).First(&gateway).Error; err != nil {
 		return ""
 	}
 
